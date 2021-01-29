@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="std" consensus="true" docName="draft-sipos-dtn-udpcl-00" ipr="trust200902" submissionType="IETF" tocInclude="true" version="3" xml:lang="en">
+  <front>
+    <title abbrev="DTN TCPCLv4">
+      Delay-Tolerant Networking UDP Convergence Layer Protocol
+    </title>
+    <seriesInfo name="Internet-Draft" value="draft-sipos-dtn-udpcl-00"/>
+    <author fullname="Brian Sipos" initials="B." surname="Sipos">
+      <organization abbrev="RKF Engineering">
+        RKF Engineering Solutions, LLC
+      </organization>
+      <address>
+        <postal>
+          <street>7500 Old Georgetown Road</street>
+          <street>Suite 1275</street>
+          <city>Bethesda</city>
+          <region>MD</region>
+          <code>20814-6198</code>
+          <country>United States of America</country>
+        </postal>
+        <email>BSipos@rkf-eng.com</email>
+      </address>
+    </author>
+    <date day="28" month="January" year="2021"/>
+    <area>Transport</area>
+    <workgroup>Delay-Tolerant Networking</workgroup>
+    <abstract>
+      <t>
+This document describes a UDP-based convergence layer (UDPCL) for Delay-Tolerant Networking (DTN).
+This version of the UDPCL protocol clarifies requirements of RFC7122, specifically about multicast uses, and updates to the Bundle Protocol (BP) contents, encodings, and convergence layer requirements in BP Version 7.
+Specifically, the UDPCL uses CBOR-encoded BPv7 bundles as its service data unit being transported and provides a reliable transport of such bundles.
+This version of UDPCL also mandates security mechanisms.
+      </t>
+    </abstract>
+  </front>
+  <middle>
+    <section anchor="sec-intro">
+      <name>Introduction</name>
+      <t>
+This document describes the UDP-based convergence-layer protocol for Delay-Tolerant Networking.
+Delay-Tolerant Networking is an end-to-end architecture providing communications in and/or through highly stressed environments, including those with intermittent connectivity, long and/or variable delays, and high bit error rates.
+More detailed descriptions of the rationale and capabilities of these networks can be found in "Delay-Tolerant Network Architecture" <xref target="RFC4838"/>.
+      </t>
+      <t>
+An important goal of the DTN architecture is to accommodate a wide range of networking technologies and environments.
+The protocol used for DTN communications is the Bundle Protocol Version 7 (BPv7) <xref target="I-D.ietf-dtn-bpbis"/>, an application-layer protocol that is used to construct a store-and-forward overlay network.
+BPv7 requires the services of a "convergence-layer adapter" (CLA) to send and receive bundles using the service of some "native" link, network, or Internet protocol.
+This document describes one such convergence-layer adapter that uses the well-known User Datagram Protocol (UDP).
+This convergence layer is referred to as UDP Convergence Layer (UDPCL).
+For the remainder of this document, the abbreviation "BP" without the version suffix refers to BPv7.
+      </t>
+      <t>
+The locations of the UDPCL and the BP in the Internet model protocol stack (described in <xref target="RFC1122"/>) are shown in Figure 1.
+In particular, when BP is using UDP as its bearer with UDPCL as its convergence layer, both BP and UDPCL reside at the application layer of the Internet model.
+      </t>
+      <figure anchor="fig-udpcl-ip-stack">
+        <name>The Locations of the Bundle Protocol and the UDP Convergence-Layer Protocol above the Internet Protocol Stack</name>
+        <artwork align="center" type="ascii-art">
++-------------------------+
+|     DTN Application     | -\
++-------------------------|   |
+|  Bundle Protocol (BP)   |   -&gt; Application Layer
++-------------------------+   |
+| UDP Conv. Layer (UDPCL) | -/
++-------------------------+
+|          UDP            | ---&gt; Transport Layer
++-------------------------+
+|       IPv4/IPv6         | ---&gt; Network Layer
++-------------------------+
+|   Link-Layer Protocol   | ---&gt; Link Layer
++-------------------------+
+</artwork>
+      </figure>
+      <section>
+        <name>Scope</name>
+        <t>
+This document describes the format of the protocol data units passed between entities participating in UDPCL communications.
+This document does not address:
+        </t>
+        <ul spacing="normal">
+          <li>
+The format of protocol data units of the Bundle Protocol, as those are defined elsewhere in <xref target="I-D.ietf-dtn-bpbis"/>.
+This includes the concept of bundle fragmentation or bundle encapsulation.
+The UDPCL transfers bundles as opaque data blocks.
+          </li>
+          <li>
+Mechanisms for locating or identifying other bundle entities (peers) within a network or across an internet.
+The mapping of Node ID to potential convergence layer (CL) protocol and network address is left to implementation and configuration of the BP Agent and its various potential routing strategies.
+          </li>
+          <li>
+Logic for routing bundles along a path toward a bundle's endpoint.
+This CL protocol is involved only in transporting bundles between adjacent entities in a routing sequence.
+          </li>
+          <li>
+Logic for performing rate control and congestion control of bundle transfers, both incoming and outgoing from a UDPCL entity.
+          </li>
+          <li>
+Policies or mechanisms for provisioning, deploying, or accessing certificates and private keys; or configuring security parameters on an individual entity or across a network.
+          </li>
+        </ul>
+        <t>
+Any UDPCL implementation requires a BP agent to perform those above listed functions in order to perform end-to-end bundle delivery.
+        </t>
+      </section>
+      <section>
+        <name>Requirements Language</name>
+        <t>
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 <xref target="RFC2119"/> <xref target="RFC8174"/> when, and only when, they appear in all capitals, as shown here.
+        </t>
+      </section>
+      <section anchor="sec-term-defs">
+        <name>Definitions Specific to the UDPCL Protocol</name>
+        <t>
+This section contains definitions specific to the UDPCL protocol.
+        </t>
+        <dl newline="false" spacing="normal">
+          <dt>UDPCL Entity:</dt>
+          <dd>
+            <t>
+This is the notional UDPCL application that initiates UDPCL transfers.
+This design, implementation, configuration, and specific behavior of such an entity is outside of the scope of this document.
+However, the concept of an entity has utility within the scope of this document as the container and initiator of transfers.
+The relationship between a UDPCL entity and UDPCL sessions is defined as follows:
+            </t>
+            <ul spacing="normal">
+              <li>
+A UDPCL Entity MAY actively perform any number of transfers and should do so whenever the entity has a bundle to forward to another entity in the network.
+              </li>
+              <li>
+A UDPCL Entity MAY support zero or more passive listening elements that listen for transfers from other entities in the network, including non-unicast transfers.
+              </li>
+            </ul>
+            <t>
+These relationships are illustrated in <xref target="fig-entity-transfer-relations"/>.
+For the remainder of this document, the term "entity" without the prefix "UDPCL" refers to a UDPCL entity.
+            </t>
+          </dd>
+          <dt>Transfer:</dt>
+          <dd>
+This refers to the procedures and mechanisms for conveyance of an individual bundle from one entity to one or more destinations.
+          </dd>
+          <dt>Transmit:</dt>
+          <dd>
+This refers to a transfer outgoing from an entity as seen from that transmitting entity.
+          </dd>
+          <dt>Receive:</dt>
+          <dd>
+This refers to a transfer incoming to an entity as seen from that receiving entity.
+          </dd>
+        </dl>
+        <figure anchor="fig-entity-transfer-relations">
+          <name>The relationships between TCPCL entities</name>
+          <artwork align="center" type="ascii-art">
++----------------------------------------+
+|              UDPCL Entity              |
+|                                        |      +----------------+
+|   +--------------------------------+   |      |                |-+
+|   | Actively Initiated Transfer #1 +---------&gt;| Other          | |
+|   +--------------------------------+   |      | UDPCL Entity's | |
+|                  ...                   |      | Passive        | |
+|   +--------------------------------+   |      | Listener       | |
+|   | Actively Initiated Transfer #n +---------&gt;|                | |
+|   +--------------------------------+   |      +----------------+ |
+|                                        |       +-----------------+
+|      +---------------------------+     |
+|      | +---------------------------+   |      +----------------+
+|      | | Optional Passive          |   |      |                |-+
+|      +-| Listener(s)               +&lt;---------+ Other          | |
+|        +---------------------------+   |      | UDPCL Entity's | |
+|                                 ^      |      | Active         | |
+|                                 |      |      | Initiator(s)   | |
+|                                 +-------------|                | |
++----------------------------------------+      +----------------+ |
+                                                 +-----------------+
+</artwork>
+        </figure>
+      </section>
+    </section>
+    <section anchor="sec-prococol">
+      <name>General Protocol Description</name>
+      <t>
+The service of this protocol is the transmission of DTN bundles via the User Datagram Protocol (UDP).
+The general operation of the protocol is as follows.
+      </t>
+      <section anchor="sec-cl-services">
+        <name>Convergence Layer Services</name>
+        <t>
+This version of the UDPCL provides the following services to support the overlaying Bundle Protocol agent.
+In all cases, this is not an API definition but a logical description of how the CL can interact with the BP agent.
+Each of these interactions can be associated with any number of additional metadata items as necessary to support the operation of the CL or BP agent.
+        </t>
+        <dl newline="false" spacing="normal">
+          <dt>Begin Transmission:</dt>
+          <dd>
+The principal purpose of the UDPCL is to allow a BP agent to transmit bundle data to one or more other entities.
+The receiver of each transfer is identified by an (destination) IPv4 or IPv6 address and a UDP port number (see <xref target="sec-transfer"/> for details).
+The CL does not necessarily perform any transmission queueing, but may block while transmissions are being processed at the UDP layer.
+Any queueing of transmissions is the obligation of the BP agent.
+          </dd>
+          <dt>Transmission Finished:</dt>
+          <dd>
+The UDPCL entity indicates to the BP agent when a bundle has been fully transmitted.
+This is not a positive indiciation that any next-hop receiver has either received or processed the transfer.
+Once begun, there is no notion of a UDPCL transfer failure; a BP agent has to rely on bundle-level administrative reporting to track bundle progress.
+          </dd>
+          <dt>Reception Finished:</dt>
+          <dd>
+The UDPCL entity indicates to the BP agent when a bundle has been fully transferred from a peer entity.
+The transmitter of each transfer is identified by an (source) IPv4 or IPv6 address and a UDP port number (see <xref target="sec-transfer"/> for details).
+Because transfers occur as atomic units at the UDPCL layer, there is no notion of a partially received bundle or a failed reception.
+          </dd>
+        </dl>
+      </section>
+    </section>
+    <section anchor="sec-transfer">
+      <name>UDPCL Transfer</name>
+      <t>
+This section defines the UDPCL protocol and its interactions with underlayers (IP and UDP) and overlayers (BP).
+The section is organized from the network layer up toward the BP layer.
+      </t>
+      <section>
+        <name>Destination Address</name>
+        <t>
+The earlier UDPCL specification in <xref target="RFC7122"/> did not include guidance on IP addressing and potential use of multicast, though the architecture of <xref target="RFC4838"/> explicitly includes multicast and anycast as expected network modes.
+        </t>
+        <t>
+The BP agent determines the mapping from destination EID to next-hop CL parameters, including transfer destination address.
+Some EIDs represent unicast destinations and others non-unicast destinations as defined in <xref section="4.2.5.1" target="I-D.ietf-dtn-bpbis"/>.
+The unicast-ness of an EID does not necessarily correspond with the unicast-ness, as some bundle routing schemes involve attempmting multiple parallel paths to a unicast endpoint.
+        </t>
+        <t>
+For unicast transfers to a single node, the destination address SHALL be a unicast IPv4 or IPv6 address.
+When performing unicast transfers, a UDPCL entity SHOULD restrict the network to one protected by IPsec or some other underlayer security mechanism (e.g., a virtual private network).
+        </t>
+        <t>
+For multicast transfers to one or more nodes, the destination address SHALL be a multicast IPv4 <xref target="IANA-IPv4-MCAST"/> or IPv6 <xref target="IANA-IPv6-MCAST"/> address.
+        </t>
+      </section>
+      <section>
+        <name>UDP Datagram</name>
+        <t>
+To perform a transfer, the active entity SHALL transmit a UDP datagram to a listening passive entity in accordance with <xref target="RFC0768"/>, typically by using the services provided by the operating system.
+Destination port number 4556 has been assigned by IANA as the Registered Port number for the UDP convergence layer and SHALL be used as a default.
+Other destination port numbers MAY be used per local configuration.
+Determining a peer's destination port number (if different from the registered UDPCL port number) is up to the implementation.
+Any source port number MAY be used for UDPCL transfers.
+Typically an operating system assigned number in the UDP Ephemeral range (49152-65535) is used.
+        </t>
+      </section>
+      <section>
+        <name>Transfer Contents</name>
+        <t>
+Each UDPCL transfer contents can contain one of several different types of data payload.
+For backward compatibility with <xref target="RFC7122"/>, UDPCL has no explict payload type identifier.
+        </t>
+        <t>
+The type is inferred by the inspecting the data contents according to the following rules:
+        </t>
+        <dl newline="false" spacing="normal">
+          <dt>Keepalive:</dt>
+          <dd>
+Keepalive data SHALL be a total of four octets all with value 0x00.
+Data with a leading octet value of 0x00 SHALL be treated as keepalive.
+          </dd>
+          <dt>BPv6:</dt>
+          <dd>
+All encoded BP version 6 bundles begin with the version identifier octet 0x06 in accordance with <xref target="RFC5050"/>.
+Data with a leading octet value of 0x06 SHALL be treated as a BPv6 bundle.
+          </dd>
+          <dt>BPv7:</dt>
+          <dd>
+All encoded BP version 7 bundles begin with a CBOR array head in accordance with <xref target="I-D.ietf-dtn-bpbis"/> <xref target="RFC8949"/>, and can include a self-described CBOR tag 55799.
+Data with a leading octet value indicating CBOR array (major type 4) or containing any number of CBOR tags with ultimate value being a CBOR array SHALL be treated as a BPv7 bundle.
+          </dd>
+        </dl>
+      </section>
+    </section>
+    <section>
+      <name>Cross-Layer Concerns</name>
+      <t>
+This section covers topics which combine behaviors of the layers below and above the UDPCL.
+      </t>
+      <section>
+        <name>Error Checking Policies</name>
+        <t>
+The core Bundle Protocol specification assumes that bundles are transferring over an erasure channel, i.e., a channel that either delivers packets correctly or
+not at all.
+        </t>
+        <t>
+A UDP transmitter SHALL NOT disable UDP checksums.
+A UDP receiver SHALL NOT disable the checking of received UDP checksums.
+        </t>
+        <t>
+Even when UDP checksums are enabled, a small probability of UDP packet corruption remains.
+In some environments, it may be acceptable for a BP agent to occasionally receive corrupted input.
+In general, however, a UDPCL entity SHOULD insure the a bundle's blocks are either covered by a CRC or a BPSec integrity check.
+        </t>
+      </section>
+      <section anchor="sec-transfer-fragmentation">
+        <name>Fragmentation Policies</name>
+        <t>
+Each UDPCL transfer MAY be fragmented at the IP layer by the transmitting entity.
+It is a implementation matter for a sending entity to determine the path maximum transmit unit (MTU) to be used as a target upper-bound IP packet size.
+Some mechanisms to perform MTU discovery are defined in <xref target="RFC8899"/>.
+Because of the issues with IP fragmentation listed in <xref section="3.2" target="RFC8085"/>, a BP agent SHOULD avoid IP fragmentation in favor of bundle payload fragmentation.
+        </t>
+        <t>
+Bundle payload fragmentation does not help a large bundle if extension blocks are a major contributor to bundle size, so in some circumstances IP fragmentation can still be necessary.
+A UDPCL entity SHOULD NOT proactively drop an outgoing transfer due to datagram size.
+        </t>
+      </section>
+      <section>
+        <name>Congestion Control Policies</name>
+        <t>
+The applications using UDPCL for bundle transport SHALL conform to the requirements of <xref section="3.1" target="RFC8085"/>.
+The application SHALL either perform congestion control of bundles or behave as the Low Data-Volume application as defined in <xref section="3.1.3" target="RFC8085"/>.
+        </t>
+        <t>
+When nodes have bidirectional transfer capability, the bundle deletion reason code "traffic pared" can be used by a receiving agent to signal to the bundle source application that throttling of bundles along that path SHOULD occur.
+        </t>
+      </section>
+    </section>
+    <section removeInRFC="true">
+      <name>Implementation Status</name>
+      <t>
+[NOTE to the RFC Editor: please remove this section before publication, as well as the reference to <xref target="RFC7942"/>, <xref target="github-dtn-demo-agent"/>, and <xref target="github-dtn-wireshark"/>.]
+      </t>
+      <t>
+This section records the status of known implementations of the protocol defined by this specification at the time of posting of this Internet-Draft, and is based on a proposal described in <xref target="RFC7942"/>.
+The description of implementations in this section is intended to assist the IETF in its decision processes in progressing drafts to RFCs.
+Please note that the listing of any individual implementation here does not imply endorsement by the IETF.
+Furthermore, no effort has been spent to verify the information presented here that was supplied by IETF contributors.
+This is not intended as, and must not be construed to be, a catalog of available implementations or their features.
+Readers are advised to note that other implementations can exist.
+      </t>
+      <t>
+An example implementation of the this draft of UDPCL has been created as a GitHub project <xref target="github-dtn-demo-agent"/> and is intended to use as a proof-of-concept and as a possible source of interoperability testing.
+This example implementation uses D-Bus as the CL-BP Agent interface, so it only runs on hosts which provide the Python "dbus" library.
+      </t>
+      <t>
+A wireshark dissector for UDPCL has been created as a GitHub project <xref target="github-dtn-wireshark"/> and has been kept in-sync with the latest encoding of this specification.
+      </t>
+    </section>
+    <section anchor="sec-security">
+      <name>Security Considerations</name>
+      <t>
+This section separates security considerations into threat categories based on guidance of BCP 72 <xref target="RFC3552"/>.
+      </t>
+      <section>
+        <name>Threat: Passive Leak of Bundle Data</name>
+        <t>
+The UDPCL does not provide transport security, and does not ensure security of data-at-rest or end-to-end bundle security.
+The UDPCL exposes all bundle data to passive eavesdroppers.
+        </t>
+        <t>
+The block confidentiality mechanisms defined in <xref target="I-D.ietf-dtn-bpsec"/> are to be used instead.
+These mechanisms can not cover the bundle's primary block, so that data is necessarily available to eavesdroppers.
+A technique such as encrypted bundle encapsulation <xref target="I-D.ietf-dtn-bibect"/> can be used to protect primary block data.
+        </t>
+      </section>
+      <section anchor="sec-threat-node-impersonation">
+        <name>Threat: BP Node Impersonation</name>
+        <t>
+The UDPCL does not provide any guarantees of or binding to the source of transferred bundles.
+        </t>
+        <t>
+One mitigation is to use the block integrity mechanisms defined in <xref target="I-D.ietf-dtn-bpsec"/> with a security context which provides node identity binding.
+        </t>
+      </section>
+      <section>
+        <name>Threat: Denial of Service</name>
+        <t>
+The behaviors described in this section all amount to a potential denial-of-service to a UDPCL entity.
+The denial-of-service could be limited to an individual UDPCL entity, or could affect all entities on a host or network segment.
+        </t>
+        <t>
+An entity can send a large amount of data to a UDPCL entity, requiring the receiving entity to handle the data.
+The victim entity can block UDP packets from network peers which are thought to be incorrectly behaving within network.
+        </t>
+        <t>
+The keepalive mechanism can be abused to waste throughput within a network link which would otherwise be usable for bundle transmissions.
+        </t>
+      </section>
+    </section>
+    <section anchor="sec-iana">
+      <name>IANA Considerations</name>
+      <t>
+Registration procedures referred to in this section are defined in <xref target="RFC8126"/>.
+      </t>
+      <section anchor="sec-iana-port">
+        <name>Port Number</name>
+        <t>
+Within the port registry of <xref target="IANA-PORTS"/>, UDP port number 4556 has been previously assigned as the default port for the UDP convergence layer in <xref target="RFC7122"/>.
+This assignment to UDPCL is unchanged, but the assignment reference is updated to this specification.
+There is no UDPCL version indication on-the-wire but this specification is a superset of <xref target="RFC7122"/> and is fully backward compatible.
+The related assignment for DCCP port 4556 (registered by <xref target="RFC7122"/>) is unchanged.
+        </t>
+        <table align="center">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Service Name:</td>
+              <td>dtn-bundle</td>
+            </tr>
+            <tr>
+              <td>Transport Protocol(s):</td>
+              <td>UDP</td>
+            </tr>
+            <tr>
+              <td>Assignee:</td>
+              <td>IESG &lt;iesg@ietf.org&gt;</td>
+            </tr>
+            <tr>
+              <td>Contact:</td>
+              <td>IESG &lt;iesg@ietf.org&gt;</td>
+            </tr>
+            <tr>
+              <td>Description:</td>
+              <td>DTN Bundle UDP CL Protocol</td>
+            </tr>
+            <tr>
+              <td>Reference:</td>
+              <td>This specification.</td>
+            </tr>
+            <tr>
+              <td>Port Number:</td>
+              <td>4556</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </section>
+    <section anchor="sec-doc-ack">
+      <name>Acknowledgments</name>
+      <t>
+TBD
+      </t>
+    </section>
+  </middle>
+  <back>
+    <references>
+      <name>References</name>
+      <references>
+        <name>Normative References</name>
+        <reference anchor="IANA-PORTS" target="https://www.iana.org/assignments/service-names-port-numbers/">
+          <front>
+            <title>Service Name and Transport Protocol Port Number Registry</title>
+            <author>
+              <organization>IANA</organization>
+            </author>
+            <date/>
+          </front>
+        </reference>
+        <reference anchor="IANA-IPv4-MCAST" target="https://www.iana.org/assignments/multicast-addresses/">
+          <front>
+            <title>IPv4 Multicast Address Space Registry</title>
+            <author>
+              <organization>IANA</organization>
+            </author>
+            <date/>
+          </front>
+        </reference>
+        <reference anchor="IANA-IPv6-MCAST" target="https://www.iana.org/assignments/ipv6-multicast-addresses/">
+          <front>
+            <title>IPv6 Multicast Address Space Registry</title>
+            <author>
+              <organization>IANA</organization>
+            </author>
+            <date/>
+          </front>
+        </reference>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.0768.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.1122.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5050.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8085.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8126.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8174.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8949.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-dtn-bpbis-30.xml"/>
+      </references>
+      <references>
+        <name>Informative References</name>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.3552.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.4838.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7122.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7942.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8899.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-dtn-bpsec-26.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-dtn-bibect-03.xml"/>
+        <reference anchor="github-dtn-demo-agent" target="https://github.com/BSipos-RKF/dtn-demo-agent/">
+          <front>
+            <title>TCPCL Example Implementation</title>
+            <author fullname="Brian Sipos" initials="B." surname="Sipos">
+              <organization abbrev="RKF Engineering">
+              RKF Engineering Solutions, LLC
+              </organization>
+            </author>
+            <date/>
+          </front>
+        </reference>
+        <reference anchor="github-dtn-wireshark" target="https://github.com/BSipos-RKF/dtn-wireshark/">
+          <front>
+            <title>TCPCL Wireshark Dissector</title>
+            <author fullname="Brian Sipos" initials="B." surname="Sipos">
+              <organization abbrev="RKF Engineering">
+              RKF Engineering Solutions, LLC
+              </organization>
+            </author>
+            <date/>
+          </front>
+        </reference>
+      </references>
+    </references>
+    <section>
+      <name>Significant changes from RFC7122</name>
+      <t>
+The areas in which changes from <xref target="RFC7122"/> have been made to existing requirements:
+      </t>
+      <ul spacing="normal">
+        <li>Made explit references to UDP-related RFCs.</li>
+        <li>Made underlayer or overlayer security mandatory.</li>
+      </ul>
+      <t>
+The areas in which extensions from <xref target="RFC7122"/> have been made as new behaviors are:
+      </t>
+      <ul spacing="normal">
+        <li>Added BPv7 bundle as a possible UDPCL payload.</li>
+        <li>Defined semantics for UDPCL multicast addressing.</li>
+      </ul>
+    </section>
+  </back>
+</rfc>
