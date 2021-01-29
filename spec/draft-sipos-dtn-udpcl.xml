@@ -185,7 +185,7 @@ The general operation of the protocol is as follows.
       <section anchor="sec-cl-services">
         <name>Convergence Layer Services</name>
         <t>
-This version of the UDPCL provides the following services to support the overlaying Bundle Protocol agent.
+This version of the UDPCL provides the following services to support the over-laying Bundle Protocol agent.
 In all cases, this is not an API definition but a logical description of how the CL can interact with the BP agent.
 Each of these interactions can be associated with any number of additional metadata items as necessary to support the operation of the CL or BP agent.
         </t>
@@ -200,7 +200,7 @@ Any queueing of transmissions is the obligation of the BP agent.
           <dt>Transmission Finished:</dt>
           <dd>
 The UDPCL entity indicates to the BP agent when a bundle has been fully transmitted.
-This is not a positive indiciation that any next-hop receiver has either received or processed the transfer.
+This is not a positive indication that any next-hop receiver has either received or processed the transfer.
 Once begun, there is no notion of a UDPCL transfer failure; a BP agent has to rely on bundle-level administrative reporting to track bundle progress.
           </dd>
           <dt>Reception Finished:</dt>
@@ -215,7 +215,7 @@ Because transfers occur as atomic units at the UDPCL layer, there is no notion o
     <section anchor="sec-transfer">
       <name>UDPCL Transfer</name>
       <t>
-This section defines the UDPCL protocol and its interactions with underlayers (IP and UDP) and overlayers (BP).
+This section defines the UDPCL protocol and its interactions with under-layers (IP and UDP) and over-layers (BP).
 The section is organized from the network layer up toward the BP layer.
       </t>
       <section>
@@ -226,11 +226,11 @@ The earlier UDPCL specification in <xref target="RFC7122"/> did not include guid
         <t>
 The BP agent determines the mapping from destination EID to next-hop CL parameters, including transfer destination address.
 Some EIDs represent unicast destinations and others non-unicast destinations as defined in <xref section="4.2.5.1" target="I-D.ietf-dtn-bpbis"/>.
-The unicast-ness of an EID does not necessarily correspond with the unicast-ness, as some bundle routing schemes involve attempmting multiple parallel paths to a unicast endpoint.
+The unicast-ness of an EID does not necessarily correspond with the unicast-ness, as some bundle routing schemes involve attempting multiple parallel paths to a unicast endpoint.
         </t>
         <t>
 For unicast transfers to a single node, the destination address SHALL be a unicast IPv4 or IPv6 address.
-When performing unicast transfers, a UDPCL entity SHOULD restrict the network to one protected by IPsec or some other underlayer security mechanism (e.g., a virtual private network).
+When performing unicast transfers, a UDPCL entity SHOULD restrict the network to one protected by IPsec or some other under-layer security mechanism (e.g., a virtual private network).
         </t>
         <t>
 For multicast transfers to one or more nodes, the destination address SHALL be a multicast IPv4 <xref target="IANA-IPv4-MCAST"/> or IPv6 <xref target="IANA-IPv6-MCAST"/> address.
@@ -251,7 +251,7 @@ Typically an operating system assigned number in the UDP Ephemeral range (49152-
         <name>Transfer Contents</name>
         <t>
 Each UDPCL transfer contents can contain one of several different types of data payload.
-For backward compatibility with <xref target="RFC7122"/>, UDPCL has no explict payload type identifier.
+For backward compatibility with <xref target="RFC7122"/>, UDPCL has no explicit payload type identifier.
         </t>
         <t>
 The type is inferred by the inspecting the data contents according to the following rules:
@@ -523,8 +523,8 @@ TBD
 The areas in which changes from <xref target="RFC7122"/> have been made to existing requirements:
       </t>
       <ul spacing="normal">
-        <li>Made explit references to UDP-related RFCs.</li>
-        <li>Made underlayer or overlayer security mandatory.</li>
+        <li>Made explict references to UDP-related RFCs.</li>
+        <li>Made under-layer or over-layer security mandatory.</li>
       </ul>
       <t>
 The areas in which extensions from <xref target="RFC7122"/> have been made as new behaviors are:
