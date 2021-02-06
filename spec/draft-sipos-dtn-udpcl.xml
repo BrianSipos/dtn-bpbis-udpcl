@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="std" consensus="true" docName="draft-sipos-dtn-udpcl-00" ipr="trust200902" submissionType="IETF" tocInclude="true" version="3" xml:lang="en">
+<rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="std" consensus="true" docName="draft-sipos-dtn-udpcl-00" ipr="trust200902" submissionType="IETF" tocInclude="true" updates="I-D.ietf-dtn-bpbis" version="3" xml:lang="en">
   <front>
     <title abbrev="DTN TCPCLv4">
       Delay-Tolerant Networking UDP Convergence Layer Protocol
@@ -29,7 +29,7 @@
 This document describes a UDP-based convergence layer (UDPCL) for Delay-Tolerant Networking (DTN).
 This version of the UDPCL protocol clarifies requirements of RFC7122, specifically about multicast uses, and updates to the Bundle Protocol (BP) contents, encodings, and convergence layer requirements in BP Version 7.
 Specifically, the UDPCL uses CBOR-encoded BPv7 bundles as its service data unit being transported and provides a reliable transport of such bundles.
-This version of UDPCL also mandates security mechanisms.
+This version of UDPCL also includes security and extensibility mechanisms.
       </t>
     </abstract>
   </front>
@@ -61,7 +61,9 @@ In particular, when BP is using UDP as its bearer with UDPCL as its convergence 
 +-------------------------|   |
 |  Bundle Protocol (BP)   |   -&gt; Application Layer
 +-------------------------+   |
-| UDP Conv. Layer (UDPCL) | -/
+| UDP Conv. Layer (UDPCL) |   |
++-------------------------+   |
+|     DTLS (optional)     | -/
 +-------------------------+
 |          UDP            | ---&gt; Transport Layer
 +-------------------------+
@@ -95,8 +97,11 @@ This CL protocol is involved only in transporting bundles between adjacent entit
 Logic for performing rate control and congestion control of bundle transfers, both incoming and outgoing from a UDPCL entity.
           </li>
           <li>
-Policies or mechanisms for provisioning, deploying, or accessing certificates and private keys; or configuring security parameters on an individual entity or across a network.
+Policies or mechanisms for issuing Public Key Infrastructure Using X.509 (PKIX) certificates; provisioning, deploying, or accessing certificates and private keys; deploying or accessing certificate revocation lists (CRLs); or configuring security parameters on an individual entity or across a network.
           </li>
+          <li><!-- 
+Uses of TLS which are not based on PKIX certificate authentication (see <xref target="sec-security-tlsnopki"/>) or in which authentication of both entities is not possible (see <xref target="sec-security-tlsnoauth"/>).
+           --></li>
         </ul>
         <t>
 Any UDPCL implementation requires a BP agent to perform those above listed functions in order to perform end-to-end bundle delivery.
@@ -138,6 +143,7 @@ For the remainder of this document, the term "entity" without the prefix "UDPCL"
           <dt>Transfer:</dt>
           <dd>
 This refers to the procedures and mechanisms for conveyance of an individual bundle from one entity to one or more destinations.
+This version of UDPCL includes a fragmentation mechanism to allow transfers which are larger than the allowable UDP datagram size.
           </dd>
           <dt>Transmit:</dt>
           <dd>
@@ -180,6 +186,7 @@ This refers to a transfer incoming to an entity as seen from that receiving enti
       <name>General Protocol Description</name>
       <t>
 The service of this protocol is the transmission of DTN bundles via the User Datagram Protocol (UDP).
+This document specifies the optional fragmention of bundles, procedures for DTLS setup and teardown, and a set of messages and entity requirements.
 The general operation of the protocol is as follows.
       </t>
       <section anchor="sec-cl-services">
@@ -193,27 +200,114 @@ Each of these interactions can be associated with any number of additional metad
           <dt>Begin Transmission:</dt>
           <dd>
 The principal purpose of the UDPCL is to allow a BP agent to transmit bundle data to one or more other entities.
-The receiver of each transfer is identified by an (destination) IPv4 or IPv6 address and a UDP port number (see <xref target="sec-transfer"/> for details).
+The receiver of each transfer is identified by an (destination) IPv4 or IPv6 address and a UDP port number (see <xref target="sec-operation"/> for details).
 The CL does not necessarily perform any transmission queueing, but may block while transmissions are being processed at the UDP layer.
 Any queueing of transmissions is the obligation of the BP agent.
+          </dd>
+          <dt>Transmission Started:</dt>
+          <dd>
+The UDPCL entity indicates to the BP agent when a bundle transmission begins sending UDP datagrams.
+Once started, there is no notion of a UDPCL transfer failure; a BP agent has to rely on bundle-level administrative reporting to track bundle progress.
+Because of potential queueing or DTLS setup time, this may be delayed from the BP agent providing the bundle-to-transmit.
           </dd>
           <dt>Transmission Finished:</dt>
           <dd>
 The UDPCL entity indicates to the BP agent when a bundle has been fully transmitted.
 This is not a positive indication that any next-hop receiver has either received or processed the transfer.
-Once begun, there is no notion of a UDPCL transfer failure; a BP agent has to rely on bundle-level administrative reporting to track bundle progress.
+          </dd>
+          <dt>Reception Started:</dt>
+          <dd>
+The UDPCL entity indicates to the BP agent when a bundle transfer has begun, which may include information about the total size of a fragmented transfer.
           </dd>
           <dt>Reception Finished:</dt>
           <dd>
 The UDPCL entity indicates to the BP agent when a bundle has been fully transferred from a peer entity.
-The transmitter of each transfer is identified by an (source) IPv4 or IPv6 address and a UDP port number (see <xref target="sec-transfer"/> for details).
-Because transfers occur as atomic units at the UDPCL layer, there is no notion of a partially received bundle or a failed reception.
+The transmitter of each transfer is identified by an (source) IPv4 or IPv6 address and a UDP port number (see <xref target="sec-operation"/> for details).
+Because transfers occur as atomic units at the BP layer, there is no notion of a partially received bundle or a failed reception.
+          </dd>
+          <dt>Attempt DTLS Session:</dt>
+          <dd>
+The UDPCL allows a BP agent to preemptively attempt to establish a DTLS session with a peer entity.
+Each session attempt can send a different set of session negotiation parameters as directed by the BP agent.
+          </dd>
+          <dt>Terminate DTLS Session:</dt>
+          <dd>
+The UDPCL allows a BP agent to preemptively terminate an established DTLS session with a peer entity.
+The terminate request is on a per-session basis.
+          </dd>
+          <dt>DTLS Session State Changed:</dt>
+          <dd>
+The UDPCL entity indicates to the BP agent when a DTLS session state changes.
+The possible DTLS session states are defined in <xref target="RFC6347"/>.
           </dd>
         </dl>
       </section>
+      <section anchor="sec-pkix-env">
+        <name>PKIX Environments and CA Policy</name>
+        <t>
+This specification gives requirements about how to use PKIX certificates issued by a Certificate Authority (CA), but does not define any mechanisms for how those certificates come to be.
+The UDPCL uses the exact same mechanisms and makes the same assumptions as TCPCL in <xref section="3.4" target="I-D.ietf-dtn-tcpclv4"/>.
+        </t>
+      </section>
+      <section anchor="sec-policy-fragmentation">
+        <name>Fragmentation Policies</name>
+        <t>
+It is a implementation matter for a sending entity to determine the path maximum transmit unit (MTU) to be used as a target upper-bound UDP datagram size.
+Some mechanisms to perform MTU discovery are defined in <xref target="RFC8899"/>.
+All IP packets sent by a UDPCL entity SHOULD have the "don't fragment" bit set to allow detection of path MTU issues.
+        </t>
+        <t>
+The priority order of fragmentation is the following:
+        </t>
+        <ol>
+          <li>
+When possible, bundles too large to fit in one path-MTU-sized packet SHOULD be fragmented at the BP layer.
+Bundle payload fragmentation does not help a large bundle if extension blocks are a major contributor to bundle size, so in some circumstances BP layer fragmentation will not reduce the bundle size sufficiently.
+It is outside the scope of UDPCL to manage BP agent fragmentation policies; bundles are received from the BP agent either already fragmented or not.
+          </li>
+          <li>
+Bundles too large to fit in one path-MTU-sized packet SHALL be fragmented as a UDPCL transfer (see <xref target="sec-ext-transfer"/>).
+Fragmentation at this level treats bundle transfers as opaque data, so it is independent of bundle block sizes or counts.
+          </li>
+          <li>
+All IP packets larger than expected path MTU SHALL be fragmented by the transmitting entity to fit within one path MTU.
+Because of the issues listed in <xref section="3.2" target="RFC8085"/>, it is best to avoid IP fragmentation as much as possible.
+          </li>
+        </ol>
+        <t>
+A UDPCL entity SHOULD NOT proactively drop an outgoing transfer due to datagram size.
+If intermediate network nodes drop IP packets it is an implementation matter to receive network feedback.
+        </t>
+      </section>
+      <section>
+        <name>Error Checking Policies</name>
+        <t>
+The core Bundle Protocol specification assumes that bundles are transferring over an erasure channel, i.e., a channel that either delivers packets correctly or
+not at all.
+        </t>
+        <t>
+A UDP transmitter SHALL NOT disable UDP checksums.
+A UDP receiver SHALL NOT disable the checking of received UDP checksums.
+        </t>
+        <t>
+Even when UDP checksums are enabled, a small probability of UDP packet corruption remains.
+In some environments, it may be acceptable for a BP agent to occasionally receive corrupted input.
+In general, however, a UDPCL entity SHOULD insure the a bundle's blocks are either covered by a CRC or a BPSec integrity check.
+        </t>
+      </section>
+      <section>
+        <name>Congestion Control Policies</name>
+        <t>
+The applications using UDPCL for bundle transport SHALL conform to the congestion control requirements of <xref section="3.1" target="RFC8085"/>.
+The application SHALL either perform active congestion control of bundles or behave as the Low Data-Volume application as defined in <xref section="3.1.3" target="RFC8085"/>.
+        </t>
+        <t>
+When nodes have bidirectional transfer capability, the bundle deletion reason code "traffic pared" can be used by a receiving agent to signal to the bundle source application that throttling of bundles along that path SHOULD occur.
+        </t>
+      </section>
     </section>
-    <section anchor="sec-transfer">
-      <name>UDPCL Transfer</name>
+    <section anchor="sec-operation">
+      <name>UDPCL Operation</name>
       <t>
 This section defines the UDPCL protocol and its interactions with under-layers (IP and UDP) and over-layers (BP).
 The section is organized from the network layer up toward the BP layer.
@@ -237,7 +331,7 @@ For multicast transfers to one or more nodes, the destination address SHALL be a
         </t>
       </section>
       <section>
-        <name>UDP Datagram</name>
+        <name>UDP Header</name>
         <t>
 To perform a transfer, the active entity SHALL transmit a UDP datagram to a listening passive entity in accordance with <xref target="RFC0768"/>, typically by using the services provided by the operating system.
 Destination port number 4556 has been assigned by IANA as the Registered Port number for the UDP convergence layer and SHALL be used as a default.
@@ -247,14 +341,15 @@ Any source port number MAY be used for UDPCL transfers.
 Typically an operating system assigned number in the UDP Ephemeral range (49152-65535) is used.
         </t>
       </section>
-      <section>
-        <name>Transfer Contents</name>
+      <section anchor="sec-udpcl-messaging">
+        <name>UDPCL Messaging</name>
         <t>
-Each UDPCL transfer contents can contain one of several different types of data payload.
-For backward compatibility with <xref target="RFC7122"/>, UDPCL has no explicit payload type identifier.
+The lower layer of UDPCL communication is individual-datagram messaging.
+For backward compatibility with <xref target="RFC7122"/>, UDPCL has no explicit message type identifier.
+The message type is inferred by the inspecting the data contents according to the following rules:
         </t>
         <t>
-The type is inferred by the inspecting the data contents according to the following rules:
+The message type is inferred by the inspecting the data contents according to the following rules:
         </t>
         <dl newline="false" spacing="normal">
           <dt>Keepalive:</dt>
@@ -262,63 +357,132 @@ The type is inferred by the inspecting the data contents according to the follow
 Keepalive data SHALL be a total of four octets all with value 0x00.
 Data with a leading octet value of 0x00 SHALL be treated as keepalive.
           </dd>
-          <dt>BPv6:</dt>
+          <dt>Extension Map:</dt>
+          <dd>
+All UDPCL extensions SHALL be contained in a CBOR map in accordance with the defintions of <xref target="sec-udpcl-extension"/>.
+The encoded Extension Map SHALL NOT have any CBOR tags.
+Data with a leading octet value indicating CBOR map (major type 5) SHALL be treated as an Extension Map.
+          </dd>
+          <dt>BPv6 Bundle:</dt>
           <dd>
 All encoded BP version 6 bundles begin with the version identifier octet 0x06 in accordance with <xref target="RFC5050"/>.
 Data with a leading octet value of 0x06 SHALL be treated as a BPv6 bundle.
           </dd>
-          <dt>BPv7:</dt>
+          <dt>BPv7 Bundle:</dt>
           <dd>
-All encoded BP version 7 bundles begin with a CBOR array head in accordance with <xref target="I-D.ietf-dtn-bpbis"/> <xref target="RFC8949"/>, and can include a self-described CBOR tag 55799.
-Data with a leading octet value indicating CBOR array (major type 4) or containing any number of CBOR tags with ultimate value being a CBOR array SHALL be treated as a BPv7 bundle.
+All encoded BP version 7 bundles begin with a CBOR array head in accordance with <xref target="I-D.ietf-dtn-bpbis"/>, and can include a self-described CBOR tag 55799.
+Data with a leading octet value indicating CBOR array (major type 4) or containing any number of CBOR tags (major type 6) with ultimate value being a CBOR array SHALL be treated as a BPv7 bundle.
+          </dd>
+          <dt>DTLS Record:</dt>
+          <dd>
+            <t>
+In addition to the UDPCL specific messaging, immediately after a DTLS Initiation (see <xref target="sec-ext-starttls"/>) the DTLS handshake sequence will begin.
+Data with a leading octet value of 0x16 SHALL be treated as a DTLS handshake record in accordance with <xref section="4.1" target="RFC6347"/>.
+            </t>
+            <t>
+If the datagram with the DTLS Initiation extension is not recevied by an entity, the entity SHOULD still detect the DTLS handshake records and start the handshake sequence at that point.
+Data with a leading octet value of 0x17--0x19 SHALL be treated as a DTLS sequencing failure; DTLS non-handshake records should never be seen by the UDPCL messaging layer.
+            </t>
           </dd>
         </dl>
+        <t>
+A summary of how a receiving UDPCL entity can interpret the first octet of a datagram is listed in <xref target="tab-message-first-octet"/>.
+When inspecting using CBOR major types, the range of values is caused by the CBOR head encoding of <xref target="RFC8949"/>.
+        </t>
+        <table align="center" anchor="tab-message-first-octet">
+          <name>First-Octet Contents</name>
+          <thead>
+            <tr>
+              <th>Octet Value</th>
+              <th>Message Content</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>0x00</td>
+              <td>UDPCL Padding</td>
+            </tr>
+            <tr>
+              <td>0x06</td>
+              <td>BPv6 Bundle</td>
+            </tr>
+            <tr>
+              <td>0x16--0x19</td>
+              <td>DTLS Message</td>
+            </tr>
+            <tr>
+              <td>0x80--0x9F</td>
+              <td>BPv7 Bundle (CBOR array)</td>
+            </tr>
+            <tr>
+              <td>0xA0--0xBF</td>
+              <td>Extension Map (CBOR map)</td>
+            </tr>
+            <tr>
+              <td>0xC0--0xDF</td>
+              <td>Likely BPv7 Bundle (CBOR tag)</td>
+            </tr>
+            <tr>
+              <td>others</td>
+              <td>unused</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section anchor="sec-udpcl-extension">
+        <name>UDPCL Extension Items</name>
+        <t>
+Extensions to UDPCL are encoded per-datagram in a single CBOR map as defined in <xref target="sec-udpcl-messaging"/>.
+Each UDPCL extension item SHALL be identified by a unique integer (the Extension ID) used as a key in the Extension Map.
+Extension ID values are listed in <xref target="sec-iana-extension-types"/>.
+Receivers SHALL ignore extension items with unknown Extension ID and continue to process known extension items.
+        </t>
+        <t>
+The following subsections define the initial UDPCL extension types.
+        </t>
+        <section anchor="sec-ext-nodeid">
+          <name>Transmitting Node ID</name>
+          <t>
+This extension item expresses the Node ID of the entity sending the message.
+          </t>
+          <t>
+The Node ID SHALL be encoded as an untagged tstr.
+Every Node ID SHALL be a URI consistent with the requirements of <xref target="RFC3986"/> and the URI schemes of the IANA "Bundle Protocol URI Scheme Type" registry <xref target="IANA-BUNDLE"/>.
+The Node ID itself can be authenticated as described in <xref target="sec-dtls-authentication"/>.
+          </t>
+        </section>
+        <section anchor="sec-ext-transfer">
+          <name>Transfer</name>
+          <t>
+          </t>
+        </section>
+        <section anchor="sec-ext-starttls">
+          <name>DTLS Initiation (STARTTLS)</name>
+          <t>
+This extension item indicates that the transmitter is about to begin a DTLS handshake sequence in accordance with <xref section="4.2" target="RFC6347"/>.
+Although the datagram containing this extension is not retransmitted, the DTLS handshake itself will retransmit ClientHello messages until confirmation is received.
+          </t>
+        </section>
+      </section>
+      <section anchor="sec-udpcl-security">
+        <name>UDPCL Security</name>
+        <section anchor="sec-dtls-authentication">
+          <name>DTLS Authentication</name>
+          <t>
+The function and mechanism of DTLS authentication for UDPCL is exactly the same as that defined for TCPCL in <xref section="4.4.4" target="I-D.ietf-dtn-tcpclv4"/>.
+          </t>
+        </section>
       </section>
     </section>
     <section>
-      <name>Cross-Layer Concerns</name>
+      <name>DTN Neighbor Endpoint</name>
       <t>
-This section covers topics which combine behaviors of the layers below and above the UDPCL.
+This specification updates the "dtn" URI scheme defined in <xref target="I-D.ietf-dtn-bpbis"/> to expand the set of well-known endpoint names from the single "none" value to an IANA-controlled table of names <xref target="sec-iana-well-known-endpoints"/>.
       </t>
-      <section>
-        <name>Error Checking Policies</name>
-        <t>
-The core Bundle Protocol specification assumes that bundles are transferring over an erasure channel, i.e., a channel that either delivers packets correctly or
-not at all.
-        </t>
-        <t>
-A UDP transmitter SHALL NOT disable UDP checksums.
-A UDP receiver SHALL NOT disable the checking of received UDP checksums.
-        </t>
-        <t>
-Even when UDP checksums are enabled, a small probability of UDP packet corruption remains.
-In some environments, it may be acceptable for a BP agent to occasionally receive corrupted input.
-In general, however, a UDPCL entity SHOULD insure the a bundle's blocks are either covered by a CRC or a BPSec integrity check.
-        </t>
-      </section>
-      <section anchor="sec-transfer-fragmentation">
-        <name>Fragmentation Policies</name>
-        <t>
-Each UDPCL transfer MAY be fragmented at the IP layer by the transmitting entity.
-It is a implementation matter for a sending entity to determine the path maximum transmit unit (MTU) to be used as a target upper-bound IP packet size.
-Some mechanisms to perform MTU discovery are defined in <xref target="RFC8899"/>.
-Because of the issues with IP fragmentation listed in <xref section="3.2" target="RFC8085"/>, a BP agent SHOULD avoid IP fragmentation in favor of bundle payload fragmentation.
-        </t>
-        <t>
-Bundle payload fragmentation does not help a large bundle if extension blocks are a major contributor to bundle size, so in some circumstances IP fragmentation can still be necessary.
-A UDPCL entity SHOULD NOT proactively drop an outgoing transfer due to datagram size.
-        </t>
-      </section>
-      <section>
-        <name>Congestion Control Policies</name>
-        <t>
-The applications using UDPCL for bundle transport SHALL conform to the requirements of <xref section="3.1" target="RFC8085"/>.
-The application SHALL either perform congestion control of bundles or behave as the Low Data-Volume application as defined in <xref section="3.1.3" target="RFC8085"/>.
-        </t>
-        <t>
-When nodes have bidirectional transfer capability, the bundle deletion reason code "traffic pared" can be used by a receiving agent to signal to the bundle source application that throttling of bundles along that path SHOULD occur.
-        </t>
-      </section>
+      <t>
+An additional well-known endpoint "dtn:~neighbor" is defined to be used for multicast transfers.
+This endpoint scheme-specific part has a shortened integer encoding as defined in <xref target="tab-iana-well-known-endpoints"/>.
+      </t>
     </section>
     <section removeInRFC="true">
       <name>Implementation Status</name>
@@ -434,6 +598,110 @@ The related assignment for DCCP port 4556 (registered by <xref target="RFC7122"/
           </tbody>
         </table>
       </section>
+      <section anchor="sec-iana-extension-types">
+        <name>UDPCL Extension Types</name>
+        <t>EDITOR NOTE: sub-registry to-be-created upon publication of this specification.</t>
+        <t>
+IANA will create, under the "Bundle Protocol" registry <xref target="IANA-BUNDLE"/>, a sub-registry titled "Bundle Protocol UDP Convergence-Layer Extension Types" and initialize it with the contents of <xref target="tab-iana-extension-types"/>.
+For positive code points the registration procedure is Specification Required.
+Negative code points are reserved for use on private networks for functions not published to the IANA.
+        </t>
+        <t>
+Specifications of new extension types need to define the CBOR item structure of the extension data as well as the purpose and relationship of the new extension to existing session/transfer state within the baseline UDPCL sequencing.
+Receiving entities will ignore items with unknown Extension ID, and that behavior needs to be considered by new extensino types.
+        </t>
+        <t>
+Expert(s) are encouraged to be biased towards approving registrations unless they are abusive, frivolous, or actively harmful (not merely aesthetically displeasing, or architecturally dubious).
+        </t>
+        <table align="center" anchor="tab-iana-extension-types">
+          <name>Extension Type Codes</name>
+          <thead>
+            <tr>
+              <th>Extension ID</th>
+              <th>Name</th>
+              <th>Item Type</th>
+              <th>References</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>negative</td>
+              <td>Private/Experimental Use</td>
+              <td>any</td>
+              <td>This specification.</td>
+            </tr>
+            <tr>
+              <td>0</td>
+              <td>Reserved</td>
+              <td></td>
+              <td>This specification.</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>Transmitting Node ID</td>
+              <td>tstr</td>
+              <td><xref target="sec-ext-nodeid"/> of this specification.</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Transfer</td>
+              <td>array</td>
+              <td><xref target="sec-ext-transfer"/> of this specification.</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>DTLS Initiation (STARTTLS)</td>
+              <td>null</td>
+              <td><xref target="sec-ext-starttls"/> of this specification.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section anchor="sec-iana-well-known-endpoints">
+        <name>Well-Known DTN Endpoints</name>
+        <t>EDITOR NOTE: sub-registry to-be-created upon publication of this specification.</t>
+        <t>
+IANA will create, under the "Bundle Protocol" registry <xref target="IANA-BUNDLE"/>, a sub-registry titled "Well-Known DTN Endpoints" and initialize it with the contents of <xref target="tab-iana-well-known-endpoints"/>.
+The registration procedure is Expert Review.
+Because any service name can be encoded as a text string, there is no provision for private or experimental registrations.
+        </t>
+        <t>
+Specifications of new well-known DTN endpoints need to define the encoded (uint) value as well as the meaning of the service.
+Specifications need to define how it should be used by BP agents and if there are any special restrictions on how bundles are to be treated (either routing or delivery) when this endpoint is used as a bundle destination.
+        </t>
+        <t>
+Expert(s) are encouraged to be biased towards approving registrations unless they are abusive, frivolous, or actively harmful (not merely aesthetically displeasing, or architecturally dubious).
+        </t>
+        <table align="center" anchor="tab-iana-well-known-endpoints">
+          <name>Well-Known DTN Endpoints</name>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Text Value</th>
+              <th>Reference</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>0</td>
+              <td>none</td>
+              <td>
+                <xref target="I-D.ietf-dtn-bpbis"/>
+              </td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>~neighbor</td>
+              <td>This specification</td>
+            </tr>
+            <tr>
+              <td>0x0002--0xFFFFFFFFFFFFFFFF</td>
+              <td>Unassigned</td>
+              <td/>
+            </tr>
+          </tbody>
+        </table>
+      </section>
     </section>
     <section anchor="sec-doc-ack">
       <name>Acknowledgments</name>
@@ -447,6 +715,15 @@ TBD
       <name>References</name>
       <references>
         <name>Normative References</name>
+        <reference anchor="IANA-BUNDLE" target="https://www.iana.org/assignments/bundle/">
+          <front>
+            <title>Bundle Protocol</title>
+            <author>
+              <organization>IANA</organization>
+            </author>
+            <date/>
+          </front>
+        </reference>
         <reference anchor="IANA-PORTS" target="https://www.iana.org/assignments/service-names-port-numbers/">
           <front>
             <title>Service Name and Transport Protocol Port Number Registry</title>
@@ -477,12 +754,15 @@ TBD
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.0768.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.1122.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.3986.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5050.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.6347.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8085.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8126.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8174.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8949.xml"/>
-        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-dtn-bpbis-30.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dtn-bpbis.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dtn-tcpclv4.xml"/>
       </references>
       <references>
         <name>Informative References</name>
@@ -491,8 +771,8 @@ TBD
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7122.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7942.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8899.xml"/>
-        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-dtn-bpsec-26.xml"/>
-        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-dtn-bibect-03.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dtn-bpsec.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dtn-bibect.xml"/>
         <reference anchor="github-dtn-demo-agent" target="https://github.com/BSipos-RKF/dtn-demo-agent/">
           <front>
             <title>TCPCL Example Implementation</title>
@@ -524,7 +804,7 @@ The areas in which changes from <xref target="RFC7122"/> have been made to exist
       </t>
       <ul spacing="normal">
         <li>Made explict references to UDP-related RFCs.</li>
-        <li>Made under-layer or over-layer security mandatory.</li>
+        <li>Made security mandatory-to-implement.</li>
       </ul>
       <t>
 The areas in which extensions from <xref target="RFC7122"/> have been made as new behaviors are:
