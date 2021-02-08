@@ -27,7 +27,7 @@
     <abstract>
       <t>
 This document describes a UDP-based convergence layer (UDPCL) for Delay-Tolerant Networking (DTN).
-This version of the UDPCL protocol clarifies requirements of RFC7122, specifically about multicast uses, and updates to the Bundle Protocol (BP) contents, encodings, and convergence layer requirements in BP Version 7.
+This version of the UDPCL protocol clarifies requirements of RFC7122, adds discussion of multicast addressing, and updates to the Bundle Protocol (BP) contents, encodings, and convergence layer requirements in BP Version 7.
 Specifically, the UDPCL uses CBOR-encoded BPv7 bundles as its service data unit being transported and provides a reliable transport of such bundles.
 This version of UDPCL also includes security and extensibility mechanisms.
       </t>
@@ -99,9 +99,9 @@ Logic for performing rate control and congestion control of bundle transfers, bo
           <li>
 Policies or mechanisms for issuing Public Key Infrastructure Using X.509 (PKIX) certificates; provisioning, deploying, or accessing certificates and private keys; deploying or accessing certificate revocation lists (CRLs); or configuring security parameters on an individual entity or across a network.
           </li>
-          <li><!-- 
-Uses of TLS which are not based on PKIX certificate authentication (see <xref target="sec-security-tlsnopki"/>) or in which authentication of both entities is not possible (see <xref target="sec-security-tlsnoauth"/>).
-           --></li>
+          <li>
+Uses of Datagram Transport Layer Security (DTLS) which are not based on PKIX certificate authentication (see <xref target="sec-security-tlsnopki"/>) or in which authentication of both entities is not possible (see <xref target="sec-security-tlsnoauth"/>).
+          </li>
         </ul>
         <t>
 Any UDPCL implementation requires a BP agent to perform those above listed functions in order to perform end-to-end bundle delivery.
@@ -140,6 +140,11 @@ These relationships are illustrated in <xref target="fig-entity-transfer-relatio
 For the remainder of this document, the term "entity" without the prefix "UDPCL" refers to a UDPCL entity.
             </t>
           </dd>
+          <dt>UDP Conversation:</dt>
+          <dd>
+This refers to datagrams exchanged between two network peers, with each peer identified by a (unicast IP address, UDP port) tuple.
+Because UDP is connectionless, there is no notion of a conversation being "opened" or "closed".
+          </dd>
           <dt>Transfer:</dt>
           <dd>
 This refers to the procedures and mechanisms for conveyance of an individual bundle from one entity to one or more destinations.
@@ -155,7 +160,7 @@ This refers to a transfer incoming to an entity as seen from that receiving enti
           </dd>
         </dl>
         <figure anchor="fig-entity-transfer-relations">
-          <name>The relationships between TCPCL entities</name>
+          <name>The relationships between UDPCL entities</name>
           <artwork align="center" type="ascii-art">
 +----------------------------------------+
 |              UDPCL Entity              |
@@ -189,6 +194,12 @@ The service of this protocol is the transmission of DTN bundles via the User Dat
 This document specifies the optional fragmention of bundles, procedures for DTLS setup and teardown, and a set of messages and entity requirements.
 The general operation of the protocol is as follows.
       </t>
+      <t>
+Fundamentally, the UDPCL is a (logically) unidirectional "transmit and forget" protocol which itself maintains no long-term state and provides no feedback to the transmitter.
+The only long-term state related to UDPCL is used by DTLS in its session keeping (which is bound to a UDP conversation).
+An entity receiving a bundle from a particular source address-and-port does not imply that the transmitter is willing to accept bundle transfers on that same address-and-port.
+It is the obligation of a BP agent and its routing schemes to determine a bundle return path.
+      </t>
       <section anchor="sec-cl-services">
         <name>Convergence Layer Services</name>
         <t>
@@ -207,7 +218,7 @@ Any queueing of transmissions is the obligation of the BP agent.
           <dt>Transmission Started:</dt>
           <dd>
 The UDPCL entity indicates to the BP agent when a bundle transmission begins sending UDP datagrams.
-Once started, there is no notion of a UDPCL transfer failure; a BP agent has to rely on bundle-level administrative reporting to track bundle progress.
+Once started, there is no notion of a UDPCL transmission failure; a BP agent has to rely on bundle-level status reporting to track bundle progress through the network.
 Because of potential queueing or DTLS setup time, this may be delayed from the BP agent providing the bundle-to-transmit.
           </dd>
           <dt>Transmission Finished:</dt>
@@ -219,21 +230,24 @@ This is not a positive indication that any next-hop receiver has either received
           <dd>
 The UDPCL entity indicates to the BP agent when a bundle transfer has begun, which may include information about the total size of a fragmented transfer.
           </dd>
-          <dt>Reception Finished:</dt>
+          <dt>Reception Success:</dt>
           <dd>
 The UDPCL entity indicates to the BP agent when a bundle has been fully transferred from a peer entity.
-The transmitter of each transfer is identified by an (source) IPv4 or IPv6 address and a UDP port number (see <xref target="sec-operation"/> for details).
-Because transfers occur as atomic units at the BP layer, there is no notion of a partially received bundle or a failed reception.
+The transmitter of each transfer is identified by an (source) IP address and a UDP port number (see <xref target="sec-operation"/> for details).
+          </dd>
+          <dt>Reception Failure:</dt>
+          <dd>
+The UDPCL entity indicates to the BP agent on certain reasons for reception failure, notably upon an unfinished transfer timeout (see <xref target="sec-ext-transfer"/>).
           </dd>
           <dt>Attempt DTLS Session:</dt>
           <dd>
-The UDPCL allows a BP agent to preemptively attempt to establish a DTLS session with a peer entity.
+The UDPCL allows a BP agent to preemptively attempt to establish a DTLS session with a peer entity (see <xref target="sec-udpcl-security"/>).
 Each session attempt can send a different set of session negotiation parameters as directed by the BP agent.
           </dd>
-          <dt>Terminate DTLS Session:</dt>
+          <dt>Close DTLS Session:</dt>
           <dd>
-The UDPCL allows a BP agent to preemptively terminate an established DTLS session with a peer entity.
-The terminate request is on a per-session basis.
+The UDPCL allows a BP agent to preemptively close an established DTLS session with a peer entity.
+The closure request is on a per-session basis.
           </dd>
           <dt>DTLS Session State Changed:</dt>
           <dd>
@@ -333,10 +347,10 @@ For multicast transfers to one or more nodes, the destination address SHALL be a
       <section>
         <name>UDP Header</name>
         <t>
-To perform a transfer, the active entity SHALL transmit a UDP datagram to a listening passive entity in accordance with <xref target="RFC0768"/>, typically by using the services provided by the operating system.
+To perform UDPCL messaging, the active entity SHALL transmit a UDP datagram to a listening passive entity in accordance with <xref target="RFC0768"/>, typically by using the services provided by the operating system.
 Destination port number 4556 has been assigned by IANA as the Registered Port number for the UDP convergence layer and SHALL be used as a default.
 Other destination port numbers MAY be used per local configuration.
-Determining a peer's destination port number (if different from the registered UDPCL port number) is up to the implementation.
+Determining a passive entity's destination port number (if different from the registered UDPCL port number) is up to the implementation.
 Any source port number MAY be used for UDPCL transfers.
 Typically an operating system assigned number in the UDP Ephemeral range (49152-65535) is used.
         </t>
@@ -370,8 +384,10 @@ Data with a leading octet value of 0x06 SHALL be treated as a BPv6 bundle.
           </dd>
           <dt>BPv7 Bundle:</dt>
           <dd>
-All encoded BP version 7 bundles begin with a CBOR array head in accordance with <xref target="I-D.ietf-dtn-bpbis"/>, and can include a self-described CBOR tag 55799.
-Data with a leading octet value indicating CBOR array (major type 4) or containing any number of CBOR tags (major type 6) with ultimate value being a CBOR array SHALL be treated as a BPv7 bundle.
+All encoded BP version 7 bundles begin with a CBOR array head in accordance with <xref target="I-D.ietf-dtn-bpbis"/>.
+Data with a leading octet value indicating CBOR array (major type 4) SHALL be treated as a BPv7 bundle.
+BPv7 bundles transmitted via UDPCL SHALL NOT include any leading CBOR tag.
+If the BP agent provides bundles with such tags the UDPCL entity SHALL remove them.
           </dd>
           <dt>DTLS Record:</dt>
           <dd>
@@ -434,38 +450,138 @@ When inspecting using CBOR major types, the range of values is caused by the CBO
         <t>
 Extensions to UDPCL are encoded per-datagram in a single CBOR map as defined in <xref target="sec-udpcl-messaging"/>.
 Each UDPCL extension item SHALL be identified by a unique integer (the Extension ID) used as a key in the Extension Map.
-Extension ID values are listed in <xref target="sec-iana-extension-types"/>.
+Extension ID assignments are listed in <xref target="sec-iana-extension-types"/>.
+        </t>
+        <t>
+Unless prohibited by particular extension type requirements, a single Extension Map MAY contain any combination of extension items.
 Receivers SHALL ignore extension items with unknown Extension ID and continue to process known extension items.
         </t>
         <t>
 The following subsections define the initial UDPCL extension types.
         </t>
-        <section anchor="sec-ext-nodeid">
-          <name>Transmitting Node ID</name>
-          <t>
-This extension item expresses the Node ID of the entity sending the message.
-          </t>
-          <t>
-The Node ID SHALL be encoded as an untagged tstr.
-Every Node ID SHALL be a URI consistent with the requirements of <xref target="RFC3986"/> and the URI schemes of the IANA "Bundle Protocol URI Scheme Type" registry <xref target="IANA-BUNDLE"/>.
-The Node ID itself can be authenticated as described in <xref target="sec-dtls-authentication"/>.
-          </t>
-        </section>
-        <section anchor="sec-ext-transfer">
-          <name>Transfer</name>
-          <t>
-          </t>
-        </section>
         <section anchor="sec-ext-starttls">
           <name>DTLS Initiation (STARTTLS)</name>
           <t>
-This extension item indicates that the transmitter is about to begin a DTLS handshake sequence in accordance with <xref section="4.2" target="RFC6347"/>.
+This extension item indicates that the transmitter is about to begin a DTLS handshake sequence in accordance with <xref target="sec-udpcl-security"/>.
+          </t>
+          <t>
+The DTLS Initiation value SHALL be an untagged null value.
+There are no DTLS parameters actually transmitted as part of this extension, it only serves to indicate to the recipient that the next datagram will be a DTLS ClientHello.
 Although the datagram containing this extension is not retransmitted, the DTLS handshake itself will retransmit ClientHello messages until confirmation is received.
           </t>
+          <t>
+The Extension Map containig a DTLS Initiation item SHALL NOT contain any other items.
+A DTLS Initiation item SHALL NOT be present in any message transmitted within a DTLS session.
+A receiver of a DTLS Initiation item within a DTLS session SHALL ignore it.
+          </t>
+          <t>
+If the entity is configured to enable exchanging messages according to DTLS 1.2 <xref target="RFC6347"/> or any successors which are compatible with that DTLS ClientHello, the first message in any sequence to a unicast recipient SHALL be an Extension Map with the DTLS Initiation item.
+The RECOMMENDED policy is to enable DTLS for all unicast recipients, even if security policy does not allow or require authentication.
+This follows the opportunistic security model of <xref target="RFC7435"/>, though an active attacker could interfere with the exchange in such cases (see <xref target="sec-threat-tls-strip"/>).
+          </t>
+        </section>
+        <section anchor="sec-ext-transfer">
+          <name>Bundle Transfer</name>
+          <t>
+This extension item allows CL-layer fragmentation of bundle transfers.
+It also allows a bundle transfer to be transmitted along with extension items, which the unframed bundle data does not.
+          </t>
+          <t>
+The Transfer value SHALL be an untagged CBOR array of four items.
+The items are defined in the following order:
+          </t>
+          <dl>
+            <dt>Transfer ID:</dt>
+            <dd>
+This field SHALL be a CBOR unit item, which is used to correlate multiple fragments.
+            </dd>
+            <dt>Total Length:</dt>
+            <dd>
+This field SHALL be a CBOR unit item, which is used to indicate the total length (in octets) of the transfer.
+If multiple Transfers for the same Transfer ID are received with differing Total Length values, the receiver SHALL treat the transfer as being malformed.
+            </dd>
+            <dt>Fragment Offset:</dt>
+            <dd>
+This field SHALL be a CBOR unit item, which is used to indicate the offset (in octets) into the transfer for the start of this fragment.
+            </dd>
+            <dt>Fragment Data:</dt>
+            <dd>
+This field SHALL be a CBOR bstr item, in which the fragment data is contained.
+The bstr itself indicates the length of the fragment data.
+            </dd>
+          </dl>
+          <section anchor="sec-transfer-id">
+            <name>Bundle Transfer ID</name>
+            <t>
+Each Transfer item contains a Transfer ID which is used to correlate messages for a single bundle transfer.
+A Transfer ID does not attempt to address uniqueness of the bundle data itself and has no relation to concepts such as bundle fragmentation.
+Each invocation of UDPCL by the BP agent, requesting transmission of a bundle (fragmentary or otherwise), results in the initiation of a single UDPCL transfer.
+            </t>
+            <t>
+Because UDPCL operation is connectionless, Transfer IDs from each entity SHALL be unique for the operating duration of the entity.
+In practice, the ID needs only be unique for the longest receiver reassembly time window; but because that information is not part of the protocol there is no way for an entity to 
+When there are bidirectional bundle transfers between UDPCL entities, an entity SHOULD NOT rely on any relation between Transfer IDs originating from each side of the conversation.
+            </t>
+            <t>
+Although there is not a strict requirement for Transfer ID initial values or ordering (see <xref target="sec-security-xferid"/>), in the absence of any other mechanism for generating Transfer IDs an entity SHALL use the following algorithm:
+the initial Transfer ID from each entity is zero;
+subsequent Transfer ID values are incremented from the prior Transfer ID value by one;
+upon exhaustion of the entire 64-bit Transfer ID space, the subsequent Transfer ID value is zero.
+            </t>
+          </section>
+          <section anchor="sec-transfer-fragmentation">
+            <name>Transfer Fragmentation and Reassembly</name>
+            <t>
+The full data content of a transfer SHALL be either a BPv6 or BPv7 Bundle as defiend in <xref target="sec-udpcl-messaging"/>.
+A receving entity SHALL discard any reassembled transfer which does not properly contain a bundle.
+            </t>
+            <t>
+A transmitting entity MAY produce a Transfer with a single fragment (i.e., a Fragment Data size identical to the Total Length).
+A transmitting entity SHALL NOT produce Transfer fragments with overlapping span.
+A transmitting entity SHOULD transmit Transfer fragments in order of Fragment Offset; this makes the behavior deterministic.
+            </t>
+            <t>
+Because of the nature of UDP transport, there is no guaranteed order or timing of received Transfer items.
+A receiving entity SHALL consider a transport as finished when Fragment Data has been received which fully covers the Total Length of the transfer.
+            </t>
+            <t>
+A receiving entity SHALL discard any Transfer item containing different CBOR types than defined in this document.
+A receiving entity SHALL discard any Transfer item containing a fragment with an overlapping span.
+Because there is no feedback indication at the UDPCL layer, a transmitter has no idication when a transfer is discarded by the receiver.
+            </t>
+            <t>
+A receiving entity SHOULD discard unfinished transfer state after an implementation-defined timeout since the last received fragment.
+Entities SHOULD choose a transfer timeout interval no longer than one minute (60 seconds).
+Discarding an unfinished transfer causes no signalling to the transmitting entity, but does indicate this to the BP agent.
+            </t>
+          </section>
         </section>
       </section>
       <section anchor="sec-udpcl-security">
         <name>UDPCL Security</name>
+        <t>
+This version of the TCPCL supports establishing a DTLS session within an existing UDP conversation.
+When DTLS is used within the UDPCL it affects the entire conversation.
+        </t>
+        <t>
+Once established, the lifetime of a TLS connection SHALL be bounded by the DTLS session ticket lifetime or either peer sending a Closure Alert record.
+        </t>
+        <t>
+Subsequent DTLS session attempts to the same passive entity MAY attempt to use the DTLS session resumption feature.
+There is no guarantee that the passive entity will accept the request to resume a DTLS session, and the active entity cannot assume any resumption outcome.
+        </t>
+        <section anchor="sec-dtls-handshake">
+          <name>DTLS Handshake</name>
+          <t>
+The signaling for TLS Initiation is described in <xref target="sec-ext-starttls"/>.
+After sending or receiving an Extension Map containing a DTLS Initiation item, an entity SHALL begin the handshake procedure of <xref section="4.2" target="RFC6347"/>.
+By convention, this protocol uses the entity which sent the DTLS Initiation (the active peer) as the "client" role of the TLS handshake request.
+          </t>
+          <t>
+Upon receiving an unexpected ClientHello record outside of a DTLS session, an entity SHALL begin the DTLS handshake procedure as if a DTLS Initiation had been received.
+This allows recovering from a dropped packet containing DTLS Initiation.
+          </t>
+        </section>
         <section anchor="sec-dtls-authentication">
           <name>DTLS Authentication</name>
           <t>
@@ -473,16 +589,6 @@ The function and mechanism of DTLS authentication for UDPCL is exactly the same 
           </t>
         </section>
       </section>
-    </section>
-    <section>
-      <name>DTN Neighbor Endpoint</name>
-      <t>
-This specification updates the "dtn" URI scheme defined in <xref target="I-D.ietf-dtn-bpbis"/> to expand the set of well-known endpoint names from the single "none" value to an IANA-controlled table of names <xref target="sec-iana-well-known-endpoints"/>.
-      </t>
-      <t>
-An additional well-known endpoint "dtn:~neighbor" is defined to be used for multicast transfers.
-This endpoint scheme-specific part has a shortened integer encoding as defined in <xref target="tab-iana-well-known-endpoints"/>.
-      </t>
     </section>
     <section removeInRFC="true">
       <name>Implementation Status</name>
@@ -511,15 +617,70 @@ A wireshark dissector for UDPCL has been created as a GitHub project <xref targe
 This section separates security considerations into threat categories based on guidance of BCP 72 <xref target="RFC3552"/>.
       </t>
       <section>
+        <name>Threat: Passive Leak of Node Data</name>
+        <t>
+When used without DTLS security, the UDPCL can expose the Node ID and other configuration data to passive eavesdroppers.
+This can occur even if no bundle transfers are transmitted.
+This can be avoided by always using DTLS, even if authentication is not available (see <xref target="sec-security-tlsalt"/>).
+        </t>
+      </section>
+      <section>
         <name>Threat: Passive Leak of Bundle Data</name>
         <t>
-The UDPCL does not provide transport security, and does not ensure security of data-at-rest or end-to-end bundle security.
-The UDPCL exposes all bundle data to passive eavesdroppers.
+UDPCL can be used to provide point-to-point unicast transport security, but does not provide multicast security, security of data-at-rest, and does not guarantee end-to-end bundle security.
+In those cases the bundle security mechanisms defined in <xref target="I-D.ietf-dtn-bpsec"/> are to be used instead.
         </t>
         <t>
-The block confidentiality mechanisms defined in <xref target="I-D.ietf-dtn-bpsec"/> are to be used instead.
-These mechanisms can not cover the bundle's primary block, so that data is necessarily available to eavesdroppers.
-A technique such as encrypted bundle encapsulation <xref target="I-D.ietf-dtn-bibect"/> can be used to protect primary block data.
+When used without DTLS security, the UDPCL exposes all bundle data to passive eavesdroppers.
+This can be avoided by always using DTLS for unicast messaging, even if authentication is not available (see <xref target="sec-security-tlsalt"/>).
+        </t>
+      </section>
+      <section anchor="sec-threat-tls-strip">
+        <name>Threat: Transport Security Stripping</name>
+        <t>
+When security policy allows non-DTLS messaging, UDPCL does not protect against active network attackers.
+It is possible for a on-path attacker to drop or alter packets containing Extension Map and/or DTLS handshake records, which will cause the receiver to not negotiate a DTLS session.
+This leads to the "SSL Stripping" attack described in <xref target="RFC7457"/>.
+        </t>
+        <t>
+When DTLS is available on an entity, it is strongly encouraged that the security policy disallow non-DTLS messaging for unicast purposes.
+This requires that the DTLS handshake occurs before any other UDPCL messaging, regardless of the policy-driven parameters of the handshake and policy-driven handling of the handshake outcome.
+        </t>
+        <t>
+One mechanism to mitigate the possibility of DTLS stripping is the use of DNS-based Authentication of Named Entities (DANE) <xref target="RFC6698"/> toward the passive peer.
+This mechanism relies on DNS and is unidirectional, so it doesn't help with applying policy toward the active peer, but it can be useful in an environment using opportunistic security.
+The configuration and use of DANE are outside of the scope of this document.
+        </t>
+        <t>
+The negotiated use of DTLS is identical behavior to STARTTLS use in <xref target="RFC2595"/>, <xref target="RFC4511"/>, and others.
+        </t>
+      </section>
+      <section>
+        <name>Threat: Weak DTLS Configurations</name>
+        <t>
+Even when using DTLS to secure the UDPCL session, the actual ciphersuite negotiated between the DTLS peers can be insecure.
+Recommendations for ciphersuite use are included in BCP 195 <xref target="RFC7525"/>.
+It is up to security policies within each UDPCL entity to ensure that the negotiated DTLS ciphersuite meets transport security requirements.
+        </t>
+      </section>
+      <section anchor="sec-threat-untrust-cert">
+        <name>Threat: Untrusted End-Entity Certificate</name>
+        <t>
+The profile in <xref target="sec-dtls-authentication"/> uses end-entity certificates chained up to a trusted root CA.
+During DTLS handshake, either entity can send a certificate set which does not contain the full chain, possibly excluding intermediate or root CAs.
+In an environment where peers are known to already contain needed root and intermediate CAs there is no need to include those CAs, but this has a risk of an entity not actually having one of the needed CAs.
+        </t>
+      </section>
+      <section>
+        <name>Threat: Certificate Validation Vulnerabilities</name>
+        <t>
+Even when DTLS itself is operating properly an attacker can attempt to exploit vulnerabilities within certificate check algorithms or configuration to establish a secure DTLS session using an invalid certificate.
+An invalid certificate exploit could lead to bundle data leaking and/or denial of service to the Node ID being impersonated.
+        </t>
+        <t>
+There are many reasons, described in <xref target="RFC5280"/> and <xref target="RFC6125"/>, why a certificate can fail to validate, including using the certificate outside of its valid time interval, using purposes for which it was not authorized, or using it after it has been revoked by its CA.
+Validating a certificate is a complex task and can require network connectivity outside of the primary UDPCL network path(s) if a mechanism such as OCSP <xref target="RFC6960"/> is used by the CA.
+The configuration and use of particular certificate validation methods are outside of the scope of this document.
         </t>
       </section>
       <section anchor="sec-threat-node-impersonation">
@@ -542,7 +703,49 @@ An entity can send a large amount of data to a UDPCL entity, requiring the recei
 The victim entity can block UDP packets from network peers which are thought to be incorrectly behaving within network.
         </t>
         <t>
+An entity can also send only one fragment of a seemingly valid transfer and never send the remaining fragments, which will cause resources on the receiver to be wasted on transfer reassembly state.
+The victim entity can either block packets from network peers or intentionally keep a short unfinished transfer timeout (see <xref target="sec-transfer-fragmentation"/>).
+        </t>
+        <t>
 The keepalive mechanism can be abused to waste throughput within a network link which would otherwise be usable for bundle transmissions.
+        </t>
+      </section>
+      <section anchor="sec-security-dtls-mandate">
+        <name>Mandatory-to-Implement DTLS</name>
+        <t>
+Following IETF best current practice, DTLS is mandatory to implement for all UDPCL implementations but DTLS is optional to use for a any given transfer.
+The recommended configuration of <xref target="sec-ext-starttls"/> is to always attempt DTLS, but entities are permitted to disable DTLS based on local configuration.
+The configuration to enable or disable DTLS for an entity or a session is outside of the scope of this document.
+The configuration to disable DTLS is different from the threat of DTLS stripping described in <xref target="sec-threat-tls-strip"/>.
+        </t>
+      </section>
+      <section anchor="sec-security-tlsalt">
+        <name>Alternate Uses of DTLS</name>
+        <t>
+This specification makes use of PKIX certificate validation and authentication within DTLS.
+There are alternate uses of DTLS which are not necessarily incompatible with the security goals of this specification, but are outside of the scope of this document.
+The following subsections give examples of alternate TLS uses.
+        </t>
+        <section anchor="sec-security-tlsnoauth">
+          <name>DTLS Without Authentication</name>
+          <t> In environments where PKI is available but there are restrictions on the issuance of certificates (including the contents of certificates), it may be possible to make use of DTLS in a way which authenticates only the passive entity of a UDPCL transfer or which does not authenticate either entity.
+Using DTLS in a way which does not successfully authenticate some claim of both peer entities of a UDPCL transfer is outside of the scope of this document but does have similar properties to the opportunistic security model of <xref target="RFC7435"/>.
+          </t>
+        </section>
+        <section anchor="sec-security-tlsnopki">
+          <name>Non-Certificate DTLS Use</name>
+          <t>
+In environments where PKI is unavailable, alternate uses of DTLS which do not require certificates such as pre-shared key (PSK) authentication <xref target="RFC5489"/> and the use of raw public keys <xref target="RFC7250"/> are available and can be used to ensure confidentiality within UDPCL.
+Using non-PKI node authentication methods is outside of the scope of this document.
+          </t>
+        </section>
+      </section>
+      <section anchor="sec-security-xferid">
+        <name>Predictability of Transfer IDs</name>
+        <t>
+The only requirement on Transfer IDs is that they are unique from the transmitting peer only.
+The trivial algorithm of the first transfer starting at zero and later transfers incrementing by one causes absolutely predictable Transfer IDs.
+Even when UDPCL is not DTLS secured and there is a on-path attacker altering UDPCL messages, there is no UDPCL feedback mechanism to interrupt or refuse a transfer so there is no benefit in having unpredictable Transfer IDs.
         </t>
       </section>
     </section>
@@ -637,12 +840,6 @@ Expert(s) are encouraged to be biased towards approving registrations unless the
               <td>This specification.</td>
             </tr>
             <tr>
-              <td>1</td>
-              <td>Transmitting Node ID</td>
-              <td>tstr</td>
-              <td><xref target="sec-ext-nodeid"/> of this specification.</td>
-            </tr>
-            <tr>
               <td>2</td>
               <td>Transfer</td>
               <td>array</td>
@@ -653,51 +850,6 @@ Expert(s) are encouraged to be biased towards approving registrations unless the
               <td>DTLS Initiation (STARTTLS)</td>
               <td>null</td>
               <td><xref target="sec-ext-starttls"/> of this specification.</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-      <section anchor="sec-iana-well-known-endpoints">
-        <name>Well-Known DTN Endpoints</name>
-        <t>EDITOR NOTE: sub-registry to-be-created upon publication of this specification.</t>
-        <t>
-IANA will create, under the "Bundle Protocol" registry <xref target="IANA-BUNDLE"/>, a sub-registry titled "Well-Known DTN Endpoints" and initialize it with the contents of <xref target="tab-iana-well-known-endpoints"/>.
-The registration procedure is Expert Review.
-Because any service name can be encoded as a text string, there is no provision for private or experimental registrations.
-        </t>
-        <t>
-Specifications of new well-known DTN endpoints need to define the encoded (uint) value as well as the meaning of the service.
-Specifications need to define how it should be used by BP agents and if there are any special restrictions on how bundles are to be treated (either routing or delivery) when this endpoint is used as a bundle destination.
-        </t>
-        <t>
-Expert(s) are encouraged to be biased towards approving registrations unless they are abusive, frivolous, or actively harmful (not merely aesthetically displeasing, or architecturally dubious).
-        </t>
-        <table align="center" anchor="tab-iana-well-known-endpoints">
-          <name>Well-Known DTN Endpoints</name>
-          <thead>
-            <tr>
-              <th>Code</th>
-              <th>Text Value</th>
-              <th>Reference</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>0</td>
-              <td>none</td>
-              <td>
-                <xref target="I-D.ietf-dtn-bpbis"/>
-              </td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>~neighbor</td>
-              <td>This specification</td>
-            </tr>
-            <tr>
-              <td>0x0002--0xFFFFFFFFFFFFFFFF</td>
-              <td>Unassigned</td>
-              <td/>
             </tr>
           </tbody>
         </table>
@@ -756,7 +908,11 @@ TBD
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.3986.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5050.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5280.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.6125.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.6347.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.6960.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7525.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8085.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8126.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8174.xml"/>
@@ -766,16 +922,22 @@ TBD
       </references>
       <references>
         <name>Informative References</name>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2595.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.3552.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.4511.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.4838.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5489.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.6698.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7122.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7250.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7435.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7457.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7942.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8899.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dtn-bpsec.xml"/>
-        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dtn-bibect.xml"/>
         <reference anchor="github-dtn-demo-agent" target="https://github.com/BSipos-RKF/dtn-demo-agent/">
           <front>
-            <title>TCPCL Example Implementation</title>
+            <title>UDPCL Example Implementation</title>
             <author fullname="Brian Sipos" initials="B." surname="Sipos">
               <organization abbrev="RKF Engineering">
               RKF Engineering Solutions, LLC
@@ -786,7 +948,7 @@ TBD
         </reference>
         <reference anchor="github-dtn-wireshark" target="https://github.com/BSipos-RKF/dtn-wireshark/">
           <front>
-            <title>TCPCL Wireshark Dissector</title>
+            <title>UDPCL Wireshark Dissector</title>
             <author fullname="Brian Sipos" initials="B." surname="Sipos">
               <organization abbrev="RKF Engineering">
               RKF Engineering Solutions, LLC
