@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="std" consensus="true" docName="draft-sipos-dtn-udpcl-00" ipr="trust200902" submissionType="IETF" tocInclude="true" updates="I-D.ietf-dtn-bpbis" version="3" xml:lang="en">
+<rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="std" consensus="true" docName="draft-sipos-dtn-udpcl-00" ipr="trust200902" submissionType="IETF" tocInclude="true" version="3" xml:lang="en">
   <front>
-    <title abbrev="DTN TCPCLv4">
+    <title abbrev="DTN UDPCL">
       Delay-Tolerant Networking UDP Convergence Layer Protocol
     </title>
     <seriesInfo name="Internet-Draft" value="draft-sipos-dtn-udpcl-00"/>
@@ -21,7 +21,7 @@
         <email>BSipos@rkf-eng.com</email>
       </address>
     </author>
-    <date day="28" month="January" year="2021"/>
+    <date day="7" month="February" year="2021"/>
     <area>Transport</area>
     <workgroup>Delay-Tolerant Networking</workgroup>
     <abstract>
@@ -570,7 +570,7 @@ Discarding an unfinished transfer causes no indication to the transmitting entit
       <section anchor="sec-udpcl-security">
         <name>UDPCL Security</name>
         <t>
-This version of the TCPCL supports establishing a DTLS session within an existing UDP conversation.
+This version of the UDPCL supports establishing a DTLS session within an existing UDP conversation.
 When DTLS is used within the UDPCL it affects the entire conversation.
         </t>
         <t>
@@ -846,7 +846,7 @@ Expert(s) are encouraged to be biased towards approving registrations unless the
             <tr>
               <td>0</td>
               <td>Reserved</td>
-              <td></td>
+              <td/>
               <td>This specification.</td>
             </tr>
             <tr>
