@@ -21,6 +21,50 @@
         <email>BSipos@rkf-eng.com</email>
       </address>
     </author>
+    <!--
+    <author fullname="Hans Kruse" initials="H." surname="Kruse">
+      <organization>
+        Ohio University
+      </organization>
+      <address>
+        <postal>
+          <city>Athens</city>
+          <region>OH</region>
+          <code>45701</code>
+          <country>United States of America</country>
+        </postal>
+        <email>kruse@ohio.edu</email>
+      </address>
+    </author>
+    <author fullname="Samuel Jero" initials="S." surname="Jero">
+      <organization>
+        Purdue University
+      </organization>
+      <address>
+        <postal>
+          <city>West Lafayette</city>
+          <region>IN</region>
+          <code>47907</code>
+          <country>United States of America</country>
+        </postal>
+        <email>sjero@purdue.edu</email>
+      </address>
+    </author>
+    <author fullname="Shawn Ostermann" initials="S." surname="Ostermann">
+      <organization>
+        Ohio University
+      </organization>
+      <address>
+        <postal>
+          <city>Athens</city>
+          <region>OH</region>
+          <code>45701</code>
+          <country>United States of America</country>
+        </postal>
+        <email>ostermann@eecs.ohiou.edu</email>
+      </address>
+    </author>
+    -->
     <date day="7" month="February" year="2021"/>
     <area>Transport</area>
     <workgroup>Delay-Tolerant Networking</workgroup>
