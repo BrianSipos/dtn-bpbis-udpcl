@@ -377,17 +377,31 @@ All UDPCL extensions SHALL be contained in a CBOR map in accordance with the def
 The encoded Extension Map SHALL NOT have any CBOR tags.
 Data with a leading octet value indicating CBOR map (major type 5) SHALL be treated as an Extension Map.
           </dd>
-          <dt>BPv6 Bundle:</dt>
+          <dt>Unframed Bundle:</dt>
           <dd>
+            <t>
+Bundles can be transmitted outside of a (fragmented or not) Transfer item.
+This provides backward compatibility with <xref target="RFC7122"/> and a allows a trivial use of UDPCL which is just embedding an encoded bundle in a UDP datagram.
+The encoded bundle is one of the following:
+            </t>
+            <dl>
+              <dt>BPv6 Bundle:</dt>
+              <dd>
 All encoded BP version 6 bundles begin with the version identifier octet 0x06 in accordance with <xref target="RFC5050"/>.
 Data with a leading octet value of 0x06 SHALL be treated as a BPv6 bundle.
-          </dd>
-          <dt>BPv7 Bundle:</dt>
-          <dd>
+              </dd>
+              <dt>BPv7 Bundle:</dt>
+              <dd>
+                <t>
 All encoded BP version 7 bundles begin with a CBOR array head in accordance with <xref target="I-D.ietf-dtn-bpbis"/>.
 Data with a leading octet value indicating CBOR array (major type 4) SHALL be treated as a BPv7 bundle.
+                </t>
+                <t>
 BPv7 bundles transmitted via UDPCL SHALL NOT include any leading CBOR tag.
 If the BP agent provides bundles with such tags the UDPCL entity SHALL remove them.
+                </t>
+              </dd>
+            </dl>
           </dd>
           <dt>DTLS Record:</dt>
           <dd>
@@ -416,7 +430,7 @@ When inspecting using CBOR major types, the range of values is caused by the CBO
           <tbody>
             <tr>
               <td>0x00</td>
-              <td>UDPCL Padding</td>
+              <td>Keepalive</td>
             </tr>
             <tr>
               <td>0x06</td>
@@ -424,7 +438,7 @@ When inspecting using CBOR major types, the range of values is caused by the CBO
             </tr>
             <tr>
               <td>0x16--0x19</td>
-              <td>DTLS Message</td>
+              <td>DTLS Record</td>
             </tr>
             <tr>
               <td>0x80--0x9F</td>
@@ -433,10 +447,6 @@ When inspecting using CBOR major types, the range of values is caused by the CBO
             <tr>
               <td>0xA0--0xBF</td>
               <td>Extension Map (CBOR map)</td>
-            </tr>
-            <tr>
-              <td>0xC0--0xDF</td>
-              <td>Likely BPv7 Bundle (CBOR tag)</td>
             </tr>
             <tr>
               <td>others</td>
@@ -965,7 +975,8 @@ TBD
 The areas in which changes from <xref target="RFC7122"/> have been made to existing requirements:
       </t>
       <ul spacing="normal">
-        <li>Made explicit references to UDP-related RFCs.</li>
+        <li>Made explicit references to UDP- and IP-related RFCs.</li>
+        <li>Made more strict Keepalive requirements.</li>
         <li>Defined UDPCL security and made mandatory-to-implement.</li>
       </ul>
       <t>
@@ -973,6 +984,7 @@ The areas in which extensions from <xref target="RFC7122"/> have been made as ne
       </t>
       <ul spacing="normal">
         <li>Added BPv7 bundle as a possible UDPCL payload.</li>
+        <li>Added Extension Map message type and initial extension types.</li>
         <li>Defined semantics for UDPCL multicast addressing.</li>
       </ul>
     </section>
