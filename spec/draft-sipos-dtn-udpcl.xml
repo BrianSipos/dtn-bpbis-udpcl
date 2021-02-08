@@ -191,7 +191,7 @@ This refers to a transfer incoming to an entity as seen from that receiving enti
       <name>General Protocol Description</name>
       <t>
 The service of this protocol is the transmission of DTN bundles via the User Datagram Protocol (UDP).
-This document specifies the optional fragmention of bundles, procedures for DTLS setup and teardown, and a set of messages and entity requirements.
+This document specifies the optional fragmentation of bundles, procedures for DTLS setup and teardown, and a set of messages and entity requirements.
 The general operation of the protocol is as follows.
       </t>
       <t>
@@ -373,7 +373,7 @@ Data with a leading octet value of 0x00 SHALL be treated as keepalive.
           </dd>
           <dt>Extension Map:</dt>
           <dd>
-All UDPCL extensions SHALL be contained in a CBOR map in accordance with the defintions of <xref target="sec-udpcl-extension"/>.
+All UDPCL extensions SHALL be contained in a CBOR map in accordance with the definitions of <xref target="sec-udpcl-extension"/>.
 The encoded Extension Map SHALL NOT have any CBOR tags.
 Data with a leading octet value indicating CBOR map (major type 5) SHALL be treated as an Extension Map.
           </dd>
@@ -396,7 +396,7 @@ In addition to the UDPCL specific messaging, immediately after a DTLS Initiation
 Data with a leading octet value of 0x16 SHALL be treated as a DTLS handshake record in accordance with <xref section="4.1" target="RFC6347"/>.
             </t>
             <t>
-If the datagram with the DTLS Initiation extension is not recevied by an entity, the entity SHOULD still detect the DTLS handshake records and start the handshake sequence at that point.
+If the datagram with the DTLS Initiation extension is not received by an entity, the entity SHOULD still detect the DTLS handshake records and start the handshake sequence at that point.
 Data with a leading octet value of 0x17--0x19 SHALL be treated as a DTLS sequencing failure; DTLS non-handshake records should never be seen by the UDPCL messaging layer.
             </t>
           </dd>
@@ -470,7 +470,7 @@ There are no DTLS parameters actually transmitted as part of this extension, it 
 Although the datagram containing this extension is not retransmitted, the DTLS handshake itself will retransmit ClientHello messages until confirmation is received.
           </t>
           <t>
-The Extension Map containig a DTLS Initiation item SHALL NOT contain any other items.
+The Extension Map containing a DTLS Initiation item SHALL NOT contain any other items.
 A DTLS Initiation item SHALL NOT be present in any message transmitted within a DTLS session.
 A receiver of a DTLS Initiation item within a DTLS session SHALL ignore it.
           </t>
@@ -532,8 +532,8 @@ upon exhaustion of the entire 64-bit Transfer ID space, the subsequent Transfer 
           <section anchor="sec-transfer-fragmentation">
             <name>Transfer Fragmentation and Reassembly</name>
             <t>
-The full data content of a transfer SHALL be either a BPv6 or BPv7 Bundle as defiend in <xref target="sec-udpcl-messaging"/>.
-A receving entity SHALL discard any reassembled transfer which does not properly contain a bundle.
+The full data content of a transfer SHALL be either a BPv6 or BPv7 Bundle as defined in <xref target="sec-udpcl-messaging"/>.
+A receiving entity SHALL discard any reassembled transfer which does not properly contain a bundle.
             </t>
             <t>
 A transmitting entity MAY produce a Transfer with a single fragment (i.e., a Fragment Data size identical to the Total Length).
@@ -547,12 +547,12 @@ A receiving entity SHALL consider a transport as finished when Fragment Data has
             <t>
 A receiving entity SHALL discard any Transfer item containing different CBOR types than defined in this document.
 A receiving entity SHALL discard any Transfer item containing a fragment with an overlapping span.
-Because there is no feedback indication at the UDPCL layer, a transmitter has no idication when a transfer is discarded by the receiver.
+Because there is no feedback indication at the UDPCL layer, a transmitter has no indication when a transfer is discarded by the receiver.
             </t>
             <t>
 A receiving entity SHOULD discard unfinished transfer state after an implementation-defined timeout since the last received fragment.
 Entities SHOULD choose a transfer timeout interval no longer than one minute (60 seconds).
-Discarding an unfinished transfer causes no signalling to the transmitting entity, but does indicate this to the BP agent.
+Discarding an unfinished transfer causes no indication to the transmitting entity, but does indicate this to the BP agent.
             </t>
           </section>
         </section>
@@ -564,7 +564,7 @@ This version of the TCPCL supports establishing a DTLS session within an existin
 When DTLS is used within the UDPCL it affects the entire conversation.
         </t>
         <t>
-Once established, the lifetime of a TLS connection SHALL be bounded by the DTLS session ticket lifetime or either peer sending a Closure Alert record.
+Once established, the lifetime of a DTLS session SHALL be bound by the DTLS session ticket lifetime or either peer sending a Closure Alert record.
         </t>
         <t>
 Subsequent DTLS session attempts to the same passive entity MAY attempt to use the DTLS session resumption feature.
@@ -724,7 +724,7 @@ The configuration to disable DTLS is different from the threat of DTLS stripping
         <t>
 This specification makes use of PKIX certificate validation and authentication within DTLS.
 There are alternate uses of DTLS which are not necessarily incompatible with the security goals of this specification, but are outside of the scope of this document.
-The following subsections give examples of alternate TLS uses.
+The following subsections give examples of alternate DTLS uses.
         </t>
         <section anchor="sec-security-tlsnoauth">
           <name>DTLS Without Authentication</name>
@@ -811,7 +811,7 @@ Negative code points are reserved for use on private networks for functions not 
         </t>
         <t>
 Specifications of new extension types need to define the CBOR item structure of the extension data as well as the purpose and relationship of the new extension to existing session/transfer state within the baseline UDPCL sequencing.
-Receiving entities will ignore items with unknown Extension ID, and that behavior needs to be considered by new extensino types.
+Receiving entities will ignore items with unknown Extension ID, and that behavior needs to be considered by new extension types.
         </t>
         <t>
 Expert(s) are encouraged to be biased towards approving registrations unless they are abusive, frivolous, or actively harmful (not merely aesthetically displeasing, or architecturally dubious).
@@ -965,8 +965,8 @@ TBD
 The areas in which changes from <xref target="RFC7122"/> have been made to existing requirements:
       </t>
       <ul spacing="normal">
-        <li>Made explict references to UDP-related RFCs.</li>
-        <li>Made security mandatory-to-implement.</li>
+        <li>Made explicit references to UDP-related RFCs.</li>
+        <li>Defined UDPCL security and made mandatory-to-implement.</li>
       </ul>
       <t>
 The areas in which extensions from <xref target="RFC7122"/> have been made as new behaviors are:
