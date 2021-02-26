@@ -1,9 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
-project(
-    draft-sipos-dtn-udpcl
-    LANGUAGES
-)
-
+# Inherit variables from top-level project
 set(DRAFT_NAME "${PROJECT_NAME}")
 
 find_program(XML2RFC xml2rfc)

@@ -94,7 +94,7 @@ This convergence layer is referred to as UDP Convergence Layer (UDPCL).
 For the remainder of this document, the abbreviation "BP" without the version suffix refers to BPv7.
       </t>
       <t>
-The locations of the UDPCL and the BP in the Internet model protocol stack (described in <xref target="RFC1122"/>) are shown in Figure 1.
+The locations of the UDPCL and the BP in the Internet model protocol stack (described in <xref target="RFC1122"/>) are shown in <xref target="fig-udpcl-ip-stack"/>.
 In particular, when BP is using UDP as its bearer with UDPCL as its convergence layer, both BP and UDPCL reside at the application layer of the Internet model.
       </t>
       <figure anchor="fig-udpcl-ip-stack">
@@ -524,14 +524,15 @@ There are no DTLS parameters actually transmitted as part of this extension, it 
 Although the datagram containing this extension is not retransmitted, the DTLS handshake itself will retransmit ClientHello messages until confirmation is received.
           </t>
           <t>
-The Extension Map containing a DTLS Initiation item SHALL NOT contain any other items.
-A DTLS Initiation item SHALL NOT be present in any message transmitted within a DTLS session.
-A receiver of a DTLS Initiation item within a DTLS session SHALL ignore it.
-          </t>
-          <t>
 If the entity is configured to enable exchanging messages according to DTLS 1.2 <xref target="RFC6347"/> or any successors which are compatible with that DTLS ClientHello, the first message in any sequence to a unicast recipient SHALL be an Extension Map with the DTLS Initiation item.
 The RECOMMENDED policy is to enable DTLS for all unicast recipients, even if security policy does not allow or require authentication.
 This follows the opportunistic security model of <xref target="RFC7435"/>, though an active attacker could interfere with the exchange in such cases (see <xref target="sec-threat-tls-strip"/>).
+          </t>
+          <t>
+The Extension Map containing a DTLS Initiation item SHALL NOT contain any other items.
+A DTLS Initiation item SHALL NOT be present in any message transmitted within a DTLS session.
+A receiver of a DTLS Initiation item within a DTLS session SHALL ignore it.
+Between transmitting a DTLS Initiation item and finishing a DTLS handshake (either success or failure) an entity SHALL NOT transmit any other UDP datagrams in that same conversation.
           </t>
         </section>
         <section anchor="sec-ext-transfer">
@@ -547,16 +548,16 @@ The items are defined in the following order:
           <dl>
             <dt>Transfer ID:</dt>
             <dd>
-This field SHALL be a CBOR unit item, which is used to correlate multiple fragments.
+This field SHALL be a CBOR uint item, which is used to correlate multiple fragments.
             </dd>
             <dt>Total Length:</dt>
             <dd>
-This field SHALL be a CBOR unit item, which is used to indicate the total length (in octets) of the transfer.
+This field SHALL be a CBOR uint item, which is used to indicate the total length (in octets) of the transfer.
 If multiple Transfers for the same Transfer ID are received with differing Total Length values, the receiver SHALL treat the transfer as being malformed.
             </dd>
             <dt>Fragment Offset:</dt>
             <dd>
-This field SHALL be a CBOR unit item, which is used to indicate the offset (in octets) into the transfer for the start of this fragment.
+This field SHALL be a CBOR uint item, which is used to indicate the offset (in octets) into the transfer for the start of this fragment.
             </dd>
             <dt>Fragment Data:</dt>
             <dd>
@@ -586,7 +587,7 @@ upon exhaustion of the entire 64-bit Transfer ID space, the subsequent Transfer 
           <section anchor="sec-transfer-fragmentation">
             <name>Transfer Fragmentation and Reassembly</name>
             <t>
-The full data content of a transfer SHALL be either a BPv6 or BPv7 Bundle as defined in <xref target="sec-udpcl-messaging"/>.
+The full data content of a transfer SHALL be an unframed (BPv6 or BPv7) bundle as defined in <xref target="sec-udpcl-messaging"/>.
 A receiving entity SHALL discard any reassembled transfer which does not properly contain a bundle.
             </t>
             <t>
@@ -607,6 +608,7 @@ Because there is no feedback indication at the UDPCL layer, a transmitter has no
 A receiving entity SHOULD discard unfinished transfer state after an implementation-defined timeout since the last received fragment.
 Entities SHOULD choose a transfer timeout interval no longer than one minute (60 seconds).
 Discarding an unfinished transfer causes no indication to the transmitting entity, but does indicate this to the BP agent.
+This timeout is purely receiver-side and represents the maximum allowed time between sequential received datagrams, which should be short if the datagrams take a similar network path.
             </t>
           </section>
         </section>
