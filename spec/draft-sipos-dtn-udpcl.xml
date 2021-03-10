@@ -370,25 +370,27 @@ When nodes have bidirectional transfer capability, the bundle deletion reason co
 This section defines the UDPCL protocol and its interactions with under-layers (IP and UDP) and over-layers (BP).
 The section is organized from the network layer up toward the BP layer.
       </t>
-      <section>
-        <name>Destination Address</name>
+      <section anchor="sec-ip-addressing">
+        <name>IP Addressing</name>
         <t>
-The earlier UDPCL specification in <xref target="RFC7122"/> did not include guidance on IP addressing and potential use of multicast, though the architecture of <xref target="RFC4838"/> explicitly includes multicast and anycast as expected network modes.
+The earlier UDPCL specification in <xref target="RFC7122"/> did not include guidance on IP addressing, interface sourcing, or potential use of multicast, though the architecture of <xref target="RFC4838"/> explicitly includes multicast and anycast as expected network modes.
         </t>
         <t>
-The BP agent determines the mapping from destination EID to next-hop CL parameters, including transfer destination address.
+The BP agent determines the mapping from destination EID to next-hop CL parameters, including transfer destination address and transfer source interface.
 Some EIDs represent unicast destinations and others non-unicast destinations as defined in <xref section="4.2.5.1" target="I-D.ietf-dtn-bpbis"/>.
 The unicast-ness of an EID does not necessarily correspond with the unicast-ness, as some bundle routing schemes involve attempting multiple parallel paths to a unicast endpoint.
         </t>
         <t>
-For unicast transfers to a single node, the destination address SHALL be a unicast IPv4 or IPv6 address.
-When performing unicast transfers, a UDPCL entity SHOULD restrict the network to one protected by IPsec or some other under-layer security mechanism (e.g., a virtual private network).
+For unicast transfers to a single node, the destination address SHALL be a non-multicast IPv4 or IPv6 address (which does include link-local addresses).
+For unicast transfers, the source interface address MAY be supplied by the BP agent or otherwise determined by the operating system IP routing.
+When performing unicast transfers, a UDPCL entity SHOULD require DTLS use (see <xref target="sec-udpcl-security"/>) or restrict the network to one protected by IPsec or some other under-layer security mechanism (e.g., a virtual private network).
         </t>
         <t>
 For multicast transfers to one or more nodes, the destination address SHALL be a multicast IPv4 <xref target="IANA-IPv4-MCAST"/> or IPv6 <xref target="IANA-IPv6-MCAST"/> address.
+For multicast transfers, the source interface address MUST be supplied by the BP agent rather than inferred by the UDPCL entity.
         </t>
       </section>
-      <section>
+      <section anchor="sec-udp-header">
         <name>UDP Header</name>
         <t>
 To perform UDPCL messaging, the active entity SHALL transmit a UDP datagram to a listening passive entity in accordance with <xref target="RFC0768"/>, typically by using the services provided by the operating system.
@@ -574,7 +576,7 @@ Each invocation of UDPCL by the BP agent, requesting transmission of a bundle (f
             </t>
             <t>
 Because UDPCL operation is connectionless, Transfer IDs from each entity SHALL be unique for the operating duration of the entity.
-In practice, the ID needs only be unique for the longest receiver reassembly time window; but because that information is not part of the protocol there is no way for an entity to 
+In practice, the ID needs only be unique for the longest receiver reassembly time window; but because that information is not part of the protocol there is no way for an transmitting entity to know the reassembly time window of any receiver (see <xref target="sec-transfer-fragmentation"/>).
 When there are bidirectional bundle transfers between UDPCL entities, an entity SHOULD NOT rely on any relation between Transfer IDs originating from each side of the conversation.
             </t>
             <t>
@@ -608,7 +610,7 @@ Because there is no feedback indication at the UDPCL layer, a transmitter has no
 A receiving entity SHOULD discard unfinished transfer state after an implementation-defined timeout since the last received fragment.
 Entities SHOULD choose a transfer timeout interval no longer than one minute (60 seconds).
 Discarding an unfinished transfer causes no indication to the transmitting entity, but does indicate this to the BP agent.
-This timeout is purely receiver-side and represents the maximum allowed time between sequential received datagrams, which should be short if the datagrams take a similar network path.
+This timeout is purely receiver-side and represents the maximum allowed time between sequential received datagrams (in any order), which should be short if the datagrams take a similar network path.
             </t>
           </section>
         </section>
