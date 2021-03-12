@@ -210,17 +210,19 @@ This refers to a transfer incoming to an entity as seen from that receiving enti
 |              UDPCL Entity              |
 |                                        |      +----------------+
 |   +--------------------------------+   |      |                |-+
-|   | Actively Initiated Transfer #1 +---------&gt;| Other          | |
+|   | Actively Initiated Transfer #1 |---------&gt;| Other          | |
 |   +--------------------------------+   |      | UDPCL Entity's | |
 |                  ...                   |      | Passive        | |
 |   +--------------------------------+   |      | Listener       | |
-|   | Actively Initiated Transfer #n +---------&gt;|                | |
+|   | Actively Initiated Transfer #n |---------&gt;|                | |
+|   |                                |          |                | |
+|   |      Return-Path Acceptance    |&lt;---------|                | |
 |   +--------------------------------+   |      +----------------+ |
 |                                        |       +-----------------+
 |      +---------------------------+     |
 |      | +---------------------------+   |      +----------------+
 |      | | Optional Passive          |   |      |                |-+
-|      +-| Listener(s)               +&lt;---------+ Other          | |
+|      +-| Listener(s)               |&lt;---------+ Other          | |
 |        +---------------------------+   |      | UDPCL Entity's | |
 |                                 ^      |      | Active         | |
 |                                 |      |      | Initiator(s)   | |
@@ -285,7 +287,7 @@ The UDPCL entity indicates to the BP agent on certain reasons for reception fail
           </dd>
           <dt>Attempt DTLS Session:</dt>
           <dd>
-The UDPCL allows a BP agent to preemptively attempt to establish a DTLS session with a peer entity (see <xref target="sec-udpcl-security"/>).
+The UDPCL allows a BP agent to preemptively attempt to establish a DTLS session with a peer entity (see <xref target="sec-ext-starttls"/> and <xref target="sec-udpcl-security"/>).
 Each session attempt can send a different set of session negotiation parameters as directed by the BP agent.
           </dd>
           <dt>Close DTLS Session:</dt>
@@ -297,6 +299,15 @@ The closure request is on a per-session basis.
           <dd>
 The UDPCL entity indicates to the BP agent when a DTLS session state changes.
 The possible DTLS session states are defined in <xref target="RFC6347"/>.
+          </dd>
+          <dt>Begin Return-Path Accept:</dt>
+          <dd>
+The UDPCL allows a BP agent to indicate when messaging from a particular peer address-and-port is to be accepted (see <xref target="sec-ext-return-accept"/>).
+The Return-Path Accept interval is configurable for each peer address-and-port.
+          </dd>
+          <dt>End Return-Path Accept:</dt>
+          <dd>
+The UDPCL allows a BP agent to indicate when messaging from a particular peer address-and-port is to no longer be accepted.
           </dd>
         </dl>
       </section>
@@ -394,11 +405,17 @@ For multicast transfers, the source interface address MUST be supplied by the BP
         <name>UDP Header</name>
         <t>
 To perform UDPCL messaging, the active entity SHALL transmit a UDP datagram to a listening passive entity in accordance with <xref target="RFC0768"/>, typically by using the services provided by the operating system.
+        </t>
+        <t>
 Destination port number 4556 has been assigned by IANA as the Registered Port number for the UDP convergence layer and SHALL be used as a default.
 Other destination port numbers MAY be used per local configuration.
 Determining a passive entity's destination port number (if different from the registered UDPCL port number) is up to the implementation.
+        </t>
+        <t>
 Any source port number MAY be used for UDPCL transfers.
 Typically an operating system assigned number in the UDP Ephemeral range (49152-65535) is used.
+For repeated messaging to the same destination address-and-port, the active entity SHOULD reuse the same source address-and-port.
+Reusing source address-and-port allows simplifies network monitoring and analysis and also enables return-path messaging as defined in <xref target="sec-ext-return-accept"/>.
         </t>
       </section>
       <section anchor="sec-udpcl-messaging">
@@ -614,12 +631,43 @@ This timeout is purely receiver-side and represents the maximum allowed time bet
             </t>
           </section>
         </section>
+        <section anchor="sec-ext-return-accept">
+          <name>Return-Path Accept</name>
+          <t>
+This extension item indicates that the transmitter is willing to accept UDPCL messages on the source address-and-port used to transmit the message containing this extension item.
+This is different from simply listening on a UDP port (either the default or any other) when the entity is behind a NAT or firewall which will not allow unsolicited UDP/IP datagrams.
+Although the datagram containing this extension is not retransmitted, the acceptance interval is finite duration and if the transmitter continues to be willing to accept messages.
+There is no positive indication that messages are no longer accepted; the Return-Path Accept just stops being transmitted.
+          </t>
+          <t>
+The Return-Path Accept value SHALL be an untagged uint value representing the interval of time (in milliseconds) that the entity is willing to accept UDPCL messages on the source address-and-port used for the associated transmitted message.
+After transmitting a Return-Path Accept, the entity SHALL listen for and accept datagrams on the source address-and-port used for the associated transmitted message.
+As long as the entity is still willing to accept messages, at the end of one accept interval the entity SHALL transmit another Return-Path Accept item.
+This repitition continues until the entity is no longer willing to accept messages.
+          </t>
+          <t>
+Unlike the generic source port requirement in <xref target="sec-udp-header"/>, when repeated Return-Path Accept are transmitted a consistent source address-and-port SHALL be used.
+          </t>
+          <t>
+The Return-Path Accept interval SHOULD be no shorter than 1 second and no longer than 60 seconds.
+          </t>
+          <t>
+An entity MAY include the Return-Path Accept along with any other extension items.
+An entity SHALL NOT transmit a Return-Path Accept item before or along with a DTLS Initiate if DTLS is desired for a conversation.
+          </t>
+          <t>
+This extension is not a neighbor discovery mechanism and does not indicate an entity listening generally on a particular UDP port.
+Return-path acceptance applies only to UDP datagrams from the the peer address-and-port.
+An entity SHALL NOT include the Return-Path Accept in a message transmitted to a multicast address.
+          </t>
+        </section>
       </section>
       <section anchor="sec-udpcl-security">
         <name>UDPCL Security</name>
         <t>
 This version of the UDPCL supports establishing a DTLS session within an existing UDP conversation.
 When DTLS is used within the UDPCL it affects the entire conversation.
+There is no concept of a plaintext message being sent in a coversation after a DTLS session is established.
         </t>
         <t>
 Once established, the lifetime of a DTLS session SHALL be bound by the DTLS session ticket lifetime or either peer sending a Closure Alert record.
