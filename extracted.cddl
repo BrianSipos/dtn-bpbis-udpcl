@@ -1,0 +1,43 @@
+
+start = udpcl-ext-map
+        
+
+; Map structure requiring non-zero-int keys.
+; CDDL cannot enforce type-specific requirements about other items being present
+; (or not present) in the same map.
+udpcl-ext-map = $udpcl-ext-map .within udpcl-ext-map-structure
+$udpcl-ext-map = {
+    * $$udpcl-ext-item
+}
+udpcl-ext-map-structure = {
+    * ext-key => any
+}
+ext-key = int .ne 0
+          
+
+$$udpcl-ext-item //= (
+    5: null
+)
+            
+
+$$udpcl-ext-item //= (
+    2: [
+        transfer-id: uint .lt 4294967296,
+        total-length: uint,
+        fragment-offset: uint,
+        fragment-data: bstr,
+    ]
+)
+            
+
+$$udpcl-ext-item //= (
+    3: time-duration,
+)
+time-duration = uint
+            
+
+$$udpcl-ext-item //= (
+    4: xmit-nodeid,
+)
+xmit-nodeid = tstr
+            
