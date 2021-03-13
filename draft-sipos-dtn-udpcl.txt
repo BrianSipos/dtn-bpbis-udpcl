@@ -117,7 +117,7 @@ Internet-Draft                  DTN UDPCL                     March 2021
    7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  27
      7.1.  Normative References  . . . . . . . . . . . . . . . . . .  27
      7.2.  Informative References  . . . . . . . . . . . . . . . . .  30
-   Appendix A.  Significant changes from RFC7122 . . . . . . . . . .  31
+   Appendix A.  Significant changes from RFC7122 . . . . . . . . . .  32
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  32
 
 1.  Introduction
@@ -937,9 +937,9 @@ Internet-Draft                  DTN UDPCL                     March 2021
    to disambiguate an end-entity certificate which has multiple NODE-ID
    values.
 
-   The Return-Path Accept value SHALL be an untagged tstr value
-   containing a Node ID.  Every Node ID SHALL be a URI consistent with
-   the requirements of [RFC3986] and the URI schemes of the IANA "Bundle
+   The Sender Node ID value SHALL be an untagged tstr value containing a
+   Node ID.  Every Node ID SHALL be a URI consistent with the
+   requirements of [RFC3986] and the URI schemes of the IANA "Bundle
    Protocol URI Scheme Type" registry [IANA-BUNDLE].
 
    $$udpcl-ext-item //= (
@@ -1469,21 +1469,25 @@ Internet-Draft                  DTN UDPCL                     March 2021
    unless they are abusive, frivolous, or actively harmful (not merely
    aesthetically displeasing, or architecturally dubious).
 
-   +==============+==================+===========+=====================+
-   | Extension ID | Name             | Item      | References          |
-   |              |                  | Type      |                     |
-   +==============+==================+===========+=====================+
-   | negative     | Private/         | any       | This specification. |
-   |              | Experimental Use |           |                     |
-   +--------------+------------------+-----------+---------------------+
-   | 0            | Reserved         |           | This specification. |
-   +--------------+------------------+-----------+---------------------+
-   | 2            | Transfer         | array     | Section 2.6.4.2 of  |
-   |              |                  |           | this specification. |
-   +--------------+------------------+-----------+---------------------+
-   | 5            | DTLS Initiation  | null      | Section 2.6.4.1 of  |
-   |              | (STARTTLS)       |           | this specification. |
-   +--------------+------------------+-----------+---------------------+
+     +==============+==========================+=====================+
+     | Extension ID | Name                     | References          |
+     +==============+==========================+=====================+
+     | negative     | Private/Experimental Use | This specification. |
+     +--------------+--------------------------+---------------------+
+     | 0            | Reserved                 | This specification. |
+     +--------------+--------------------------+---------------------+
+     | 2            | Transfer                 | Section 2.6.4.2 of  |
+     |              |                          | this specification. |
+     +--------------+--------------------------+---------------------+
+     | 3            | Return-Path Accept       | Section 2.6.4.3 of  |
+     |              |                          | this specification. |
+     +--------------+--------------------------+---------------------+
+     | 4            | Sender Node ID           | Section 2.6.4.4 of  |
+     |              |                          | this specification. |
+     +--------------+--------------------------+---------------------+
+     | 5            | DTLS Initiation          | Section 2.6.4.1 of  |
+     |              | (STARTTLS)               | this specification. |
+     +--------------+--------------------------+---------------------+
 
                        Table 3: Extension Type Codes
 
@@ -1499,10 +1503,6 @@ Internet-Draft                  DTN UDPCL                     March 2021
               IANA, "Bundle Protocol",
               <https://www.iana.org/assignments/bundle/>.
 
-   [IANA-PORTS]
-              IANA, "Service Name and Transport Protocol Port Number
-              Registry", <https://www.iana.org/assignments/service-
-              names-port-numbers/>.
 
 
 
@@ -1513,6 +1513,11 @@ Sipos                   Expires 14 September 2021              [Page 27]
 
 Internet-Draft                  DTN UDPCL                     March 2021
 
+
+   [IANA-PORTS]
+              IANA, "Service Name and Transport Protocol Port Number
+              Registry", <https://www.iana.org/assignments/service-
+              names-port-numbers/>.
 
    [IANA-IPv4-MCAST]
               IANA, "IPv4 Multicast Address Space Registry",
@@ -1555,12 +1560,7 @@ Internet-Draft                  DTN UDPCL                     March 2021
               (CRL) Profile", RFC 5280, DOI 10.17487/RFC5280, May 2008,
               <https://www.rfc-editor.org/info/rfc5280>.
 
-   [RFC6125]  Saint-Andre, P. and J. Hodges, "Representation and
-              Verification of Domain-Based Application Service Identity
-              within Internet Public Key Infrastructure Using X.509
-              (PKIX) Certificates in the Context of Transport Layer
-              Security (TLS)", RFC 6125, DOI 10.17487/RFC6125, March
-              2011, <https://www.rfc-editor.org/info/rfc6125>.
+
 
 
 
@@ -1569,6 +1569,13 @@ Sipos                   Expires 14 September 2021              [Page 28]
 
 Internet-Draft                  DTN UDPCL                     March 2021
 
+
+   [RFC6125]  Saint-Andre, P. and J. Hodges, "Representation and
+              Verification of Domain-Based Application Service Identity
+              within Internet Public Key Infrastructure Using X.509
+              (PKIX) Certificates in the Context of Transport Layer
+              Security (TLS)", RFC 6125, DOI 10.17487/RFC6125, March
+              2011, <https://www.rfc-editor.org/info/rfc6125>.
 
    [RFC6347]  Rescorla, E. and N. Modadugu, "Datagram Transport Layer
               Security Version 1.2", RFC 6347, DOI 10.17487/RFC6347,
@@ -1610,13 +1617,6 @@ Internet-Draft                  DTN UDPCL                     March 2021
               DOI 10.17487/RFC8949, December 2020,
               <https://www.rfc-editor.org/info/rfc8949>.
 
-   [I-D.ietf-dtn-bpbis]
-              Burleigh, S., Fall, K., and E. Birrane, "Bundle Protocol
-              Version 7", Work in Progress, Internet-Draft, draft-ietf-
-              dtn-bpbis-31, 25 January 2021,
-              <https://tools.ietf.org/html/draft-ietf-dtn-bpbis-31>.
-
-
 
 
 
@@ -1625,6 +1625,12 @@ Sipos                   Expires 14 September 2021              [Page 29]
 
 Internet-Draft                  DTN UDPCL                     March 2021
 
+
+   [I-D.ietf-dtn-bpbis]
+              Burleigh, S., Fall, K., and E. Birrane, "Bundle Protocol
+              Version 7", Work in Progress, Internet-Draft, draft-ietf-
+              dtn-bpbis-31, 25 January 2021,
+              <https://tools.ietf.org/html/draft-ietf-dtn-bpbis-31>.
 
    [I-D.ietf-dtn-tcpclv4]
               Sipos, B., Demmer, M., Ott, J., and S. Perreault, "Delay-
@@ -1664,12 +1670,6 @@ Internet-Draft                  DTN UDPCL                     March 2021
               Protocol: TLSA", RFC 6698, DOI 10.17487/RFC6698, August
               2012, <https://www.rfc-editor.org/info/rfc6698>.
 
-   [RFC7122]  Kruse, H., Jero, S., and S. Ostermann, "Datagram
-              Convergence Layers for the Delay- and Disruption-Tolerant
-              Networking (DTN) Bundle Protocol and Licklider
-              Transmission Protocol (LTP)", RFC 7122,
-              DOI 10.17487/RFC7122, March 2014,
-              <https://www.rfc-editor.org/info/rfc7122>.
 
 
 
@@ -1681,6 +1681,13 @@ Sipos                   Expires 14 September 2021              [Page 30]
 
 Internet-Draft                  DTN UDPCL                     March 2021
 
+
+   [RFC7122]  Kruse, H., Jero, S., and S. Ostermann, "Datagram
+              Convergence Layers for the Delay- and Disruption-Tolerant
+              Networking (DTN) Bundle Protocol and Licklider
+              Transmission Protocol (LTP)", RFC 7122,
+              DOI 10.17487/RFC7122, March 2014,
+              <https://www.rfc-editor.org/info/rfc7122>.
 
    [RFC7250]  Wouters, P., Ed., Tschofenig, H., Ed., Gilmore, J.,
               Weiler, S., and T. Kivinen, "Using Raw Public Keys in
@@ -1721,14 +1728,7 @@ Internet-Draft                  DTN UDPCL                     March 2021
               Sipos, B., "UDPCL Wireshark Dissector",
               <https://github.com/BSipos-RKF/dtn-wireshark/>.
 
-Appendix A.  Significant changes from RFC7122
 
-   The areas in which changes from [RFC7122] have been made to existing
-   requirements:
-
-   *  Made explicit references to UDP- and IP-related RFCs.
-
-   *  Made more strict Keepalive requirements.
 
 
 
@@ -1737,6 +1737,15 @@ Sipos                   Expires 14 September 2021              [Page 31]
 
 Internet-Draft                  DTN UDPCL                     March 2021
 
+
+Appendix A.  Significant changes from RFC7122
+
+   The areas in which changes from [RFC7122] have been made to existing
+   requirements:
+
+   *  Made explicit references to UDP- and IP-related RFCs.
+
+   *  Made more strict Keepalive requirements.
 
    *  Defined UDPCL security and made mandatory-to-implement.
 
@@ -1759,15 +1768,6 @@ Author's Address
    United States of America
 
    Email: BSipos@rkf-eng.com
-
-
-
-
-
-
-
-
-
 
 
 
