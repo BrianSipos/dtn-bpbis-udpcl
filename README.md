@@ -5,7 +5,7 @@ The final specification is hosted at <https://datatracker.ietf.org/doc/draft-sip
 
 A local build can be made with commands:
 ```
-(mkdir -p spec/build && cd spec/build && cmake .. && cmake --build .)
+(mkdir -p build && cd build && cmake .. && cmake --build .)
 ```
 
 # Demo Convergence Layer Agent
