@@ -728,7 +728,7 @@ This extension item indicates the Node ID of the transmitter.
 For DTLS-secured sessions (see <xref target="sec-dtls-authentication"/>) this extension can be used to disambiguate an end-entity certificate which has multiple NODE-ID values.
           </t>
             <t>
-The Return-Path Accept value SHALL be an untagged tstr value containing a Node ID.
+The Sender Node ID value SHALL be an untagged tstr value containing a Node ID.
 Every Node ID SHALL be a URI consistent with the requirements of <xref target="RFC3986"/> and the URI schemes of the IANA "Bundle Protocol URI Scheme Type" registry <xref target="IANA-BUNDLE"/>.
           </t>
             <figure>
@@ -1106,7 +1106,6 @@ Expert(s) are encouraged to be biased towards approving registrations unless the
             <tr>
               <th>Extension ID</th>
               <th>Name</th>
-              <th>Item Type</th>
               <th>References</th>
             </tr>
           </thead>
@@ -1114,25 +1113,31 @@ Expert(s) are encouraged to be biased towards approving registrations unless the
             <tr>
               <td>negative</td>
               <td>Private/Experimental Use</td>
-              <td>any</td>
               <td>This specification.</td>
             </tr>
             <tr>
               <td>0</td>
               <td>Reserved</td>
-              <td/>
               <td>This specification.</td>
             </tr>
             <tr>
               <td>2</td>
               <td>Transfer</td>
-              <td>array</td>
               <td><xref target="sec-ext-transfer"/> of this specification.</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Return-Path Accept</td>
+              <td><xref target="sec-ext-return-accept"/> of this specification.</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>Sender Node ID</td>
+              <td><xref target="sec-ext-xmit-nodeid"/> of this specification.</td>
             </tr>
             <tr>
               <td>5</td>
               <td>DTLS Initiation (STARTTLS)</td>
-              <td>null</td>
               <td><xref target="sec-ext-starttls"/> of this specification.</td>
             </tr>
           </tbody>
