@@ -9,7 +9,7 @@ Expires: 26 September 2021
 
 
         Delay-Tolerant Networking UDP Convergence Layer Protocol
-                        draft-sipos-dtn-udpcl-00
+                        draft-sipos-dtn-udpcl-01
 
 Abstract
 
