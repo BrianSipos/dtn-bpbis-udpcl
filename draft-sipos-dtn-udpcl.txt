@@ -4,8 +4,8 @@
 
 Delay-Tolerant Networking                                       B. Sipos
 Internet-Draft                                           RKF Engineering
-Intended status: Standards Track                           13 March 2021
-Expires: 14 September 2021
+Intended status: Standards Track                           25 March 2021
+Expires: 26 September 2021
 
 
         Delay-Tolerant Networking UDP Convergence Layer Protocol
@@ -38,7 +38,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 14 September 2021.
+   This Internet-Draft will expire on 26 September 2021.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Sipos                   Expires 14 September 2021               [Page 1]
+Sipos                   Expires 26 September 2021               [Page 1]
 
 Internet-Draft                  DTN UDPCL                     March 2021
 
@@ -70,55 +70,63 @@ Table of Contents
      1.3.  Requirements Language . . . . . . . . . . . . . . . . . .   5
      1.4.  Definitions Specific to the UDPCL Protocol  . . . . . . .   5
    2.  General Protocol Description  . . . . . . . . . . . . . . . .   7
-     2.1.  Convergence Layer Services  . . . . . . . . . . . . . . .   7
-     2.2.  PKIX Environments and CA Policy . . . . . . . . . . . . .   8
+     2.1.  Convergence Layer Services  . . . . . . . . . . . . . . .   8
+     2.2.  PKIX Environments and CA Policy . . . . . . . . . . . . .   9
      2.3.  Fragmentation Policies  . . . . . . . . . . . . . . . . .   9
-     2.4.  Error Checking Policies . . . . . . . . . . . . . . . . .   9
+     2.4.  Error Checking Policies . . . . . . . . . . . . . . . . .  10
      2.5.  Congestion Control Policies . . . . . . . . . . . . . . .  10
-     2.6.  UDPCL Operation . . . . . . . . . . . . . . . . . . . . .  10
-       2.6.1.  IP Addressing . . . . . . . . . . . . . . . . . . . .  10
-       2.6.2.  UDP Header  . . . . . . . . . . . . . . . . . . . . .  11
-       2.6.3.  UDPCL Messaging . . . . . . . . . . . . . . . . . . .  11
-       2.6.4.  UDPCL Extension Items . . . . . . . . . . . . . . . .  13
-     2.7.  UDPCL Security  . . . . . . . . . . . . . . . . . . . . .  18
-       2.7.1.  Entity Identification . . . . . . . . . . . . . . . .  18
-       2.7.2.  Certificate Profile for UDPCL . . . . . . . . . . . .  18
-       2.7.3.  DTLS Handshake  . . . . . . . . . . . . . . . . . . .  19
-       2.7.4.  DTLS Authentication . . . . . . . . . . . . . . . . .  19
-       2.7.5.  Policy Recommendations  . . . . . . . . . . . . . . .  19
-       2.7.6.  Example Secured and Return-Path Transfers . . . . . .  20
-   3.  Implementation Status . . . . . . . . . . . . . . . . . . . .  21
-   4.  Security Considerations . . . . . . . . . . . . . . . . . . .  21
-     4.1.  Threat: Passive Leak of Node Data . . . . . . . . . . . .  21
-     4.2.  Threat: Passive Leak of Bundle Data . . . . . . . . . . .  22
-     4.3.  Threat: Transport Security Stripping  . . . . . . . . . .  22
-     4.4.  Threat: Weak DTLS Configurations  . . . . . . . . . . . .  22
-     4.5.  Threat: Untrusted End-Entity Certificate  . . . . . . . .  23
-     4.6.  Threat: Certificate Validation Vulnerabilities  . . . . .  23
-     4.7.  Threat: BP Node Impersonation . . . . . . . . . . . . . .  23
-     4.8.  Threat: Denial of Service . . . . . . . . . . . . . . . .  24
-     4.9.  Mandatory-to-Implement DTLS . . . . . . . . . . . . . . .  25
-     4.10. Alternate Uses of DTLS  . . . . . . . . . . . . . . . . .  25
-       4.10.1.  DTLS Without Authentication  . . . . . . . . . . . .  25
-       4.10.2.  Non-Certificate DTLS Use . . . . . . . . . . . . . .  25
-     4.11. Predictability of Transfer IDs  . . . . . . . . . . . . .  25
-   5.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  26
-     5.1.  Port Number . . . . . . . . . . . . . . . . . . . . . . .  26
-     5.2.  UDPCL Extension Types . . . . . . . . . . . . . . . . . .  26
-   6.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  27
+   3.  UDPCL Operation . . . . . . . . . . . . . . . . . . . . . . .  11
+     3.1.  IP Addressing . . . . . . . . . . . . . . . . . . . . . .  11
+     3.2.  UDP Header  . . . . . . . . . . . . . . . . . . . . . . .  12
+     3.3.  UDPCL Packets . . . . . . . . . . . . . . . . . . . . . .  12
+     3.4.  UDPCL Messages  . . . . . . . . . . . . . . . . . . . . .  12
+     3.5.  UDPCL Extension Items . . . . . . . . . . . . . . . . . .  14
+       3.5.1.  DTLS Initiation (STARTTLS)  . . . . . . . . . . . . .  15
+       3.5.2.  Bundle Transfer . . . . . . . . . . . . . . . . . . .  15
+       3.5.3.  Sender Listen . . . . . . . . . . . . . . . . . . . .  16
+       3.5.4.  Sender Node ID  . . . . . . . . . . . . . . . . . . .  17
+     3.6.  Explicit Transfers  . . . . . . . . . . . . . . . . . . .  18
+       3.6.1.  Bundle Transfer ID  . . . . . . . . . . . . . . . . .  18
+       3.6.2.  Fragmentation and Reassembly  . . . . . . . . . . . .  19
+     3.7.  UDPCL Security  . . . . . . . . . . . . . . . . . . . . .  20
+       3.7.1.  Entity Identification . . . . . . . . . . . . . . . .  20
+       3.7.2.  Certificate Profile for UDPCL . . . . . . . . . . . .  20
+       3.7.3.  DTLS Handshake  . . . . . . . . . . . . . . . . . . .  20
+       3.7.4.  DTLS Authentication . . . . . . . . . . . . . . . . .  21
+       3.7.5.  Policy Recommendations  . . . . . . . . . . . . . . .  21
+       3.7.6.  Example Secured and Return-Path Transfers . . . . . .  21
+   4.  Implementation Status . . . . . . . . . . . . . . . . . . . .  22
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . .  23
+     5.1.  Threat: Passive Leak of Node Data . . . . . . . . . . . .  23
+     5.2.  Threat: Passive Leak of Bundle Data . . . . . . . . . . .  23
+     5.3.  Threat: Transport Security Stripping  . . . . . . . . . .  24
+     5.4.  Threat: Weak DTLS Configurations  . . . . . . . . . . . .  24
+     5.5.  Threat: Untrusted End-Entity Certificate  . . . . . . . .  24
+     5.6.  Threat: Certificate Validation Vulnerabilities  . . . . .  25
+     5.7.  Threat: BP Node Impersonation . . . . . . . . . . . . . .  25
+     5.8.  Threat: Denial of Service . . . . . . . . . . . . . . . .  26
+     5.9.  Mandatory-to-Implement DTLS . . . . . . . . . . . . . . .  26
 
 
 
-Sipos                   Expires 14 September 2021               [Page 2]
+Sipos                   Expires 26 September 2021               [Page 2]
 
 Internet-Draft                  DTN UDPCL                     March 2021
 
 
-   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  27
-     7.1.  Normative References  . . . . . . . . . . . . . . . . . .  27
-     7.2.  Informative References  . . . . . . . . . . . . . . . . .  30
-   Appendix A.  Significant changes from RFC7122 . . . . . . . . . .  32
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  32
+     5.10. Alternate Uses of DTLS  . . . . . . . . . . . . . . . . .  26
+       5.10.1.  DTLS Without Authentication  . . . . . . . . . . . .  27
+       5.10.2.  Non-Certificate DTLS Use . . . . . . . . . . . . . .  27
+     5.11. Predictability of Transfer IDs  . . . . . . . . . . . . .  27
+   6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  27
+     6.1.  Port Number . . . . . . . . . . . . . . . . . . . . . . .  27
+     6.2.  UDPCL Extension Types . . . . . . . . . . . . . . . . . .  28
+   7.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  29
+   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  29
+     8.1.  Normative References  . . . . . . . . . . . . . . . . . .  29
+     8.2.  Informative References  . . . . . . . . . . . . . . . . .  31
+   Appendix A.  Significant changes from RFC7122 . . . . . . . . . .  33
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  34
 
 1.  Introduction
 
@@ -157,15 +165,7 @@ Internet-Draft                  DTN UDPCL                     March 2021
 
 
 
-
-
-
-
-
-
-
-
-Sipos                   Expires 14 September 2021               [Page 3]
+Sipos                   Expires 26 September 2021               [Page 3]
 
 Internet-Draft                  DTN UDPCL                     March 2021
 
@@ -221,15 +221,15 @@ Internet-Draft                  DTN UDPCL                     March 2021
 
 
 
-Sipos                   Expires 14 September 2021               [Page 4]
+Sipos                   Expires 26 September 2021               [Page 4]
 
 Internet-Draft                  DTN UDPCL                     March 2021
 
 
    *  Uses of Datagram Transport Layer Security (DTLS) which are not
-      based on PKIX certificate authentication (see Section 4.10.2) or
+      based on PKIX certificate authentication (see Section 5.10.2) or
       in which authentication of both entities is not possible (see
-      Section 4.10.1).
+      Section 5.10.1).
 
    Any UDPCL implementation requires a BP agent to perform those above
    listed functions in order to perform end-to-end bundle delivery.
@@ -277,7 +277,7 @@ Internet-Draft                  DTN UDPCL                     March 2021
 
 
 
-Sipos                   Expires 14 September 2021               [Page 5]
+Sipos                   Expires 26 September 2021               [Page 5]
 
 Internet-Draft                  DTN UDPCL                     March 2021
 
@@ -293,7 +293,8 @@ Internet-Draft                  DTN UDPCL                     March 2021
    UDP Conversation:  This refers to datagrams exchanged between two
       network peers, with each peer identified by a (unicast IP address,
       UDP port) tuple.  Because UDP is connectionless, there is no
-      notion of a conversation being "opened" or "closed".
+      notion of a conversation being "opened" or "closed" and some
+      conversations are uni-directional.
 
    Transfer:  This refers to the procedures and mechanisms for
       conveyance of an individual bundle from one entity to one or more
@@ -307,6 +308,36 @@ Internet-Draft                  DTN UDPCL                     March 2021
    Receive:  This refers to a transfer incoming to an entity as seen
       from that receiving entity.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sipos                   Expires 26 September 2021               [Page 6]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
+
    +----------------------------------------+
    |              UDPCL Entity              |
    |                                        |      +----------------+
@@ -317,7 +348,7 @@ Internet-Draft                  DTN UDPCL                     March 2021
    |   +--------------------------------+   |      | Listener       | |
    |   | Actively Initiated Transfer #n |--------->|                | |
    |   |                                |          |                | |
-   |   |      Return-Path Acceptance    |<---------|                | |
+   |   |         Sender Listen          |<---------|                | |
    |   +--------------------------------+   |      +----------------+ |
    |                                        |       +-----------------+
    |      +---------------------------+     |
@@ -330,13 +361,6 @@ Internet-Draft                  DTN UDPCL                     March 2021
    |                                 +-------------|                | |
    +----------------------------------------+      +----------------+ |
                                                     +-----------------+
-
-
-
-Sipos                   Expires 14 September 2021               [Page 6]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
 
              Figure 2: The relationships between UDPCL entities
 
@@ -358,6 +382,18 @@ Internet-Draft                  DTN UDPCL                     March 2021
    address-and-port.  It is the obligation of a BP agent and its routing
    schemes to determine a bundle return path.
 
+
+
+
+
+
+
+
+Sipos                   Expires 26 September 2021               [Page 7]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
+
 2.1.  Convergence Layer Services
 
    This version of the UDPCL provides the following services to support
@@ -370,7 +406,7 @@ Internet-Draft                  DTN UDPCL                     March 2021
    Begin Transmission:  The principal purpose of the UDPCL is to allow a
       BP agent to transmit bundle data to one or more other entities.
       The receiver of each transfer is identified by an (destination)
-      IPv4 or IPv6 address and a UDP port number (see Section 2.6 for
+      IPv4 or IPv6 address and a UDP port number (see Section 3 for
       details).  The CL does not necessarily perform any transmission
       queueing, but may block while transmissions are being processed at
       the UDP layer.  Any queueing of transmissions is the obligation of
@@ -385,15 +421,6 @@ Internet-Draft                  DTN UDPCL                     March 2021
       the bundle-to-transmit.
 
    Transmission Finished:  The UDPCL entity indicates to the BP agent
-
-
-
-
-Sipos                   Expires 14 September 2021               [Page 7]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
-
       when a bundle has been fully transmitted.  This is not a positive
       indication that any next-hop receiver has either received or
       processed the transfer.
@@ -405,15 +432,26 @@ Internet-Draft                  DTN UDPCL                     March 2021
    Reception Success:  The UDPCL entity indicates to the BP agent when a
       bundle has been fully transferred from a peer entity.  The
       transmitter of each transfer is identified by an (source) IP
-      address and a UDP port number (see Section 2.6 for details).
+      address and a UDP port number (see Section 3 for details).
 
    Reception Failure:  The UDPCL entity indicates to the BP agent on
       certain reasons for reception failure, notably upon an unfinished
-      transfer timeout (see Section 2.6.4.2).
+      transfer timeout (see Section 3.5.2).
 
    Attempt DTLS Session:  The UDPCL allows a BP agent to preemptively
+
+
+
+
+
+
+Sipos                   Expires 26 September 2021               [Page 8]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
+
       attempt to establish a DTLS session with a peer entity (see
-      Section 2.6.4.1 and Section 2.7).  Each session attempt can send a
+      Section 3.5.1 and Section 3.7).  Each session attempt can send a
       different set of session negotiation parameters as directed by the
       BP agent.
 
@@ -425,14 +463,18 @@ Internet-Draft                  DTN UDPCL                     March 2021
       agent when a DTLS session state changes.  The possible DTLS
       session states are defined in [RFC6347].
 
-   Begin Return-Path Accept:  The UDPCL allows a BP agent to indicate
-      when messaging from a particular peer address-and-port is to be
-      accepted (see Section 2.6.4.3).  The Return-Path Accept interval
-      is configurable for each peer address-and-port.
+   Begin Sender Listen:  The UDPCL allows a BP agent to indicate when
+      packets on a particular address-and-port is listened for (see
+      Section 3.5.3).  The Sender Listen interval is configurable for
+      each peer address-and-port.
 
-   End Return-Path Accept:  The UDPCL allows a BP agent to indicate when
-      messaging from a particular peer address-and-port is to no longer
-      be accepted.
+   End Sender Listen:  The UDPCL allows a BP agent to indicate when
+      packets on a particular address-and-port are no longer be
+      accepted.
+
+   Sender Listen Received:  The UDPCL entity indicates to the BP agent
+      when a Sender Listen extension has been received from a peer.  The
+      Sender Node ID, if present, is part of this indication.
 
 2.2.  PKIX Environments and CA Policy
 
@@ -442,47 +484,47 @@ Internet-Draft                  DTN UDPCL                     March 2021
    UDPCL uses the exact same mechanisms and makes the same assumptions
    as TCPCL in Section 3.4 of [I-D.ietf-dtn-tcpclv4].
 
+2.3.  Fragmentation Policies
+
+   It is a implementation matter for a sending entity to determine the
+   path maximum transmit unit (PMTU) to be used as a target upper-bound
+   UDP datagram size.  Some techniques to perform MTU discovery are
+   defined in [RFC8899].  All IP packets sent by a UDPCL entity SHOULD
+   have the "don't fragment" bit set to allow detection of PMTU issues.
+
+   The priority order of fragmentation is the following:
+
+   1.  When possible, bundles too large to fit in one PMTU-sized packet
+       SHOULD be fragmented at the BP layer.  Bundle payload
+       fragmentation does not help a large bundle if extension blocks
+       are a major contributor to bundle size, so in some circumstances
 
 
 
-Sipos                   Expires 14 September 2021               [Page 8]
+Sipos                   Expires 26 September 2021               [Page 9]
 
 Internet-Draft                  DTN UDPCL                     March 2021
 
 
-2.3.  Fragmentation Policies
-
-   It is a implementation matter for a sending entity to determine the
-   path maximum transmit unit (MTU) to be used as a target upper-bound
-   UDP datagram size.  Some mechanisms to perform MTU discovery are
-   defined in [RFC8899].  All IP packets sent by a UDPCL entity SHOULD
-   have the "don't fragment" bit set to allow detection of path MTU
-   issues.
-
-   The priority order of fragmentation is the following:
-
-   1.  When possible, bundles too large to fit in one path-MTU-sized
-       packet SHOULD be fragmented at the BP layer.  Bundle payload
-       fragmentation does not help a large bundle if extension blocks
-       are a major contributor to bundle size, so in some circumstances
        BP layer fragmentation will not reduce the bundle size
        sufficiently.  It is outside the scope of UDPCL to manage BP
        agent fragmentation policies; bundles are received from the BP
        agent either already fragmented or not.
 
-   2.  Bundles too large to fit in one path-MTU-sized packet SHALL be
-       fragmented as a UDPCL transfer (see Section 2.6.4.2).
-       Fragmentation at this level treats bundle transfers as opaque
-       data, so it is independent of bundle block sizes or counts.
+   2.  Bundles too large to fit in one PMTU-sized packet SHALL be
+       fragmented as a UDPCL transfer (see Section 3.6).  Fragmentation
+       at this level treats bundle transfers as opaque data, so it is
+       independent of bundle block sizes or counts.
 
-   3.  All IP packets larger than expected path MTU SHALL be fragmented
-       by the transmitting entity to fit within one path MTU.  Because
-       of the issues listed in Section 3.2 of [RFC8085], it is best to
-       avoid IP fragmentation as much as possible.
+   3.  All IP packets larger than expected PMTU SHALL be fragmented by
+       the transmitting entity to fit within one PMTU.  Because of the
+       issues listed in Section 3.2 of [RFC8085] and [RFC8900], it is
+       best to avoid IP fragmentation as much as possible.
 
    A UDPCL entity SHOULD NOT proactively drop an outgoing transfer due
    to datagram size.  If intermediate network nodes drop IP packets it
-   is an implementation matter to receive network feedback.
+   is an implementation matter to receive network feedback (e.g.  ICMP
+   Packet Too Big).
 
 2.4.  Error Checking Policies
 
@@ -499,13 +541,6 @@ Internet-Draft                  DTN UDPCL                     March 2021
    In general, however, a UDPCL entity SHOULD insure the a bundle's
    blocks are either covered by a CRC or a BPSec integrity check.
 
-
-
-Sipos                   Expires 14 September 2021               [Page 9]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
-
 2.5.  Congestion Control Policies
 
    The applications using UDPCL for bundle transport SHALL conform to
@@ -519,13 +554,33 @@ Internet-Draft                  DTN UDPCL                     March 2021
    to signal to the bundle source application that throttling of bundles
    along that path SHOULD occur.
 
-2.6.  UDPCL Operation
+
+
+
+Sipos                   Expires 26 September 2021              [Page 10]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
+
+3.  UDPCL Operation
 
    This section defines the UDPCL protocol and its interactions with
-   under-layers (IP and UDP) and over-layers (BP).  The section is
-   organized from the network layer up toward the BP layer.
+   under-layers (IP and UDP) and over-layers (BP), as illustrated in
+   Figure 1.  The section is organized from the network layer up toward
+   the BP layer.  It also discusses behavior within the UDPCL layer,
+   which is illustrated in Figure 3.
 
-2.6.1.  IP Addressing
+      +------------------------------------------+
+      |  Bundle Transfer  |  Extension Signaling | <- Sequencing /
+      +------------------------------------------+      fragmentation
+      |  Bundle  | Ext. Map |  ...  |  Padding   | <- Messaging
+      +------------------------------------------+
+      |               UDPCL Packet               | <- Packetization
+      +------------------------------------------+
+
+             Figure 3: Breakdown of sub-layers within the UDPCL
+
+3.1.  IP Addressing
 
    The earlier UDPCL specification in [RFC7122] did not include guidance
    on IP addressing, interface sourcing, or potential use of multicast,
@@ -546,7 +601,7 @@ Internet-Draft                  DTN UDPCL                     March 2021
    local addresses).  For unicast transfers, the source interface
    address MAY be supplied by the BP agent or otherwise determined by
    the operating system IP routing.  When performing unicast transfers,
-   a UDPCL entity SHOULD require DTLS use (see Section 2.7) or restrict
+   a UDPCL entity SHOULD require DTLS use (see Section 3.7) or restrict
    the network to one protected by IPsec or some other under-layer
    security mechanism (e.g., a virtual private network).
 
@@ -557,20 +612,17 @@ Internet-Draft                  DTN UDPCL                     March 2021
 
 
 
-Sipos                   Expires 14 September 2021              [Page 10]
+
+Sipos                   Expires 26 September 2021              [Page 11]
 
 Internet-Draft                  DTN UDPCL                     March 2021
 
 
-2.6.2.  UDP Header
+3.2.  UDP Header
 
-   To perform UDPCL messaging, the active entity SHALL transmit a UDP
-   datagram to a listening passive entity in accordance with [RFC0768],
-   typically by using the services provided by the operating system.
-
-   Destination port number 4556 has been assigned by IANA as the
-   Registered Port number for the UDP convergence layer and SHALL be
-   used as a default.  Other destination port numbers MAY be used per
+   Destination port number 4556 has been assigned by IANA [IANA-PORTS]
+   as the Registered Port number for the UDP convergence layer and SHALL
+   be used as a default.  Other destination port numbers MAY be used per
    local configuration.  Determining a passive entity's destination port
    number (if different from the registered UDPCL port number) is up to
    the implementation.
@@ -580,59 +632,85 @@ Internet-Draft                  DTN UDPCL                     March 2021
    (49152-65535) is used.  For repeated messaging to the same
    destination address-and-port, the active entity SHOULD reuse the same
    source address-and-port.  Reusing source address-and-port allows
-   simplifies network monitoring and analysis and also enables return-
-   path messaging as defined in Section 2.6.4.3.
+   simplifies network monitoring and analysis and also enables bi-
+   directional messaging as defined in Section 3.5.3.
 
-2.6.3.  UDPCL Messaging
+3.3.  UDPCL Packets
 
-   The lower layer of UDPCL communication is individual-datagram
-   messaging.  For backward compatibility with [RFC7122], UDPCL has no
-   explicit message type identifier.  The message type is inferred by
-   the inspecting the data contents according to the following rules:
+   The lowest layer of UDPCL communication are individual-datagram
+   packets.  To exchange UDPCL data, an active entity SHALL transmit a
+   UDP datagram to a listening passive entity in accordance with
+   [RFC0768], typically by using the services provided by the operating
+   system.  For backward compatibility with [RFC7122], UDPCL has no
+   explicit message type identifier.
 
-   The message type is inferred by the inspecting the data contents
-   according to the following rules:
+   Each UDP datagram SHALL contain one or more UDPCL message as defined
+   in Section 3.4.  Each type of message defines additional restrictions
+   on how it may be used in a packet.
 
-   Keepalive:  Keepalive data SHALL be a total of four octets all with
-      value 0x00.  Data with a leading octet value of 0x00 SHALL be
-      treated as keepalive.
+   The following are special cases of UDPCL packet uses.
 
-   Extension Map:  All UDPCL extensions SHALL be contained in a CBOR map
-      in accordance with the definitions of Section 2.6.4.  The encoded
-      Extension Map SHALL NOT have any CBOR tags.  Data with a leading
-      octet value indicating CBOR map (major type 5) SHALL be treated as
-      an Extension Map.
+   Unframed Transfer:  An unframed transfer packet SHALL consist of a
+      single encoded BPv6 or BPv7 bundle with no padding.  This provides
+      backward compatibility with [RFC7122] and a allows a trivial use
+      of UDPCL which is just embedding an encoded bundle in a UDP
+      datagram.
 
-   Unframed Bundle:  Bundles can be transmitted outside of a (fragmented
-      or not) Transfer item.  This provides backward compatibility with
-      [RFC7122] and a allows a trivial use of UDPCL which is just
-      embedding an encoded bundle in a UDP datagram.  The encoded bundle
-      is one of the following:
+   Keepalive  A keepalive packet SHALL consist of exactly four octets of
+      padding with no preceding message.  This behavior maintains
+      backward compatibility with [RFC7122].
 
-      BPv6 Bundle:  All encoded BP version 6 bundles begin with the
+3.4.  UDPCL Messages
+
+   The middle layer of UDPCL communication are unframed, but self-
+   delimited, messages.  Specific message types MAY be concatenated
+   together into a single packet, each message type indicates any
+   restrictions on how it can be used within a packet.
 
 
 
-Sipos                   Expires 14 September 2021              [Page 11]
+Sipos                   Expires 26 September 2021              [Page 12]
 
 Internet-Draft                  DTN UDPCL                     March 2021
 
 
-         version identifier octet 0x06 in accordance with [RFC5050].
-         Data with a leading octet value of 0x06 SHALL be treated as a
-         BPv6 bundle.
+   For backward compatibility with [RFC7122], UDPCL has no explicit
+   message type identifier.  The message type is inferred by the
+   inspecting the data contents according to the following rules:
 
-      BPv7 Bundle:  All encoded BP version 7 bundles begin with a CBOR
-         array head in accordance with [I-D.ietf-dtn-bpbis].  Data with
-         a leading octet value indicating CBOR array (major type 4)
-         SHALL be treated as a BPv7 bundle.
+   BPv6 Bundle:  All encoded BP version 6 bundles begin with the version
+      identifier octet 0x06 in accordance with [RFC5050].  A message
+      with a leading octet value of 0x06 SHALL be treated as a BPv6
+      bundle.  Multiple BPv6 Bundles SHOULD NOT be present in one UDPCL
+      packet to maintain compatibility with [RFC7122].
 
-         BPv7 bundles transmitted via UDPCL SHALL NOT include any
-         leading CBOR tag.  If the BP agent provides bundles with such
-         tags the UDPCL entity SHALL remove them.
+   BPv7 Bundle:  All encoded BP version 7 bundles begin with a CBOR
+      array head in accordance with [I-D.ietf-dtn-bpbis].  A message
+      with a leading octet value indicating CBOR array (major type 4)
+      SHALL be treated as a BPv7 bundle.
+
+      BPv7 bundles transmitted via UDPCL SHALL NOT include any leading
+      CBOR tag.  If the BP agent provides bundles with such tags the
+      transmitting UDPCL entity SHALL remove them.
+
+   Extension Map:  All UDPCL extensions SHALL be contained in a CBOR map
+      in accordance with the definitions of Section 3.5.  The encoded
+      Extension Map SHALL NOT have any CBOR tags.  A message with a
+      leading octet value indicating CBOR map (major type 5) SHALL be
+      treated as an Extension Map.
+
+   Padding:  Padding data SHALL be a sequence of octets all with value
+      0x00.  A message with a leading octet value of 0x00 SHALL be
+      treated as padding.
+
+      Padding is used to ensure a UDP datagram is exactly a desired
+      size.  Because padding has no intrinsic length indication, if
+      present it SHALL be the last contents of any UDPCL packet.  A
+      receiving UDPCL entity SHALL ignore all padding, including any
+      trailing non-zero octets.
 
    DTLS Record:  In addition to the UDPCL specific messaging,
-      immediately after a DTLS Initiation (see Section 2.6.4.1) the DTLS
+      immediately after a DTLS Initiation (see Section 3.5.1) the DTLS
       handshake sequence will begin.  Data with a leading octet value of
       0x16 SHALL be treated as a DTLS handshake record in accordance
       with Section 4.1 of [RFC6347].
@@ -644,43 +722,44 @@ Internet-Draft                  DTN UDPCL                     March 2021
       sequencing failure; DTLS non-handshake records should never be
       seen by the UDPCL messaging layer.
 
+
+
+
+Sipos                   Expires 26 September 2021              [Page 13]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
+
    A summary of how a receiving UDPCL entity can interpret the first
    octet of a datagram is listed in Table 1.  When inspecting using CBOR
    major types, the range of values is caused by the CBOR head encoding
    of [RFC8949].
 
-                +=============+==========================+
-                | Octet Value | Message Content          |
-                +=============+==========================+
-                | 0x00        | Keepalive                |
-                +-------------+--------------------------+
-                | 0x06        | BPv6 Bundle              |
-                +-------------+--------------------------+
-                | 0x16--0x19  | DTLS Record              |
-                +-------------+--------------------------+
-                | 0x80--0x9F  | BPv7 Bundle (CBOR array) |
-                +-------------+--------------------------+
-                | 0xA0--0xBF  | Extension Map (CBOR map) |
-                +-------------+--------------------------+
-                | others      | unused                   |
-                +-------------+--------------------------+
+            +=============+===================================+
+            | Octet Value | Message Content                   |
+            +=============+===================================+
+            | 0x00        | Padding (remainder of packet)     |
+            +-------------+-----------------------------------+
+            | 0x06        | BPv6 Bundle                       |
+            +-------------+-----------------------------------+
+            | 0x16--0x19  | DTLS Record (remainder of packet) |
+            +-------------+-----------------------------------+
+            | 0x80--0x9F  | BPv7 Bundle (CBOR array)          |
+            +-------------+-----------------------------------+
+            | 0xA0--0xBF  | Extension Map (CBOR map)          |
+            +-------------+-----------------------------------+
+            | others      | unused                            |
+            +-------------+-----------------------------------+
 
-                      Table 1: First-Octet Contents
+                       Table 1: First-Octet Contents
 
-
-
-Sipos                   Expires 14 September 2021              [Page 12]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
-
-2.6.4.  UDPCL Extension Items
+3.5.  UDPCL Extension Items
 
    Extensions to UDPCL are encoded per-datagram in a single CBOR map as
-   defined in Section 2.6.3.  Each UDPCL extension item SHALL be
-   identified by a unique integer (the Extension ID) used as a key in
-   the Extension Map. Extension ID assignments are listed in
-   Section 5.2.
+   defined in Section 3.4.  Each UDPCL extension item SHALL be
+   identified by a unique Extension ID used as a key in the Extension
+   Map. Extension ID values SHALL be a CBOR int item no longer than
+   16-bits.  Extension ID assignments are listed in Section 6.2.
 
    Unless prohibited by particular extension type requirements, a single
    Extension Map MAY contain any combination of extension items.
@@ -688,8 +767,8 @@ Internet-Draft                  DTN UDPCL                     March 2021
    continue to process known extension items.
 
    ; Map structure requiring non-zero-int keys.
-   ; CDDL cannot enforce type-specific requirements about other items being present
-   ; (or not present) in the same map.
+   ; CDDL cannot enforce type-specific requirements about other items
+   ; being present (or not present) in the same map.
    udpcl-ext-map = $udpcl-ext-map .within udpcl-ext-map-structure
    $udpcl-ext-map = {
        * $$udpcl-ext-item
@@ -697,16 +776,24 @@ Internet-Draft                  DTN UDPCL                     March 2021
    udpcl-ext-map-structure = {
        * ext-key => any
    }
-   ext-key = int .ne 0
+   ext-key = (int .size 2) .ne 0
 
-                        Figure 3: Extension Map CDDL
+
+
+
+Sipos                   Expires 26 September 2021              [Page 14]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
+
+                   Figure 4: Extension Map struture CDDL
 
    The following subsections define the initial UDPCL extension types.
 
-2.6.4.1.  DTLS Initiation (STARTTLS)
+3.5.1.  DTLS Initiation (STARTTLS)
 
    This extension item indicates that the transmitter is about to begin
-   a DTLS handshake sequence in accordance with Section 2.7.
+   a DTLS handshake sequence in accordance with Section 3.7.
 
    The DTLS Initiation value SHALL be an untagged null value.  There are
    no DTLS parameters actually transmitted as part of this extension, it
@@ -719,16 +806,7 @@ Internet-Draft                  DTN UDPCL                     March 2021
        5: null
    )
 
-                       Figure 4: DTLS Initiation CDDL
-
-
-
-
-
-Sipos                   Expires 14 September 2021              [Page 13]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
+                       Figure 5: DTLS Initiation CDDL
 
    If the entity is configured to enable exchanging messages according
    to DTLS 1.2 [RFC6347] or any successors which are compatible with
@@ -738,7 +816,7 @@ Internet-Draft                  DTN UDPCL                     March 2021
    even if security policy does not allow or require authentication.
    This follows the opportunistic security model of [RFC7435], though an
    active attacker could interfere with the exchange in such cases (see
-   Section 4.3).
+   Section 5.3).
 
    The Extension Map containing a DTLS Initiation item SHALL NOT contain
    any other items.  A DTLS Initiation item SHALL NOT be present in any
@@ -748,63 +826,174 @@ Internet-Draft                  DTN UDPCL                     March 2021
    (either success or failure) an entity SHALL NOT transmit any other
    UDP datagrams in that same conversation.
 
-2.6.4.2.  Bundle Transfer
+3.5.2.  Bundle Transfer
 
-   This extension item allows CL-layer fragmentation of bundle
-   transfers.  It also allows a bundle transfer to be transmitted along
-   with extension items, which the unframed bundle data does not.
+   This extension item allows CL-layer fragmentation of bundle transfers
+   as defined in Section 3.6.
 
    The Transfer value SHALL be an untagged CBOR array of four items.
    The items are defined in the following order:
 
+
+
+
+Sipos                   Expires 26 September 2021              [Page 15]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
+
    Transfer ID:  This field SHALL be a CBOR uint item no larger than
       32-bits, which is used to correlate multiple fragments.
 
-   Total Length:  This field SHALL be a CBOR uint item, which is used to
-      indicate the total length (in octets) of the transfer.  If
-      multiple Transfers for the same Transfer ID are received with
-      differing Total Length values, the receiver SHALL treat the
-      transfer as being malformed and refuse to handle any further
-      fragments associated with the transfer.
+   Total Length:  This field SHALL be a CBOR uint item no larger than
+      32-bits, which is used to indicate the total length (in octets) of
+      the transfer.  If multiple Transfer items for the same Transfer ID
+      are received with differing Total Length values, the receiver
+      SHALL treat the transfer as being malformed and refuse to handle
+      any further fragments associated with the transfer.
 
-   Fragment Offset:  This field SHALL be a CBOR uint item, which is used
-      to indicate the offset (in octets) into the transfer for the start
-      of this fragment.
+   Fragment Offset:  This field SHALL be a CBOR uint item no larger than
+      32-bits, which is used to indicate the offset (in octets) into the
+      transfer for the start of this fragment.
 
-   Fragment Data:  This field SHALL be a CBOR bstr item, in which the
-      fragment data is contained.  The bstr itself indicates the length
-      of the fragment data.
+   Fragment Data:  This field SHALL be a CBOR bstr item no larger than
+      2^32-1 octets, in which the fragment data is contained.  The bstr
+      itself indicates the length of the fragment data.
+
+   $$udpcl-ext-item //= (
+       2: [
+           transfer-id: uint .size 4,
+           total-length: uint .size 4,
+           fragment-offset: uint .size 4,
+           fragment-data: bstr,
+       ]
+   )
+
+                          Figure 6: Transfer CDDL
+
+3.5.3.  Sender Listen
+
+   This extension item indicates that the transmitter is listening for
+   UDPCL packets on the source address-and-port used to transmit the
+   message containing this extension item.  This is different from
+   simply listening on a UDP port (either the default or any other) when
+   the entity is behind a NAT or firewall which will not allow
+   unsolicited UDP/IP datagrams.  Although the packet containing this
+   extension is not retransmitted, the time interval is finite and the
+   extension is sent repeatedly while the transmitter continues to
+   listen for packets.  There is no positive indication that packets are
+   no longer accepted; the Sender Listen just stops being transmitted.
+
+   The Sender Listen value SHALL be an untagged uint value representing
+   the interval of time (in milliseconds) that the entity is willing to
+   accept UDPCL packets on the source address-and-port used for the
+   associated transmitted message.  After transmitting a Sender Listen,
+   the entity SHALL listen for and accept datagrams on the source
+   address-and-port used for the associated transmitted message.  As
+
+
+
+Sipos                   Expires 26 September 2021              [Page 16]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
+
+   long as the entity is still willing to accept packets, at the end of
+   one accept interval the entity SHALL transmit another Sender Listen
+   item.  This repitition continues until the entity is no longer
+   willing to listen for packets.
+
+   Receivers of the Sender Listen extension SHALL treat timeout after
+   the reception of a Sender Listen item The Sender Listen timeout
+
+   $$udpcl-ext-item //= (
+       3: time-duration,
+   )
+   time-duration = uint
+
+                        Figure 7: Sender Listen CDDL
+
+   Unlike the generic source port requirement in Section 3.2, when
+   repeated Sender Listen are transmitted in a sequence a consistent
+   source address-and-port SHALL be used.
+
+   The Sender Listen interval SHOULD be no shorter than 1 second and no
+   longer than 60 seconds.
+
+   An entity SHOULD include a Sender Node ID item along with a Sender
+   Listen item if the conditions of Section 3.5.4 are met.  An entity
+   MAY include any other extension type along with a Sender Listen item.
+   An entity SHALL NOT transmit a Sender Listen item before or along
+   with a DTLS Initiate if DTLS is desired for a conversation.
+
+   This extension is not a neighbor discovery mechanism and does not
+   indicate an entity listening generally on a particular UDP port.
+   Sender Listen applies only to UDP datagrams from the the peer
+   address-and-port.  An entity SHALL NOT include a Sender Listen item
+   in a message transmitted to a multicast address.
+
+3.5.4.  Sender Node ID
+
+   This extension item indicates the Node ID of the transmitter.  For
+   DTLS-secured sessions (see Section 3.7.4) this extension can be used
+   to disambiguate an end-entity certificate which has multiple NODE-ID
+   values.
+
+   The Sender Node ID value SHALL be an untagged tstr value containing a
+   Node ID.  Every Node ID SHALL be a URI consistent with the
+   requirements of [RFC3986] and the URI schemes of the IANA "Bundle
+   Protocol URI Scheme Type" registry [IANA-BUNDLE].
 
 
 
 
 
 
-
-Sipos                   Expires 14 September 2021              [Page 14]
+Sipos                   Expires 26 September 2021              [Page 17]
 
 Internet-Draft                  DTN UDPCL                     March 2021
 
 
    $$udpcl-ext-item //= (
-       2: [
-           transfer-id: uint .lt 4294967296,
-           total-length: uint,
-           fragment-offset: uint,
-           fragment-data: bstr,
-       ]
+       4: nodeid,
    )
+   nodeid = tstr
 
-                          Figure 5: Transfer CDDL
+                       Figure 8: Sender Node ID CDDL
 
-2.6.4.2.1.  Bundle Transfer ID
+   An entity SHOULD NOT include a Sender Node ID item if a DTLS session
+   has already been established and the presented end-entity certificate
+   contains a single NODE-ID.  In this case there is no ambiguity about
+   which Node ID is identified by the certificate.
+
+   If an entity receives a peer Node ID which is not authenticated (by
+   the procedure of Section 3.7.4) that Node ID SHOULD NOT be used by a
+   BP agent for any discovery or routing functions.  Trusting an
+   unauthenticated Node ID can lead to the threat described in
+   Section 5.7.
+
+3.6.  Explicit Transfers
+
+   This version of UDPCL supports CL-layer fragmentation of bundles
+   larger than the PMTU would otherwise allow.  Policies related to
+   fragmentation at, above, or below the UDPCL layer are defined in
+   Section 2.3.  The entire fragmented bundle is referred to as a
+   Transfer and individual fragments of a transfer are encoded as
+   Transfer extension items in accordance with Section 3.5.2.
+
+   This mechanism also allows a bundle transfer to be transmitted along
+   with additional extension items, which the unframed bundle-in-
+   datagram data does not.  This specification does not define any
+   extension items which augment an associated transfer.
+
+3.6.1.  Bundle Transfer ID
 
    Each Transfer item contains a Transfer ID which is used to correlate
    messages for a single bundle transfer.  A Transfer ID does not
    attempt to address uniqueness of the bundle data itself and has no
    relation to concepts such as bundle fragmentation.  Each invocation
    of UDPCL by the BP agent, requesting transmission of a bundle
-   (fragmentary or otherwise), results in the initiation of a single
+   (fragmentary or otherwise), can cause the initiation of a single
    UDPCL transfer.
 
    Because UDPCL operation is connectionless, Transfer IDs from each
@@ -812,35 +1001,33 @@ Internet-Draft                  DTN UDPCL                     March 2021
    practice, the ID needs only be unique for the longest receiver
    reassembly time window; but because that information is not part of
    the protocol there is no way for an transmitting entity to know the
-   reassembly time window of any receiver (see Section 2.6.4.2.2).  When
+   reassembly time window of any receiver (see Section 3.6.2).  When
+
+
+
+Sipos                   Expires 26 September 2021              [Page 18]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
+
    there are bidirectional bundle transfers between UDPCL entities, an
    entity SHOULD NOT rely on any relation between Transfer IDs
    originating from each side of the conversation.
 
    Although there is not a strict requirement for Transfer ID initial
-   values or ordering (see Section 4.11), in the absence of any other
+   values or ordering (see Section 5.11), in the absence of any other
    mechanism for generating Transfer IDs an entity SHALL use the
    following algorithm: the initial Transfer ID from each entity is
    zero; subsequent Transfer ID values are incremented from the prior
    Transfer ID value by one; upon exhaustion of the entire 32-bit
    Transfer ID space, the subsequent Transfer ID value is zero.
 
-2.6.4.2.2.  Transfer Fragmentation and Reassembly
+3.6.2.  Fragmentation and Reassembly
 
    The full data content of a transfer SHALL be an unframed (BPv6 or
-   BPv7) bundle as defined in Section 2.6.3.  A receiving entity SHALL
+   BPv7) bundle as defined in Section 3.4.  A receiving entity SHALL
    discard any reassembled transfer which does not properly contain a
    bundle.
-
-
-
-
-
-
-Sipos                   Expires 14 September 2021              [Page 15]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
 
    A transmitting entity MAY produce a Transfer with a single fragment
    (i.e., a Fragment Data size identical to the Total Length).  A
@@ -871,103 +1058,15 @@ Internet-Draft                  DTN UDPCL                     March 2021
    order), which should be short if the datagrams take a similar network
    path.
 
-2.6.4.3.  Return-Path Accept
-
-   This extension item indicates that the transmitter is willing to
-   accept UDPCL messages on the source address-and-port used to transmit
-   the message containing this extension item.  This is different from
-   simply listening on a UDP port (either the default or any other) when
-   the entity is behind a NAT or firewall which will not allow
-   unsolicited UDP/IP datagrams.  Although the datagram containing this
-   extension is not retransmitted, the acceptance interval is finite
-   duration and if the transmitter continues to be willing to accept
-   messages.  There is no positive indication that messages are no
-   longer accepted; the Return-Path Accept just stops being transmitted.
-
-   The Return-Path Accept value SHALL be an untagged uint value
-   representing the interval of time (in milliseconds) that the entity
-   is willing to accept UDPCL messages on the source address-and-port
-   used for the associated transmitted message.  After transmitting a
-   Return-Path Accept, the entity SHALL listen for and accept datagrams
-   on the source address-and-port used for the associated transmitted
 
 
 
-Sipos                   Expires 14 September 2021              [Page 16]
+Sipos                   Expires 26 September 2021              [Page 19]
 
 Internet-Draft                  DTN UDPCL                     March 2021
 
 
-   message.  As long as the entity is still willing to accept messages,
-   at the end of one accept interval the entity SHALL transmit another
-   Return-Path Accept item.  This repitition continues until the entity
-   is no longer willing to accept messages.
-
-   $$udpcl-ext-item //= (
-       3: time-duration,
-   )
-   time-duration = uint
-
-                     Figure 6: Return-Path Accept CDDL
-
-   Unlike the generic source port requirement in Section 2.6.2, when
-   repeated Return-Path Accept are transmitted a consistent source
-   address-and-port SHALL be used.
-
-   The Return-Path Accept interval SHOULD be no shorter than 1 second
-   and no longer than 60 seconds.
-
-   An entity SHOULD include a Sender Node ID item along with a Return-
-   Path Accept item if the conditions of Section 2.6.4.4 are met.  An
-   entity MAY include any other extension type along with a Return-Path
-   Accept item.  An entity SHALL NOT transmit a Return-Path Accept item
-   before or along with a DTLS Initiate if DTLS is desired for a
-   conversation.
-
-   This extension is not a neighbor discovery mechanism and does not
-   indicate an entity listening generally on a particular UDP port.
-   Return-path acceptance applies only to UDP datagrams from the the
-   peer address-and-port.  An entity SHALL NOT include the Return-Path
-   Accept in a message transmitted to a multicast address.
-
-2.6.4.4.  Sender Node ID
-
-   This extension item indicates the Node ID of the transmitter.  For
-   DTLS-secured sessions (see Section 2.7.4) this extension can be used
-   to disambiguate an end-entity certificate which has multiple NODE-ID
-   values.
-
-   The Sender Node ID value SHALL be an untagged tstr value containing a
-   Node ID.  Every Node ID SHALL be a URI consistent with the
-   requirements of [RFC3986] and the URI schemes of the IANA "Bundle
-   Protocol URI Scheme Type" registry [IANA-BUNDLE].
-
-   $$udpcl-ext-item //= (
-       4: xmit-nodeid,
-   )
-   xmit-nodeid = tstr
-
-
-
-Sipos                   Expires 14 September 2021              [Page 17]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
-
-                       Figure 7: Sender Node ID CDDL
-
-   An entity SHOULD NOT include a Sender Node ID item if a DTLS session
-   has already been established and the presented end-entity certificate
-   contains a single NODE-ID.  In this case there is no ambiguity about
-   which Node ID is identified by the certificate.
-
-   If an entity receives a peer Node ID which is not authenticated (by
-   the procedure of Section 2.7.4) that Node ID SHOULD NOT be used by a
-   BP agent for any discovery or routing functions.  Trusting an
-   unauthenticated Node ID can lead to the threat described in
-   Section 4.7.
-
-2.7.  UDPCL Security
+3.7.  UDPCL Security
 
    This version of the UDPCL supports establishing a DTLS session within
    an existing UDP conversation.  When DTLS is used within the UDPCL it
@@ -985,7 +1084,7 @@ Internet-Draft                  DTN UDPCL                     March 2021
    DTLS session, and the active entity cannot assume any resumption
    outcome.
 
-2.7.1.  Entity Identification
+3.7.1.  Entity Identification
 
    The UDPCL uses DTLS for certificate exchange in both directions to
    identify each entity and to allow each entity to authenticate its
@@ -998,42 +1097,46 @@ Internet-Draft                  DTN UDPCL                     March 2021
    same as those for TLS in TCPCL as defined in Section 4.4.1 of
    [I-D.ietf-dtn-tcpclv4].
 
-2.7.2.  Certificate Profile for UDPCL
+3.7.2.  Certificate Profile for UDPCL
 
    All end-entity certificates used by a UDPCL entity SHALL conform to
    the profile defined in Section 4.4.2 of [I-D.ietf-dtn-tcpclv4].
 
+3.7.3.  DTLS Handshake
 
-
-Sipos                   Expires 14 September 2021              [Page 18]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
-
-2.7.3.  DTLS Handshake
-
-   The signaling for DTLS Initiation is described in Section 2.6.4.1.
+   The signaling for DTLS Initiation is described in Section 3.5.1.
    After sending or receiving an Extension Map containing a DTLS
    Initiation item, an entity SHALL begin the handshake procedure of
    Section 4.2 of [RFC6347].  By convention, this protocol uses the
    entity which sent the DTLS Initiation (the active peer) as the
    "client" role of the DTLS handshake request.
 
+
+
+
+
+
+
+Sipos                   Expires 26 September 2021              [Page 20]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
+
    Upon receiving an unexpected ClientHello record outside of a DTLS
    session, an entity SHALL begin the DTLS handshake procedure as if a
    DTLS Initiation had been received.  This allows recovering from a
    dropped packet containing DTLS Initiation.
 
-2.7.4.  DTLS Authentication
+3.7.4.  DTLS Authentication
 
    The function and mechanism of DTLS authentication in UDPCL is the
    same as for TLS in TCPCL as defined in Section 4.4.4 of
    [I-D.ietf-dtn-tcpclv4], with the exception that Node ID
-   Authentication is based on an optional Source Node ID extension (see
-   Section 2.6.4.4) used to disambiguate when an end-entity certificate
+   Authentication is based on an optional Sender Node ID extension (see
+   Section 3.5.4) used to disambiguate when an end-entity certificate
    contains multiple NODE-ID values.
 
-2.7.5.  Policy Recommendations
+3.7.5.  Policy Recommendations
 
    The policy recommendations given here are are the same as those for
    TCPCL in Section 4.4.5 of [I-D.ietf-dtn-tcpclv4].  They are restated
@@ -1047,26 +1150,17 @@ Internet-Draft                  DTN UDPCL                     March 2021
    ignore any network-level DNS-ID or IPADDR-ID.
 
    This policy relies on and informs the certificate requirements in
-   Section 2.7.2.  This policy assumes that a DTN-aware CA (see
+   Section 3.7.2.  This policy assumes that a DTN-aware CA (see
    Section 2.2) will only issue a certificate for a Node ID when it has
    verified that the private key holder actually controls the DTN node;
-   this is needed to avoid the threat identified in Section 4.7.  This
+   this is needed to avoid the threat identified in Section 5.7.  This
    policy requires that a certificate contain a NODE-ID and allows the
    certificate to also contain network-level identifiers.  A tailored
    policy on a more controlled network could relax the requirement on
    Node ID validation and allow just network-level identifiers to
    authenticate a peer.
 
-
-
-
-
-Sipos                   Expires 14 September 2021              [Page 19]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
-
-2.7.6.  Example Secured and Return-Path Transfers
+3.7.6.  Example Secured and Return-Path Transfers
 
    This simple example shows a sequence of pre-transfer setup followed
    by a set of (unrelated) bundle transfers.  All messaging in this
@@ -1076,10 +1170,17 @@ Internet-Draft                  DTN UDPCL                     March 2021
    The example Entity A has a policy to only send or receive bundles
    within a DTLS session, so any outgoing bundles to Entity B are queued
    until the DTLS session is established.  Because Entity A is willing
+
+
+
+Sipos                   Expires 26 September 2021              [Page 21]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
+
    to accept transfers on its ephemeral UDP port, the first outgoing
-   message after the DTLS handshake contains the return-path accept
-   extension (along with a Sender Node ID indicating its identity to
-   Entity B).
+   message after the DTLS handshake contains the Sender Listen extension
+   (along with a Sender Node ID indicating its identity to Entity B).
 
                Entity A                             Entity B
               active peer                         passive peer
@@ -1096,7 +1197,7 @@ Internet-Draft                  DTN UDPCL                     March 2021
                      Secured UDPCL messaging can begin.
 
       +-------------------------+
-      | Return-Path Accept Ext. | ->
+      |   Sender Listen Ext.    | ->
       |   Sender Node ID Ext.   |
       +-------------------------+
 
@@ -1104,25 +1205,16 @@ Internet-Draft                  DTN UDPCL                     March 2021
                DTLS session is established, transfers can begin.
 
       +-------------------------+
-      |     Unframed Bundle     | ->      +-------------------------+
-      +-------------------------+      <- |     Unframed Bundle     |
+      |    Unframed Transfer    | ->      +-------------------------+
+      +-------------------------+      <- |    Unframed Transfer    |
       +-------------------------+         +-------------------------+
-      |     Unframed Bundle     | ->
+      |    Unframed Transfer    | ->
       +-------------------------+
 
-   Figure 8: An example of the flow of protocol messages on a single UDP
+   Figure 9: An example of the flow of protocol messages on a single UDP
                      conversation between two entities
 
-
-
-
-
-Sipos                   Expires 14 September 2021              [Page 20]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
-
-3.  Implementation Status
+4.  Implementation Status
 
    This section is to be removed before publishing as an RFC.
 
@@ -1134,6 +1226,14 @@ Internet-Draft                  DTN UDPCL                     March 2021
    protocol defined by this specification at the time of posting of this
    Internet-Draft, and is based on a proposal described in [RFC7942].
    The description of implementations in this section is intended to
+
+
+
+Sipos                   Expires 26 September 2021              [Page 22]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
+
    assist the IETF in its decision processes in progressing drafts to
    RFCs.  Please note that the listing of any individual implementation
    here does not imply endorsement by the IETF.  Furthermore, no effort
@@ -1154,31 +1254,20 @@ Internet-Draft                  DTN UDPCL                     March 2021
    [github-dtn-wireshark] and has been kept in-sync with the latest
    encoding of this specification.
 
-4.  Security Considerations
+5.  Security Considerations
 
    This section separates security considerations into threat categories
    based on guidance of BCP 72 [RFC3552].
 
-4.1.  Threat: Passive Leak of Node Data
+5.1.  Threat: Passive Leak of Node Data
 
    When used without DTLS security, the UDPCL can expose the Node ID and
    other configuration data to passive eavesdroppers.  This can occur
    even if no bundle transfers are transmitted.  This can be avoided by
    always using DTLS, even if authentication is not available (see
-   Section 4.10).
+   Section 5.10).
 
-
-
-
-
-
-
-Sipos                   Expires 14 September 2021              [Page 21]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
-
-4.2.  Threat: Passive Leak of Bundle Data
+5.2.  Threat: Passive Leak of Bundle Data
 
    UDPCL can be used to provide point-to-point unicast transport
    security, but does not provide multicast security, security of data-
@@ -1189,9 +1278,19 @@ Internet-Draft                  DTN UDPCL                     March 2021
    When used without DTLS security, the UDPCL exposes all bundle data to
    passive eavesdroppers.  This can be avoided by always using DTLS for
    unicast messaging, even if authentication is not available (see
-   Section 4.10).
+   Section 5.10).
 
-4.3.  Threat: Transport Security Stripping
+
+
+
+
+
+Sipos                   Expires 26 September 2021              [Page 23]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
+
+5.3.  Threat: Transport Security Stripping
 
    When security policy allows non-DTLS messaging, UDPCL does not
    protect against active network attackers.  It is possible for a on-
@@ -1217,7 +1316,7 @@ Internet-Draft                  DTN UDPCL                     March 2021
    The negotiated use of DTLS is identical behavior to STARTTLS use in
    [RFC2595], [RFC4511], and others.
 
-4.4.  Threat: Weak DTLS Configurations
+5.4.  Threat: Weak DTLS Configurations
 
    Even when using DTLS to secure the UDPCL session, the actual
    ciphersuite negotiated between the DTLS peers can be insecure.
@@ -1226,17 +1325,9 @@ Internet-Draft                  DTN UDPCL                     March 2021
    ensure that the negotiated DTLS ciphersuite meets transport security
    requirements.
 
+5.5.  Threat: Untrusted End-Entity Certificate
 
-
-
-Sipos                   Expires 14 September 2021              [Page 22]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
-
-4.5.  Threat: Untrusted End-Entity Certificate
-
-   The profile in Section 2.7.4 uses end-entity certificates chained up
+   The profile in Section 3.7.4 uses end-entity certificates chained up
    to a trusted root CA.  During DTLS handshake, either entity can send
    a certificate set which does not contain the full chain, possibly
    excluding intermediate or root CAs.  In an environment where peers
@@ -1244,7 +1335,18 @@ Internet-Draft                  DTN UDPCL                     March 2021
    is no need to include those CAs, but this has a risk of an entity not
    actually having one of the needed CAs.
 
-4.6.  Threat: Certificate Validation Vulnerabilities
+
+
+
+
+
+
+Sipos                   Expires 26 September 2021              [Page 24]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
+
+5.6.  Threat: Certificate Validation Vulnerabilities
 
    Even when DTLS itself is operating properly an attacker can attempt
    to exploit vulnerabilities within certificate check algorithms or
@@ -1263,7 +1365,7 @@ Internet-Draft                  DTN UDPCL                     March 2021
    configuration and use of particular certificate validation methods
    are outside of the scope of this document.
 
-4.7.  Threat: BP Node Impersonation
+5.7.  Threat: BP Node Impersonation
 
    The certificates exchanged by DTLS enable authentication of peer DNS
    name and Node ID, but it is possible that a peer either not provide a
@@ -1271,7 +1373,7 @@ Internet-Draft                  DTN UDPCL                     March 2021
    the DNS-ID/IPADDR-ID or NODE-ID of the peer (see Section 2.2).
    Having a CA-validated certificate does not alone guarantee the
    identity of the network host or BP node from which the certificate is
-   provided; additional validation procedures in Section 2.7.3 bind the
+   provided; additional validation procedures in Section 3.7.3 bind the
    DNS-ID/IPADDR-ID or NODE-ID based on the contents of the certificate.
 
    The DNS-ID/IPADDR-ID validation is a weaker form of authentication,
@@ -1282,14 +1384,6 @@ Internet-Draft                  DTN UDPCL                     March 2021
    variable so binding a certificate to a Node ID is a more stable
    identity.
 
-
-
-
-Sipos                   Expires 14 September 2021              [Page 23]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
-
    NODE-ID validation ensures that the peer to which a bundle is
    transferred is in fact the node which the BP Agent expects it to be.
    In circumstances where certificates can only be issued to DNS names,
@@ -1299,6 +1393,15 @@ Internet-Draft                  DTN UDPCL                     March 2021
    trusted to validate a Node ID is also a policy matter outside of the
    scope of this document.
 
+
+
+
+
+Sipos                   Expires 26 September 2021              [Page 25]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
+
    One mitigation to arbitrary entities with valid PKIX certificates
    impersonating arbitrary Node IDs is the use of the PKIX Extended Key
    Usage key purpose "id-kp-bundleSecurity" of [IANA-SMI].  When this
@@ -1306,7 +1409,7 @@ Internet-Draft                  DTN UDPCL                     March 2021
    stronger assertion that the private key holder should in fact be
    trusted to operate as a DTN Node.
 
-4.8.  Threat: Denial of Service
+5.8.  Threat: Denial of Service
 
    The behaviors described in this section all amount to a potential
    denial-of-service to a UDPCL entity.  The denial-of-service could be
@@ -1323,41 +1426,24 @@ Internet-Draft                  DTN UDPCL                     March 2021
    resources on the receiver to be wasted on transfer reassembly state.
    The victim entity can either block packets from network peers or
    intentionally keep a short unfinished transfer timeout (see
-   Section 2.6.4.2.2).
+   Section 3.6.2).
 
    The keepalive mechanism can be abused to waste throughput within a
    network link which would otherwise be usable for bundle
    transmissions.
 
-
-
-
-
-
-
-
-
-
-
-
-
-Sipos                   Expires 14 September 2021              [Page 24]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
-
-4.9.  Mandatory-to-Implement DTLS
+5.9.  Mandatory-to-Implement DTLS
 
    Following IETF best current practice, DTLS is mandatory to implement
    for all UDPCL implementations but DTLS is optional to use for a any
-   given transfer.  The recommended configuration of Section 2.6.4.1 is
-   to always attempt DTLS, but entities are permitted to disable DTLS
-   based on local configuration.  The configuration to enable or disable
-   DTLS for an entity or a session is outside of the scope of this
-   document.  The configuration to disable DTLS is different from the
-   threat of DTLS stripping described in Section 4.3.
+   given transfer.  The recommended configuration of Section 3.5.1 is to
+   always attempt DTLS, but entities are permitted to disable DTLS based
+   on local configuration.  The configuration to enable or disable DTLS
+   for an entity or a session is outside of the scope of this document.
+   The configuration to disable DTLS is different from the threat of
+   DTLS stripping described in Section 5.3.
 
-4.10.  Alternate Uses of DTLS
+5.10.  Alternate Uses of DTLS
 
    This specification makes use of PKIX certificate validation and
    authentication within DTLS.  There are alternate uses of DTLS which
@@ -1365,7 +1451,14 @@ Internet-Draft                  DTN UDPCL                     March 2021
    specification, but are outside of the scope of this document.  The
    following subsections give examples of alternate DTLS uses.
 
-4.10.1.  DTLS Without Authentication
+
+
+Sipos                   Expires 26 September 2021              [Page 26]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
+
+5.10.1.  DTLS Without Authentication
 
    In environments where PKI is available but there are restrictions on
    the issuance of certificates (including the contents of
@@ -1376,7 +1469,7 @@ Internet-Draft                  DTN UDPCL                     March 2021
    UDPCL transfer is outside of the scope of this document but does have
    similar properties to the opportunistic security model of [RFC7435].
 
-4.10.2.  Non-Certificate DTLS Use
+5.10.2.  Non-Certificate DTLS Use
 
    In environments where PKI is unavailable, alternate uses of DTLS
    which do not require certificates such as pre-shared key (PSK)
@@ -1385,7 +1478,7 @@ Internet-Draft                  DTN UDPCL                     March 2021
    Using non-PKI node authentication methods is outside of the scope of
    this document.
 
-4.11.  Predictability of Transfer IDs
+5.11.  Predictability of Transfer IDs
 
    The only requirement on Transfer IDs is that they are unique from the
    transmitting peer only.  The trivial algorithm of the first transfer
@@ -1395,19 +1488,12 @@ Internet-Draft                  DTN UDPCL                     March 2021
    there is no UDPCL feedback mechanism to interrupt or refuse a
    transfer so there is no benefit in having unpredictable Transfer IDs.
 
-
-
-Sipos                   Expires 14 September 2021              [Page 25]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
-
-5.  IANA Considerations
+6.  IANA Considerations
 
    Registration procedures referred to in this section are defined in
    [RFC8126].
 
-5.1.  Port Number
+6.1.  Port Number
 
    Within the port registry of [IANA-PORTS], UDP port number 4556 has
    been previously assigned as the default port for the UDP convergence
@@ -1416,6 +1502,17 @@ Internet-Draft                  DTN UDPCL                     March 2021
    UDPCL version indication on-the-wire but this specification is a
    superset of [RFC7122] and is fully backward compatible.  The related
    assignment for DCCP port 4556 (registered by [RFC7122]) is unchanged.
+
+
+
+
+
+
+
+Sipos                   Expires 26 September 2021              [Page 27]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
 
           +========================+============================+
           | Parameter              | Value                      |
@@ -1437,7 +1534,7 @@ Internet-Draft                  DTN UDPCL                     March 2021
 
                                   Table 2
 
-5.2.  UDPCL Extension Types
+6.2.  UDPCL Extension Types
 
    EDITOR NOTE: sub-registry to-be-created upon publication of this
    specification.
@@ -1448,15 +1545,6 @@ Internet-Draft                  DTN UDPCL                     March 2021
    positive code points the registration procedure is Specification
    Required.  Negative code points are reserved for use on private
    networks for functions not published to the IANA.
-
-
-
-
-
-Sipos                   Expires 14 September 2021              [Page 26]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
 
    Specifications of new extension types need to define the CBOR item
    structure of the extension data as well as the purpose and
@@ -1469,6 +1557,19 @@ Internet-Draft                  DTN UDPCL                     March 2021
    unless they are abusive, frivolous, or actively harmful (not merely
    aesthetically displeasing, or architecturally dubious).
 
+
+
+
+
+
+
+
+
+Sipos                   Expires 26 September 2021              [Page 28]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
+
      +==============+==========================+=====================+
      | Extension ID | Name                     | References          |
      +==============+==========================+=====================+
@@ -1476,43 +1577,32 @@ Internet-Draft                  DTN UDPCL                     March 2021
      +--------------+--------------------------+---------------------+
      | 0            | Reserved                 | This specification. |
      +--------------+--------------------------+---------------------+
-     | 2            | Transfer                 | Section 2.6.4.2 of  |
+     | 2            | Transfer                 | Section 3.5.2 of    |
      |              |                          | this specification. |
      +--------------+--------------------------+---------------------+
-     | 3            | Return-Path Accept       | Section 2.6.4.3 of  |
+     | 3            | Sender Listen            | Section 3.5.3 of    |
      |              |                          | this specification. |
      +--------------+--------------------------+---------------------+
-     | 4            | Sender Node ID           | Section 2.6.4.4 of  |
+     | 4            | Sender Node ID           | Section 3.5.4 of    |
      |              |                          | this specification. |
      +--------------+--------------------------+---------------------+
-     | 5            | DTLS Initiation          | Section 2.6.4.1 of  |
+     | 5            | DTLS Initiation          | Section 3.5.1 of    |
      |              | (STARTTLS)               | this specification. |
      +--------------+--------------------------+---------------------+
 
                        Table 3: Extension Type Codes
 
-6.  Acknowledgments
+7.  Acknowledgments
 
    TBD
 
-7.  References
+8.  References
 
-7.1.  Normative References
+8.1.  Normative References
 
    [IANA-BUNDLE]
               IANA, "Bundle Protocol",
               <https://www.iana.org/assignments/bundle/>.
-
-
-
-
-
-
-
-Sipos                   Expires 14 September 2021              [Page 27]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
 
    [IANA-PORTS]
               IANA, "Service Name and Transport Protocol Port Number
@@ -1527,6 +1617,14 @@ Internet-Draft                  DTN UDPCL                     March 2021
               IANA, "IPv6 Multicast Address Space Registry",
               <https://www.iana.org/assignments/ipv6-multicast-
               addresses/>.
+
+
+
+
+Sipos                   Expires 26 September 2021              [Page 29]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
 
    [IANA-SMI] IANA, "Structure of Management Information (SMI) Numbers",
               <https://www.iana.org/assignments/smi-numbers/>.
@@ -1560,16 +1658,6 @@ Internet-Draft                  DTN UDPCL                     March 2021
               (CRL) Profile", RFC 5280, DOI 10.17487/RFC5280, May 2008,
               <https://www.rfc-editor.org/info/rfc5280>.
 
-
-
-
-
-
-Sipos                   Expires 14 September 2021              [Page 28]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
-
    [RFC6125]  Saint-Andre, P. and J. Hodges, "Representation and
               Verification of Domain-Based Application Service Identity
               within Internet Public Key Infrastructure Using X.509
@@ -1586,6 +1674,13 @@ Internet-Draft                  DTN UDPCL                     March 2021
               Infrastructure Online Certificate Status Protocol - OCSP",
               RFC 6960, DOI 10.17487/RFC6960, June 2013,
               <https://www.rfc-editor.org/info/rfc6960>.
+
+
+
+Sipos                   Expires 26 September 2021              [Page 30]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
 
    [RFC7525]  Sheffer, Y., Holz, R., and P. Saint-Andre,
               "Recommendations for Secure Use of Transport Layer
@@ -1617,15 +1712,6 @@ Internet-Draft                  DTN UDPCL                     March 2021
               DOI 10.17487/RFC8949, December 2020,
               <https://www.rfc-editor.org/info/rfc8949>.
 
-
-
-
-
-Sipos                   Expires 14 September 2021              [Page 29]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
-
    [I-D.ietf-dtn-bpbis]
               Burleigh, S., Fall, K., and E. Birrane, "Bundle Protocol
               Version 7", Work in Progress, Internet-Draft, draft-ietf-
@@ -1639,11 +1725,18 @@ Internet-Draft                  DTN UDPCL                     March 2021
               tcpclv4-24, 7 December 2020,
               <https://tools.ietf.org/html/draft-ietf-dtn-tcpclv4-24>.
 
-7.2.  Informative References
+8.2.  Informative References
 
    [RFC2595]  Newman, C., "Using TLS with IMAP, POP3 and ACAP",
               RFC 2595, DOI 10.17487/RFC2595, June 1999,
               <https://www.rfc-editor.org/info/rfc2595>.
+
+
+
+Sipos                   Expires 26 September 2021              [Page 31]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
 
    [RFC3552]  Rescorla, E. and B. Korver, "Guidelines for Writing RFC
               Text on Security Considerations", BCP 72, RFC 3552,
@@ -1670,18 +1763,6 @@ Internet-Draft                  DTN UDPCL                     March 2021
               Protocol: TLSA", RFC 6698, DOI 10.17487/RFC6698, August
               2012, <https://www.rfc-editor.org/info/rfc6698>.
 
-
-
-
-
-
-
-
-Sipos                   Expires 14 September 2021              [Page 30]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
-
    [RFC7122]  Kruse, H., Jero, S., and S. Ostermann, "Datagram
               Convergence Layers for the Delay- and Disruption-Tolerant
               Networking (DTN) Bundle Protocol and Licklider
@@ -1704,6 +1785,15 @@ Internet-Draft                  DTN UDPCL                     March 2021
               Datagram TLS (DTLS)", RFC 7457, DOI 10.17487/RFC7457,
               February 2015, <https://www.rfc-editor.org/info/rfc7457>.
 
+
+
+
+
+Sipos                   Expires 26 September 2021              [Page 32]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
+
    [RFC7942]  Sheffer, Y. and A. Farrel, "Improving Awareness of Running
               Code: The Implementation Status Section", BCP 205,
               RFC 7942, DOI 10.17487/RFC7942, July 2016,
@@ -1713,6 +1803,11 @@ Internet-Draft                  DTN UDPCL                     March 2021
               Völker, "Packetization Layer Path MTU Discovery for
               Datagram Transports", RFC 8899, DOI 10.17487/RFC8899,
               September 2020, <https://www.rfc-editor.org/info/rfc8899>.
+
+   [RFC8900]  Bonica, R., Baker, F., Huston, G., Hinden, R., Troan, O.,
+              and F. Gont, "IP Fragmentation Considered Fragile",
+              BCP 230, RFC 8900, DOI 10.17487/RFC8900, September 2020,
+              <https://www.rfc-editor.org/info/rfc8900>.
 
    [I-D.ietf-dtn-bpsec]
               Birrane, E. and K. McKeever, "Bundle Protocol Security
@@ -1728,16 +1823,6 @@ Internet-Draft                  DTN UDPCL                     March 2021
               Sipos, B., "UDPCL Wireshark Dissector",
               <https://github.com/BSipos-RKF/dtn-wireshark/>.
 
-
-
-
-
-
-Sipos                   Expires 14 September 2021              [Page 31]
-
-Internet-Draft                  DTN UDPCL                     March 2021
-
-
 Appendix A.  Significant changes from RFC7122
 
    The areas in which changes from [RFC7122] have been made to existing
@@ -1745,7 +1830,7 @@ Appendix A.  Significant changes from RFC7122
 
    *  Made explicit references to UDP- and IP-related RFCs.
 
-   *  Made more strict Keepalive requirements.
+   *  Made more strict Keepalive and Padding requirements.
 
    *  Defined UDPCL security and made mandatory-to-implement.
 
@@ -1757,6 +1842,13 @@ Appendix A.  Significant changes from RFC7122
    *  Added Extension Map message type and initial extension types.
 
    *  Defined semantics for UDPCL multicast addressing.
+
+
+
+Sipos                   Expires 26 September 2021              [Page 33]
+
+Internet-Draft                  DTN UDPCL                     March 2021
+
 
 Author's Address
 
@@ -1789,4 +1881,24 @@ Author's Address
 
 
 
-Sipos                   Expires 14 September 2021              [Page 32]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sipos                   Expires 26 September 2021              [Page 34]
