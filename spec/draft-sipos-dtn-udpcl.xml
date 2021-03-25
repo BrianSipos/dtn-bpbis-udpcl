@@ -585,7 +585,7 @@ Unless prohibited by particular extension type requirements, a single Extension 
 Receivers SHALL ignore extension items with unknown Extension ID and continue to process known extension items.
         </t>
         <figure anchor="fig-udpcl-ext-map">
-          <name>Extension Map struture CDDL</name>
+          <name>Extension Map structure CDDL</name>
           <sourcecode type="cddl">
 ; Map structure requiring non-zero-int keys.
 ; CDDL cannot enforce type-specific requirements about other items
@@ -688,12 +688,11 @@ There is no positive indication that packets are no longer accepted; the Sender 
 The Sender Listen value SHALL be an untagged uint value representing the interval of time (in milliseconds) that the entity is willing to accept UDPCL packets on the source address-and-port used for the associated transmitted message.
 After transmitting a Sender Listen, the entity SHALL listen for and accept datagrams on the source address-and-port used for the associated transmitted message.
 As long as the entity is still willing to accept packets, at the end of one accept interval the entity SHALL transmit another Sender Listen item.
-This repitition continues until the entity is no longer willing to listen for packets.
+This repetition continues until the entity is no longer willing to listen for packets.
           </t>
           <t>
-Receivers of the Sender Listen extension SHALL treat
-timeout after the reception of a Sender Listen item
-The Sender Listen timeout
+A receiving entity SHOULD treat a peer as no longer listening after an implementation-defined timeout since the last received Sender Listen item.
+A RECOMMENDED Sender Listen timeout is three (3) times the associated time duration; this allows a single dropped datagram to not interrupt a continuous sequence.
           </t>
           <figure>
             <name>Sender Listen CDDL</name>
@@ -813,7 +812,7 @@ This timeout is purely receiver-side and represents the maximum allowed time bet
         <t>
 This version of the UDPCL supports establishing a DTLS session within an existing UDP conversation.
 When DTLS is used within the UDPCL it affects the entire conversation.
-There is no concept of a plaintext message being sent in a coversation after a DTLS session is established.
+There is no concept of a plaintext message being sent in a conversation after a DTLS session is established.
         </t>
         <t>
 Once established, the lifetime of a DTLS session SHALL be bound by the DTLS session ticket lifetime or either peer sending a Closure Alert record.
@@ -875,7 +874,7 @@ A tailored policy on a more controlled network could relax the requirement on No
         </t>
         </section>
         <section>
-          <name>Example Secured and Return-Path Transfers</name>
+          <name>Example Secured and Bidirectional Transfers</name>
           <t>
 This simple example shows a sequence of pre-transfer setup followed by a set of (unrelated) bundle transfers.
 All messaging in this example occurs between the same Entity A address-and-port and Entity B address-and-port.
@@ -1196,6 +1195,11 @@ Expert(s) are encouraged to be biased towards approving registrations unless the
               <td>5</td>
               <td>DTLS Initiation (STARTTLS)</td>
               <td><xref target="sec-ext-starttls"/> of this specification.</td>
+            </tr>
+            <tr>
+              <td>6-65535</td>
+              <td>Unassigned</td>
+              <td/>
             </tr>
           </tbody>
         </table>
