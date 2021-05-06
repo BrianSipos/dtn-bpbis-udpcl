@@ -1,7 +1,10 @@
 # DTN UDPCL
 
 Source for for UDPCLbis draft document.
+
 The final specification is hosted at <https://datatracker.ietf.org/doc/draft-sipos-dtn-udpcl/>.
+
+A local build of the current main branch is available [draft-sipos-dtn-udpcl.html](https://bsipos-rkf.github.io/dtn-bpbis-udpcl/draft-sipos-dtn-udpcl.html).
 
 A local build can be made with commands:
 ```
