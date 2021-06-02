@@ -14,13 +14,13 @@ Specifically, the UDPCL uses CBOR-encoded BPv7 bundles as its service data unit 
 This version of UDPCL also includes security and extensibility mechanisms.
        
     " name="description">
-<meta content="xml2rfc 3.7.0" name="generator">
+<meta content="xml2rfc 3.8.0" name="generator">
 <meta content="draft-sipos-dtn-udpcl-01" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.7.0
+  xml2rfc 3.8.0
     Python 3.8.5
     appdirs 1.4.4
-    ConfigArgParse 1.4
+    ConfigArgParse 1.4.1
     google-i18n-address 2.4.0
     html5lib 1.1
     intervaltree 3.1.0
@@ -1180,11 +1180,11 @@ li > p:last-of-type {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">DTN UDPCL</td>
-<td class="right">May 2021</td>
+<td class="right">June 2021</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Sipos</td>
-<td class="center">Expires 7 November 2021</td>
+<td class="center">Expires 4 December 2021</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1197,12 +1197,12 @@ li > p:last-of-type {
 <dd class="internet-draft">draft-sipos-dtn-udpcl-01</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2021-05-06" class="published">6 May 2021</time>
+<time datetime="2021-06-02" class="published">2 June 2021</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2021-11-07">7 November 2021</time></dd>
+<dd class="expires"><time datetime="2021-12-04">4 December 2021</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1240,7 +1240,7 @@ This version of UDPCL also includes security and extensibility mechanisms.<a hre
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 7 November 2021.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 4 December 2021.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1268,190 +1268,190 @@ This version of UDPCL also includes security and extensibility mechanisms.<a hre
         <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
 <a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
         </h2>
-<nav class="toc"><ul class="compact ulEmpty toc">
-<li class="compact ulEmpty toc" id="section-toc.1-1.1">
+<nav class="toc"><ul class="toc compact ulEmpty">
+<li class="toc compact ulEmpty" id="section-toc.1-1.1">
             <p id="section-toc.1-1.1.1"><a href="#section-1" class="xref">1</a>.  <a href="#name-introduction" class="xref">Introduction</a></p>
-<ul class="ulEmpty compact toc">
-<li class="ulEmpty compact toc" id="section-toc.1-1.1.2.1">
+<ul class="toc compact ulEmpty">
+<li class="toc compact ulEmpty" id="section-toc.1-1.1.2.1">
                 <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="xref">1.1</a>.  <a href="#name-scope" class="xref">Scope</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.1.2.2">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.1.2.2">
                 <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="xref">1.2</a>.  <a href="#name-use-of-cddl" class="xref">Use of CDDL</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.1.2.3">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.1.2.3">
                 <p id="section-toc.1-1.1.2.3.1" class="keepWithNext"><a href="#section-1.3" class="xref">1.3</a>.  <a href="#name-requirements-language" class="xref">Requirements Language</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.1.2.4">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.1.2.4">
                 <p id="section-toc.1-1.1.2.4.1"><a href="#section-1.4" class="xref">1.4</a>.  <a href="#name-definitions-specific-to-the" class="xref">Definitions Specific to the UDPCL Protocol</a></p>
 </li>
             </ul>
 </li>
-          <li class="compact ulEmpty toc" id="section-toc.1-1.2">
+          <li class="toc compact ulEmpty" id="section-toc.1-1.2">
             <p id="section-toc.1-1.2.1"><a href="#section-2" class="xref">2</a>.  <a href="#name-general-protocol-descriptio" class="xref">General Protocol Description</a></p>
-<ul class="ulEmpty compact toc">
-<li class="ulEmpty compact toc" id="section-toc.1-1.2.2.1">
+<ul class="toc compact ulEmpty">
+<li class="toc compact ulEmpty" id="section-toc.1-1.2.2.1">
                 <p id="section-toc.1-1.2.2.1.1"><a href="#section-2.1" class="xref">2.1</a>.  <a href="#name-convergence-layer-services" class="xref">Convergence Layer Services</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.2.2.2">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.2.2.2">
                 <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="xref">2.2</a>.  <a href="#name-pkix-environments-and-ca-po" class="xref">PKIX Environments and CA Policy</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.2.2.3">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.2.2.3">
                 <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="xref">2.3</a>.  <a href="#name-fragmentation-policies" class="xref">Fragmentation Policies</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.2.2.4">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.2.2.4">
                 <p id="section-toc.1-1.2.2.4.1"><a href="#section-2.4" class="xref">2.4</a>.  <a href="#name-error-checking-policies" class="xref">Error Checking Policies</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.2.2.5">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.2.2.5">
                 <p id="section-toc.1-1.2.2.5.1"><a href="#section-2.5" class="xref">2.5</a>.  <a href="#name-congestion-control-policies" class="xref">Congestion Control Policies</a></p>
 </li>
             </ul>
 </li>
-          <li class="compact ulEmpty toc" id="section-toc.1-1.3">
+          <li class="toc compact ulEmpty" id="section-toc.1-1.3">
             <p id="section-toc.1-1.3.1"><a href="#section-3" class="xref">3</a>.  <a href="#name-udpcl-operation" class="xref">UDPCL Operation</a></p>
-<ul class="ulEmpty compact toc">
-<li class="ulEmpty compact toc" id="section-toc.1-1.3.2.1">
+<ul class="toc compact ulEmpty">
+<li class="toc compact ulEmpty" id="section-toc.1-1.3.2.1">
                 <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="xref">3.1</a>.  <a href="#name-ip-addressing" class="xref">IP Addressing</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.3.2.2">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.2">
                 <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="xref">3.2</a>.  <a href="#name-udp-header" class="xref">UDP Header</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.3.2.3">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.3">
                 <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="xref">3.3</a>.  <a href="#name-udpcl-packets" class="xref">UDPCL Packets</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.3.2.4">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.4">
                 <p id="section-toc.1-1.3.2.4.1"><a href="#section-3.4" class="xref">3.4</a>.  <a href="#name-udpcl-messages" class="xref">UDPCL Messages</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.3.2.5">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.5">
                 <p id="section-toc.1-1.3.2.5.1"><a href="#section-3.5" class="xref">3.5</a>.  <a href="#name-udpcl-extension-items" class="xref">UDPCL Extension Items</a></p>
-<ul class="ulEmpty compact toc">
-<li class="ulEmpty compact toc" id="section-toc.1-1.3.2.5.2.1">
+<ul class="toc compact ulEmpty">
+<li class="toc compact ulEmpty" id="section-toc.1-1.3.2.5.2.1">
                     <p id="section-toc.1-1.3.2.5.2.1.1"><a href="#section-3.5.1" class="xref">3.5.1</a>.  <a href="#name-dtls-initiation-starttls" class="xref">DTLS Initiation (STARTTLS)</a></p>
 </li>
-                  <li class="ulEmpty compact toc" id="section-toc.1-1.3.2.5.2.2">
+                  <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.5.2.2">
                     <p id="section-toc.1-1.3.2.5.2.2.1"><a href="#section-3.5.2" class="xref">3.5.2</a>.  <a href="#name-bundle-transfer" class="xref">Bundle Transfer</a></p>
 </li>
-                  <li class="ulEmpty compact toc" id="section-toc.1-1.3.2.5.2.3">
+                  <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.5.2.3">
                     <p id="section-toc.1-1.3.2.5.2.3.1"><a href="#section-3.5.3" class="xref">3.5.3</a>.  <a href="#name-sender-listen" class="xref">Sender Listen</a></p>
 </li>
-                  <li class="ulEmpty compact toc" id="section-toc.1-1.3.2.5.2.4">
+                  <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.5.2.4">
                     <p id="section-toc.1-1.3.2.5.2.4.1"><a href="#section-3.5.4" class="xref">3.5.4</a>.  <a href="#name-sender-node-id" class="xref">Sender Node ID</a></p>
 </li>
                 </ul>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.3.2.6">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.6">
                 <p id="section-toc.1-1.3.2.6.1"><a href="#section-3.6" class="xref">3.6</a>.  <a href="#name-explicit-transfers" class="xref">Explicit Transfers</a></p>
-<ul class="ulEmpty compact toc">
-<li class="ulEmpty compact toc" id="section-toc.1-1.3.2.6.2.1">
+<ul class="toc compact ulEmpty">
+<li class="toc compact ulEmpty" id="section-toc.1-1.3.2.6.2.1">
                     <p id="section-toc.1-1.3.2.6.2.1.1"><a href="#section-3.6.1" class="xref">3.6.1</a>.  <a href="#name-bundle-transfer-id" class="xref">Bundle Transfer ID</a></p>
 </li>
-                  <li class="ulEmpty compact toc" id="section-toc.1-1.3.2.6.2.2">
+                  <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.6.2.2">
                     <p id="section-toc.1-1.3.2.6.2.2.1"><a href="#section-3.6.2" class="xref">3.6.2</a>.  <a href="#name-fragmentation-and-reassembl" class="xref">Fragmentation and Reassembly</a></p>
 </li>
                 </ul>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.3.2.7">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.7">
                 <p id="section-toc.1-1.3.2.7.1"><a href="#section-3.7" class="xref">3.7</a>.  <a href="#name-udpcl-security" class="xref">UDPCL Security</a></p>
-<ul class="ulEmpty compact toc">
-<li class="ulEmpty compact toc" id="section-toc.1-1.3.2.7.2.1">
+<ul class="toc compact ulEmpty">
+<li class="toc compact ulEmpty" id="section-toc.1-1.3.2.7.2.1">
                     <p id="section-toc.1-1.3.2.7.2.1.1"><a href="#section-3.7.1" class="xref">3.7.1</a>.  <a href="#name-entity-identification" class="xref">Entity Identification</a></p>
 </li>
-                  <li class="ulEmpty compact toc" id="section-toc.1-1.3.2.7.2.2">
+                  <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.7.2.2">
                     <p id="section-toc.1-1.3.2.7.2.2.1"><a href="#section-3.7.2" class="xref">3.7.2</a>.  <a href="#name-certificate-profile-for-udp" class="xref">Certificate Profile for UDPCL</a></p>
 </li>
-                  <li class="ulEmpty compact toc" id="section-toc.1-1.3.2.7.2.3">
+                  <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.7.2.3">
                     <p id="section-toc.1-1.3.2.7.2.3.1"><a href="#section-3.7.3" class="xref">3.7.3</a>.  <a href="#name-dtls-handshake" class="xref">DTLS Handshake</a></p>
 </li>
-                  <li class="ulEmpty compact toc" id="section-toc.1-1.3.2.7.2.4">
+                  <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.7.2.4">
                     <p id="section-toc.1-1.3.2.7.2.4.1"><a href="#section-3.7.4" class="xref">3.7.4</a>.  <a href="#name-dtls-authentication" class="xref">DTLS Authentication</a></p>
 </li>
-                  <li class="ulEmpty compact toc" id="section-toc.1-1.3.2.7.2.5">
+                  <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.7.2.5">
                     <p id="section-toc.1-1.3.2.7.2.5.1"><a href="#section-3.7.5" class="xref">3.7.5</a>.  <a href="#name-policy-recommendations" class="xref">Policy Recommendations</a></p>
 </li>
-                  <li class="ulEmpty compact toc" id="section-toc.1-1.3.2.7.2.6">
+                  <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.7.2.6">
                     <p id="section-toc.1-1.3.2.7.2.6.1"><a href="#section-3.7.6" class="xref">3.7.6</a>.  <a href="#name-example-secured-and-bidirec" class="xref">Example Secured and Bidirectional Transfers</a></p>
 </li>
                 </ul>
 </li>
             </ul>
 </li>
-          <li class="compact ulEmpty toc" id="section-toc.1-1.4">
+          <li class="toc compact ulEmpty" id="section-toc.1-1.4">
             <p id="section-toc.1-1.4.1"><a href="#section-4" class="xref">4</a>.  <a href="#name-implementation-status" class="xref">Implementation Status</a></p>
 </li>
-          <li class="compact ulEmpty toc" id="section-toc.1-1.5">
+          <li class="toc compact ulEmpty" id="section-toc.1-1.5">
             <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-security-considerations" class="xref">Security Considerations</a></p>
-<ul class="ulEmpty compact toc">
-<li class="ulEmpty compact toc" id="section-toc.1-1.5.2.1">
+<ul class="toc compact ulEmpty">
+<li class="toc compact ulEmpty" id="section-toc.1-1.5.2.1">
                 <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="xref">5.1</a>.  <a href="#name-threat-passive-leak-of-node" class="xref">Threat: Passive Leak of Node Data</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.5.2.2">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.2">
                 <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="xref">5.2</a>.  <a href="#name-threat-passive-leak-of-bund" class="xref">Threat: Passive Leak of Bundle Data</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.5.2.3">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.3">
                 <p id="section-toc.1-1.5.2.3.1"><a href="#section-5.3" class="xref">5.3</a>.  <a href="#name-threat-transport-security-s" class="xref">Threat: Transport Security Stripping</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.5.2.4">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.4">
                 <p id="section-toc.1-1.5.2.4.1"><a href="#section-5.4" class="xref">5.4</a>.  <a href="#name-threat-weak-dtls-configurat" class="xref">Threat: Weak DTLS Configurations</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.5.2.5">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.5">
                 <p id="section-toc.1-1.5.2.5.1"><a href="#section-5.5" class="xref">5.5</a>.  <a href="#name-threat-untrusted-end-entity" class="xref">Threat: Untrusted End-Entity Certificate</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.5.2.6">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.6">
                 <p id="section-toc.1-1.5.2.6.1"><a href="#section-5.6" class="xref">5.6</a>.  <a href="#name-threat-certificate-validati" class="xref">Threat: Certificate Validation Vulnerabilities</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.5.2.7">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.7">
                 <p id="section-toc.1-1.5.2.7.1"><a href="#section-5.7" class="xref">5.7</a>.  <a href="#name-threat-bp-node-impersonatio" class="xref">Threat: BP Node Impersonation</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.5.2.8">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.8">
                 <p id="section-toc.1-1.5.2.8.1"><a href="#section-5.8" class="xref">5.8</a>.  <a href="#name-threat-denial-of-service" class="xref">Threat: Denial of Service</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.5.2.9">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.9">
                 <p id="section-toc.1-1.5.2.9.1"><a href="#section-5.9" class="xref">5.9</a>.  <a href="#name-mandatory-to-implement-dtls" class="xref">Mandatory-to-Implement DTLS</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.5.2.10">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.10">
                 <p id="section-toc.1-1.5.2.10.1"><a href="#section-5.10" class="xref">5.10</a>. <a href="#name-alternate-uses-of-dtls" class="xref">Alternate Uses of DTLS</a></p>
-<ul class="ulEmpty compact toc">
-<li class="ulEmpty compact toc" id="section-toc.1-1.5.2.10.2.1">
+<ul class="toc compact ulEmpty">
+<li class="toc compact ulEmpty" id="section-toc.1-1.5.2.10.2.1">
                     <p id="section-toc.1-1.5.2.10.2.1.1"><a href="#section-5.10.1" class="xref">5.10.1</a>.  <a href="#name-dtls-without-authentication" class="xref">DTLS Without Authentication</a></p>
 </li>
-                  <li class="ulEmpty compact toc" id="section-toc.1-1.5.2.10.2.2">
+                  <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.10.2.2">
                     <p id="section-toc.1-1.5.2.10.2.2.1"><a href="#section-5.10.2" class="xref">5.10.2</a>.  <a href="#name-non-certificate-dtls-use" class="xref">Non-Certificate DTLS Use</a></p>
 </li>
                 </ul>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.5.2.11">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.11">
                 <p id="section-toc.1-1.5.2.11.1"><a href="#section-5.11" class="xref">5.11</a>. <a href="#name-predictability-of-transfer-" class="xref">Predictability of Transfer IDs</a></p>
 </li>
             </ul>
 </li>
-          <li class="compact ulEmpty toc" id="section-toc.1-1.6">
+          <li class="toc compact ulEmpty" id="section-toc.1-1.6">
             <p id="section-toc.1-1.6.1"><a href="#section-6" class="xref">6</a>.  <a href="#name-iana-considerations" class="xref">IANA Considerations</a></p>
-<ul class="ulEmpty compact toc">
-<li class="ulEmpty compact toc" id="section-toc.1-1.6.2.1">
+<ul class="toc compact ulEmpty">
+<li class="toc compact ulEmpty" id="section-toc.1-1.6.2.1">
                 <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="xref">6.1</a>.  <a href="#name-port-number" class="xref">Port Number</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.6.2.2">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.6.2.2">
                 <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="xref">6.2</a>.  <a href="#name-udpcl-extension-types" class="xref">UDPCL Extension Types</a></p>
 </li>
             </ul>
 </li>
-          <li class="compact ulEmpty toc" id="section-toc.1-1.7">
+          <li class="toc compact ulEmpty" id="section-toc.1-1.7">
             <p id="section-toc.1-1.7.1"><a href="#section-7" class="xref">7</a>.  <a href="#name-acknowledgments" class="xref">Acknowledgments</a></p>
 </li>
-          <li class="compact ulEmpty toc" id="section-toc.1-1.8">
+          <li class="toc compact ulEmpty" id="section-toc.1-1.8">
             <p id="section-toc.1-1.8.1"><a href="#section-8" class="xref">8</a>.  <a href="#name-references" class="xref">References</a></p>
-<ul class="ulEmpty compact toc">
-<li class="ulEmpty compact toc" id="section-toc.1-1.8.2.1">
+<ul class="toc compact ulEmpty">
+<li class="toc compact ulEmpty" id="section-toc.1-1.8.2.1">
                 <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="xref">8.1</a>.  <a href="#name-normative-references" class="xref">Normative References</a></p>
 </li>
-              <li class="ulEmpty compact toc" id="section-toc.1-1.8.2.2">
+              <li class="toc compact ulEmpty" id="section-toc.1-1.8.2.2">
                 <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="xref">8.2</a>.  <a href="#name-informative-references" class="xref">Informative References</a></p>
 </li>
             </ul>
 </li>
-          <li class="compact ulEmpty toc" id="section-toc.1-1.9">
+          <li class="toc compact ulEmpty" id="section-toc.1-1.9">
             <p id="section-toc.1-1.9.1"><a href="#section-appendix.a" class="xref">Appendix A</a>.  <a href="#name-significant-changes-from-rf" class="xref">Significant changes from RFC7122</a></p>
 </li>
-          <li class="compact ulEmpty toc" id="section-toc.1-1.10">
+          <li class="toc compact ulEmpty" id="section-toc.1-1.10">
             <p id="section-toc.1-1.10.1"><a href="#section-appendix.b" class="xref"></a><a href="#name-authors-address" class="xref">Author's Address</a></p>
 </li>
         </ul>
