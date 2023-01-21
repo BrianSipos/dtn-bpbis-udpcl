@@ -14,25 +14,25 @@ Specifically, the UDPCL uses CBOR-encoded BPv7 bundles as its service data unit 
 This version of UDPCL also includes security and extensibility mechanisms.
        
     " name="description">
-<meta content="xml2rfc 3.8.0" name="generator">
+<meta content="xml2rfc 3.16.0" name="generator">
 <meta content="draft-sipos-dtn-udpcl-01" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.8.0
-    Python 3.8.5
+  xml2rfc 3.16.0
+    Python 3.10.6
     appdirs 1.4.4
-    ConfigArgParse 1.4.1
-    google-i18n-address 2.4.0
+    ConfigArgParse 1.5.3
+    google-i18n-address 2.5.2
     html5lib 1.1
     intervaltree 3.1.0
-    Jinja2 2.11.3
-    kitchen 1.2.6
-    lxml 4.6.3
-    pycountry 20.7.3
-    pyflakes 2.3.1
-    PyYAML 5.3.1
-    requests 2.22.0
-    setuptools 45.2.0
-    six 1.14.0
+    Jinja2 3.1.2
+    lxml 4.9.2
+    MarkupSafe 2.1.2
+    pycountry 22.3.5
+    PyYAML 5.4.1
+    requests 2.25.1
+    setuptools 59.6.0
+    six 1.16.0
+    wcwidth 0.2.6
 -->
 <link href="/home/runner/work/dtn-bpbis-udpcl/dtn-bpbis-udpcl/spec/draft-sipos-dtn-udpcl.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -44,7 +44,7 @@ This version of UDPCL also includes security and extensibility mechanisms.
   this can be consolidated so that style settings occur only in one place, but
   for now the contents of this file consists first of the initial CSS work as
   provided to the RFC Formatter (xml2rfc) work, followed by itemized and
-  commented changes found necssary during the development of the v3
+  commented changes found necessary during the development of the v3
   formatters.
 
 */
@@ -53,6 +53,12 @@ This version of UDPCL also includes security and extensibility mechanisms.
 @import url('https://fonts.googleapis.com/css?family=Noto+Sans'); /* Sans-serif */
 @import url('https://fonts.googleapis.com/css?family=Noto+Serif'); /* Serif (print) */
 @import url('https://fonts.googleapis.com/css?family=Roboto+Mono'); /* Monospace */
+
+:root {
+  --font-sans: 'Noto Sans', Arial, Helvetica, sans-serif;
+  --font-serif: 'Noto Serif', 'Times', 'Times New Roman', serif;
+  --font-mono: 'Roboto Mono', Courier, 'Courier New', monospace;
+}
 
 @viewport {
   zoom: 1.0;
@@ -71,7 +77,7 @@ body {
   color: #222;
   background-color: #fff;
   font-size: 14px;
-  font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
   line-height: 1.6;
   scroll-behavior: smooth;
 }
@@ -160,6 +166,15 @@ div {
 svg {
   display: block;
 }
+svg[font-family~="serif" i], svg [font-family~="serif" i] {
+  font-family: var(--font-serif);
+}
+svg[font-family~="sans-serif" i], svg [font-family~="sans-serif" i] {
+  font-family: var(--font-sans);
+}
+svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
+  font-family: var(--font-mono);
+}
 .alignCenter.art-text {
   background-color: #f9f9f9;
   border: 1px solid #eee;
@@ -174,11 +189,8 @@ svg {
   margin: 1em 0;
 }
 .alignCenter > *:first-child {
-  border: none;
-  /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
-     support flexbox yet.
-  */
   display: table;
+  border: none;
   margin: 0 auto;
 }
 
@@ -201,6 +213,9 @@ ul.empty, .ulEmpty {
 }
 ul.empty li, .ulEmpty li {
   margin-top: 0.5em;
+}
+ul.ulBare, li.ulBare {
+  margin-left: 0em !important;
 }
 ul.compact, .ulCompact,
 ol.compact, .olCompact {
@@ -253,9 +268,9 @@ a.selfRef:hover {
 } */
 
 /* Figures */
-tt, code, pre, code {
+tt, code, pre {
   background-color: #f9f9f9;
-  font-family: 'Roboto Mono', monospace;
+  font-family: var(--font-mono);
 }
 pre {
   border: 1px solid #eee;
@@ -385,6 +400,12 @@ hr {
   float: left;
   margin-bottom: 0;
 }
+/* Fix PDF info block run off issue */
+@media print {
+  #identifiers dd {
+    float: none;
+  }
+}
 #identifiers .authors .author {
   display: inline-block;
   margin-right: 1.5em;
@@ -486,7 +507,7 @@ address.vcard .nameRole {
   margin-left: 0;
 }
 address.vcard .label {
-  font-family: "Noto Sans",Arial,Helvetica,sans-serif;
+  font-family: var(--font-sans);
   margin: 0.5em 0;
 }
 address.vcard .type {
@@ -649,6 +670,9 @@ hr.addr {
   figure {
     overflow: scroll;
   }
+  .breakable pre {
+    break-inside: auto;
+  }
   h1, h2, h3, h4, h5, h6 {
     page-break-after: avoid;
   }
@@ -716,7 +740,7 @@ hr.addr {
   size: A4;
   margin-bottom: 45mm;
   padding-top: 20px;
-  /* The follwing is commented out here, but set appropriately by in code, as
+  /* The following is commented out here, but set appropriately by in code, as
      the content depends on the document */
   /*
   @top-left {
@@ -816,12 +840,12 @@ section {
 }
 
 /* prevent monospace from becoming overly large */
-tt, code, pre, code {
+tt, code, pre {
   font-size: 95%;
 }
 
 /* Fix the height/width aspect for ascii art*/
-pre.sourcecode,
+.sourcecode pre,
 .art-text pre {
   line-height: 1.12;
 }
@@ -857,7 +881,7 @@ table th.text-right {
   text-align: right;
 }
 
-/* Make the alternative author contact informatio look less like just another
+/* Make the alternative author contact information look less like just another
    author, and group it closer with the primary author contact information */
 .alternative-contact {
   margin: 0.5em 0 0.25em 0;
@@ -1039,6 +1063,7 @@ aside > p {
 /* Sourcecode margin in print, when there's no pilcrow */
 @media print {
   .artwork,
+  .artwork > pre,
   .sourcecode {
     margin-bottom: 1em;
   }
@@ -1053,12 +1078,15 @@ ol.type-A { list-style-type: upper-alpha; }
 ol.type-i { list-style-type: lower-roman; }
 ol.type-I { list-style-type: lower-roman; }
 /* Apply the print table and row borders in general, on request from the RPC,
-and increase the contrast between border and odd row background sligthtly */
+and increase the contrast between border and odd row background slightly */
 table {
   border: 1px solid #ddd;
 }
 td {
   border-top: 1px solid #ddd;
+}
+tr {
+  break-inside: avoid;
 }
 tr:nth-child(2n+1) > td {
   background-color: #f8f8f8;
@@ -1079,7 +1107,7 @@ tr:nth-child(2n+1) > td {
 }
 /* Change the approach to avoiding breaks inside artwork etc. */
 figure, pre, table, .artwork, .sourcecode  {
-  break-before: avoid-page;
+  break-before: auto;
   break-after: auto;
 }
 /* Avoid breaks between <dt> and <dd> */
@@ -1110,7 +1138,7 @@ span.break, dd.break {
     break-before: auto;
   }
 }
-/* Text in compact lists should not get extra bottim margin space,
+/* Text in compact lists should not get extra bottom margin space,
    since that would makes the list not compact */
 ul.compact p, .ulCompact p,
 ol.compact p, .olCompact p {
@@ -1135,7 +1163,7 @@ p tt, p code, li tt, li code {
 pre {
    margin-top: 0.5px;
 }
-/* Tweak the comact list text */
+/* Tweak the compact list text */
 ul.compact, .ulCompact,
 ol.compact, .olCompact,
 dl.compact, .dlCompact {
@@ -1153,7 +1181,7 @@ dd > div.artwork:first-child,
 dd > aside:first-child,
 dd > figure:first-child,
 dd > ol:first-child,
-dd > div:first-child > pre.sourcecode,
+dd > div.sourcecode:first-child,
 dd > table:first-child,
 dd > ul:first-child {
   clear: left;
@@ -1167,24 +1195,24 @@ li > p {
   margin-bottom: 0.5em
 }
 /* Don't let p margin spill out from inside list items */
-li > p:last-of-type {
+li > p:last-of-type:only-child {
   margin-bottom: 0;
 }
 </style>
 <link href="rfc-local.css" rel="stylesheet" type="text/css">
 <script type="application/javascript">async function addMetadata(){try{const e=document.styleSheets[0].cssRules;for(let t=0;t<e.length;t++)if(/#identifiers/.exec(e[t].selectorText)){const a=e[t].cssText.replace("#identifiers","#external-updates");document.styleSheets[0].insertRule(a,document.styleSheets[0].cssRules.length)}}catch(e){console.log(e)}const e=document.getElementById("external-metadata");if(e)try{var t,a="",o=function(e){const t=document.getElementsByTagName("meta");for(let a=0;a<t.length;a++)if(t[a].getAttribute("name")===e)return t[a].getAttribute("content");return""}("rfc.number");if(o){t="https://www.rfc-editor.org/rfc/rfc"+o+".json";try{const e=await fetch(t);a=await e.json()}catch(e){t=document.URL.indexOf("html")>=0?document.URL.replace(/html$/,"json"):document.URL+".json";const o=await fetch(t);a=await o.json()}}if(!a)return;e.style.display="block";const s="",d="https://datatracker.ietf.org/doc",n="https://datatracker.ietf.org/ipr/search",c="https://www.rfc-editor.org/info",l=a.doc_id.toLowerCase(),i=a.doc_id.slice(0,3).toLowerCase(),f=a.doc_id.slice(3).replace(/^0+/,""),u={status:"Status",obsoletes:"Obsoletes",obsoleted_by:"Obsoleted By",updates:"Updates",updated_by:"Updated By",see_also:"See Also",errata_url:"Errata"};let h="<dl style='overflow:hidden' id='external-updates'>";["status","obsoletes","obsoleted_by","updates","updated_by","see_also","errata_url"].forEach(e=>{if("status"==e){a[e]=a[e].toLowerCase();var t=a[e].split(" "),o=t.length,w="",p=1;for(let e=0;e<o;e++)p<o?w=w+r(t[e])+" ":w+=r(t[e]),p++;a[e]=w}else if("obsoletes"==e||"obsoleted_by"==e||"updates"==e||"updated_by"==e){var g,m="",b=1;g=a[e].length;for(let t=0;t<g;t++)a[e][t]&&(a[e][t]=String(a[e][t]).toLowerCase(),m=b<g?m+"<a href='"+s+"/rfc/".concat(a[e][t])+"'>"+a[e][t].slice(3)+"</a>, ":m+"<a href='"+s+"/rfc/".concat(a[e][t])+"'>"+a[e][t].slice(3)+"</a>",b++);a[e]=m}else if("see_also"==e){var y,L="",C=1;y=a[e].length;for(let t=0;t<y;t++)if(a[e][t]){a[e][t]=String(a[e][t]);var _=a[e][t].slice(0,3),v=a[e][t].slice(3).replace(/^0+/,"");L=C<y?"RFC"!=_?L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+_+" "+v+"</a>, ":L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+v+"</a>, ":"RFC"!=_?L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+_+" "+v+"</a>":L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+v+"</a>",C++}a[e]=L}else if("errata_url"==e){var R="";R=a[e]?R+"<a href='"+a[e]+"'>Errata exist</a> | <a href='"+d+"/"+l+"'>Datatracker</a>| <a href='"+n+"/?"+i+"="+f+"&submit="+i+"'>IPR</a> | <a href='"+c+"/"+l+"'>Info page</a>":"<a href='"+d+"/"+l+"'>Datatracker</a> | <a href='"+n+"/?"+i+"="+f+"&submit="+i+"'>IPR</a> | <a href='"+c+"/"+l+"'>Info page</a>",a[e]=R}""!=a[e]?"Errata"==u[e]?h+=`<dt>More info:</dt><dd>${a[e]}</dd>`:h+=`<dt>${u[e]}:</dt><dd>${a[e]}</dd>`:"Errata"==u[e]&&(h+=`<dt>More info:</dt><dd>${a[e]}</dd>`)}),h+="</dl>",e.innerHTML=h}catch(e){console.log(e)}else console.log("Could not locate metadata <div> element");function r(e){return e.charAt(0).toUpperCase()+e.slice(1)}}window.removeEventListener("load",addMetadata),window.addEventListener("load",addMetadata);</script>
 </head>
-<body>
+<body class="xml2rfc">
 <script src="metadata.min.js"></script>
 <table class="ears">
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">DTN UDPCL</td>
-<td class="right">June 2021</td>
+<td class="right">January 2023</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Sipos</td>
-<td class="center">Expires 4 December 2021</td>
+<td class="center">Expires 25 July 2023</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1197,12 +1225,12 @@ li > p:last-of-type {
 <dd class="internet-draft">draft-sipos-dtn-udpcl-01</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2021-06-02" class="published">2 June 2021</time>
+<time datetime="2023-01-21" class="published">21 January 2023</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2021-12-04">4 December 2021</time></dd>
+<dd class="expires"><time datetime="2023-07-25">25 July 2023</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1240,7 +1268,7 @@ This version of UDPCL also includes security and extensibility mechanisms.<a hre
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 4 December 2021.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 25 July 2023.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1249,7 +1277,7 @@ This version of UDPCL also includes security and extensibility mechanisms.<a hre
 <a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
         </h2>
 <p id="section-boilerplate.2-1">
-            Copyright (c) 2021 IETF Trust and the persons identified as the
+            Copyright (c) 2023 IETF Trust and the persons identified as the
             document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.2-2">
             This document is subject to BCP 78 and the IETF Trust's Legal
@@ -1258,9 +1286,9 @@ This version of UDPCL also includes security and extensibility mechanisms.<a hre
             publication of this document. Please review these documents
             carefully, as they describe your rights and restrictions with
             respect to this document. Code Components extracted from this
-            document must include Simplified BSD License text as described in
+            document must include Revised BSD License text as described in
             Section 4.e of the Trust Legal Provisions and are provided without
-            warranty as described in the Simplified BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+            warranty as described in the Revised BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="toc">
@@ -1268,191 +1296,191 @@ This version of UDPCL also includes security and extensibility mechanisms.<a hre
         <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
 <a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
         </h2>
-<nav class="toc"><ul class="toc compact ulEmpty">
-<li class="toc compact ulEmpty" id="section-toc.1-1.1">
-            <p id="section-toc.1-1.1.1"><a href="#section-1" class="xref">1</a>.  <a href="#name-introduction" class="xref">Introduction</a></p>
-<ul class="toc compact ulEmpty">
-<li class="toc compact ulEmpty" id="section-toc.1-1.1.2.1">
-                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="xref">1.1</a>.  <a href="#name-scope" class="xref">Scope</a></p>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
+                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-scope" class="internal xref">Scope</a></p>
 </li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.1.2.2">
-                <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="xref">1.2</a>.  <a href="#name-use-of-cddl" class="xref">Use of CDDL</a></p>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.2">
+                <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="auto internal xref">1.2</a>.  <a href="#name-use-of-cddl" class="internal xref">Use of CDDL</a></p>
 </li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.1.2.3">
-                <p id="section-toc.1-1.1.2.3.1" class="keepWithNext"><a href="#section-1.3" class="xref">1.3</a>.  <a href="#name-requirements-language" class="xref">Requirements Language</a></p>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.3">
+                <p id="section-toc.1-1.1.2.3.1" class="keepWithNext"><a href="#section-1.3" class="auto internal xref">1.3</a>.  <a href="#name-requirements-language" class="internal xref">Requirements Language</a></p>
 </li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.1.2.4">
-                <p id="section-toc.1-1.1.2.4.1"><a href="#section-1.4" class="xref">1.4</a>.  <a href="#name-definitions-specific-to-the" class="xref">Definitions Specific to the UDPCL Protocol</a></p>
-</li>
-            </ul>
-</li>
-          <li class="toc compact ulEmpty" id="section-toc.1-1.2">
-            <p id="section-toc.1-1.2.1"><a href="#section-2" class="xref">2</a>.  <a href="#name-general-protocol-descriptio" class="xref">General Protocol Description</a></p>
-<ul class="toc compact ulEmpty">
-<li class="toc compact ulEmpty" id="section-toc.1-1.2.2.1">
-                <p id="section-toc.1-1.2.2.1.1"><a href="#section-2.1" class="xref">2.1</a>.  <a href="#name-convergence-layer-services" class="xref">Convergence Layer Services</a></p>
-</li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.2.2.2">
-                <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="xref">2.2</a>.  <a href="#name-pkix-environments-and-ca-po" class="xref">PKIX Environments and CA Policy</a></p>
-</li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.2.2.3">
-                <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="xref">2.3</a>.  <a href="#name-fragmentation-policies" class="xref">Fragmentation Policies</a></p>
-</li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.2.2.4">
-                <p id="section-toc.1-1.2.2.4.1"><a href="#section-2.4" class="xref">2.4</a>.  <a href="#name-error-checking-policies" class="xref">Error Checking Policies</a></p>
-</li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.2.2.5">
-                <p id="section-toc.1-1.2.2.5.1"><a href="#section-2.5" class="xref">2.5</a>.  <a href="#name-congestion-control-policies" class="xref">Congestion Control Policies</a></p>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.4">
+                <p id="section-toc.1-1.1.2.4.1"><a href="#section-1.4" class="auto internal xref">1.4</a>.  <a href="#name-definitions-specific-to-the" class="internal xref">Definitions Specific to the UDPCL Protocol</a></p>
 </li>
             </ul>
 </li>
-          <li class="toc compact ulEmpty" id="section-toc.1-1.3">
-            <p id="section-toc.1-1.3.1"><a href="#section-3" class="xref">3</a>.  <a href="#name-udpcl-operation" class="xref">UDPCL Operation</a></p>
-<ul class="toc compact ulEmpty">
-<li class="toc compact ulEmpty" id="section-toc.1-1.3.2.1">
-                <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="xref">3.1</a>.  <a href="#name-ip-addressing" class="xref">IP Addressing</a></p>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-general-protocol-descriptio" class="internal xref">General Protocol Description</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1">
+                <p id="section-toc.1-1.2.2.1.1"><a href="#section-2.1" class="auto internal xref">2.1</a>.  <a href="#name-convergence-layer-services" class="internal xref">Convergence Layer Services</a></p>
 </li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.2">
-                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="xref">3.2</a>.  <a href="#name-udp-header" class="xref">UDP Header</a></p>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2">
+                <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="auto internal xref">2.2</a>.  <a href="#name-pkix-environments-and-ca-po" class="internal xref">PKIX Environments and CA Policy</a></p>
 </li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.3">
-                <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="xref">3.3</a>.  <a href="#name-udpcl-packets" class="xref">UDPCL Packets</a></p>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3">
+                <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="auto internal xref">2.3</a>.  <a href="#name-fragmentation-policies" class="internal xref">Fragmentation Policies</a></p>
 </li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.4">
-                <p id="section-toc.1-1.3.2.4.1"><a href="#section-3.4" class="xref">3.4</a>.  <a href="#name-udpcl-messages" class="xref">UDPCL Messages</a></p>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.4">
+                <p id="section-toc.1-1.2.2.4.1"><a href="#section-2.4" class="auto internal xref">2.4</a>.  <a href="#name-error-checking-policies" class="internal xref">Error Checking Policies</a></p>
 </li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.5">
-                <p id="section-toc.1-1.3.2.5.1"><a href="#section-3.5" class="xref">3.5</a>.  <a href="#name-udpcl-extension-items" class="xref">UDPCL Extension Items</a></p>
-<ul class="toc compact ulEmpty">
-<li class="toc compact ulEmpty" id="section-toc.1-1.3.2.5.2.1">
-                    <p id="section-toc.1-1.3.2.5.2.1.1"><a href="#section-3.5.1" class="xref">3.5.1</a>.  <a href="#name-dtls-initiation-starttls" class="xref">DTLS Initiation (STARTTLS)</a></p>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.5">
+                <p id="section-toc.1-1.2.2.5.1"><a href="#section-2.5" class="auto internal xref">2.5</a>.  <a href="#name-congestion-control-policies" class="internal xref">Congestion Control Policies</a></p>
 </li>
-                  <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.5.2.2">
-                    <p id="section-toc.1-1.3.2.5.2.2.1"><a href="#section-3.5.2" class="xref">3.5.2</a>.  <a href="#name-bundle-transfer" class="xref">Bundle Transfer</a></p>
+            </ul>
 </li>
-                  <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.5.2.3">
-                    <p id="section-toc.1-1.3.2.5.2.3.1"><a href="#section-3.5.3" class="xref">3.5.3</a>.  <a href="#name-sender-listen" class="xref">Sender Listen</a></p>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-udpcl-operation" class="internal xref">UDPCL Operation</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-ip-addressing" class="internal xref">IP Addressing</a></p>
 </li>
-                  <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.5.2.4">
-                    <p id="section-toc.1-1.3.2.5.2.4.1"><a href="#section-3.5.4" class="xref">3.5.4</a>.  <a href="#name-sender-node-id" class="xref">Sender Node ID</a></p>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
+                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-udp-header" class="internal xref">UDP Header</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3">
+                <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="auto internal xref">3.3</a>.  <a href="#name-udpcl-packets" class="internal xref">UDPCL Packets</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.4">
+                <p id="section-toc.1-1.3.2.4.1"><a href="#section-3.4" class="auto internal xref">3.4</a>.  <a href="#name-udpcl-messages" class="internal xref">UDPCL Messages</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.5">
+                <p id="section-toc.1-1.3.2.5.1"><a href="#section-3.5" class="auto internal xref">3.5</a>.  <a href="#name-udpcl-extension-items" class="internal xref">UDPCL Extension Items</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.5.2.1">
+                    <p id="section-toc.1-1.3.2.5.2.1.1"><a href="#section-3.5.1" class="auto internal xref">3.5.1</a>.  <a href="#name-dtls-initiation-starttls" class="internal xref">DTLS Initiation (STARTTLS)</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.5.2.2">
+                    <p id="section-toc.1-1.3.2.5.2.2.1"><a href="#section-3.5.2" class="auto internal xref">3.5.2</a>.  <a href="#name-bundle-transfer" class="internal xref">Bundle Transfer</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.5.2.3">
+                    <p id="section-toc.1-1.3.2.5.2.3.1"><a href="#section-3.5.3" class="auto internal xref">3.5.3</a>.  <a href="#name-sender-listen" class="internal xref">Sender Listen</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.5.2.4">
+                    <p id="section-toc.1-1.3.2.5.2.4.1"><a href="#section-3.5.4" class="auto internal xref">3.5.4</a>.  <a href="#name-sender-node-id" class="internal xref">Sender Node ID</a></p>
 </li>
                 </ul>
 </li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.6">
-                <p id="section-toc.1-1.3.2.6.1"><a href="#section-3.6" class="xref">3.6</a>.  <a href="#name-explicit-transfers" class="xref">Explicit Transfers</a></p>
-<ul class="toc compact ulEmpty">
-<li class="toc compact ulEmpty" id="section-toc.1-1.3.2.6.2.1">
-                    <p id="section-toc.1-1.3.2.6.2.1.1"><a href="#section-3.6.1" class="xref">3.6.1</a>.  <a href="#name-bundle-transfer-id" class="xref">Bundle Transfer ID</a></p>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.6">
+                <p id="section-toc.1-1.3.2.6.1"><a href="#section-3.6" class="auto internal xref">3.6</a>.  <a href="#name-explicit-transfers" class="internal xref">Explicit Transfers</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.6.2.1">
+                    <p id="section-toc.1-1.3.2.6.2.1.1"><a href="#section-3.6.1" class="auto internal xref">3.6.1</a>.  <a href="#name-bundle-transfer-id" class="internal xref">Bundle Transfer ID</a></p>
 </li>
-                  <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.6.2.2">
-                    <p id="section-toc.1-1.3.2.6.2.2.1"><a href="#section-3.6.2" class="xref">3.6.2</a>.  <a href="#name-fragmentation-and-reassembl" class="xref">Fragmentation and Reassembly</a></p>
-</li>
-                </ul>
-</li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.7">
-                <p id="section-toc.1-1.3.2.7.1"><a href="#section-3.7" class="xref">3.7</a>.  <a href="#name-udpcl-security" class="xref">UDPCL Security</a></p>
-<ul class="toc compact ulEmpty">
-<li class="toc compact ulEmpty" id="section-toc.1-1.3.2.7.2.1">
-                    <p id="section-toc.1-1.3.2.7.2.1.1"><a href="#section-3.7.1" class="xref">3.7.1</a>.  <a href="#name-entity-identification" class="xref">Entity Identification</a></p>
-</li>
-                  <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.7.2.2">
-                    <p id="section-toc.1-1.3.2.7.2.2.1"><a href="#section-3.7.2" class="xref">3.7.2</a>.  <a href="#name-certificate-profile-for-udp" class="xref">Certificate Profile for UDPCL</a></p>
-</li>
-                  <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.7.2.3">
-                    <p id="section-toc.1-1.3.2.7.2.3.1"><a href="#section-3.7.3" class="xref">3.7.3</a>.  <a href="#name-dtls-handshake" class="xref">DTLS Handshake</a></p>
-</li>
-                  <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.7.2.4">
-                    <p id="section-toc.1-1.3.2.7.2.4.1"><a href="#section-3.7.4" class="xref">3.7.4</a>.  <a href="#name-dtls-authentication" class="xref">DTLS Authentication</a></p>
-</li>
-                  <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.7.2.5">
-                    <p id="section-toc.1-1.3.2.7.2.5.1"><a href="#section-3.7.5" class="xref">3.7.5</a>.  <a href="#name-policy-recommendations" class="xref">Policy Recommendations</a></p>
-</li>
-                  <li class="toc compact ulEmpty" id="section-toc.1-1.3.2.7.2.6">
-                    <p id="section-toc.1-1.3.2.7.2.6.1"><a href="#section-3.7.6" class="xref">3.7.6</a>.  <a href="#name-example-secured-and-bidirec" class="xref">Example Secured and Bidirectional Transfers</a></p>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.6.2.2">
+                    <p id="section-toc.1-1.3.2.6.2.2.1"><a href="#section-3.6.2" class="auto internal xref">3.6.2</a>.  <a href="#name-fragmentation-and-reassembl" class="internal xref">Fragmentation and Reassembly</a></p>
 </li>
                 </ul>
 </li>
-            </ul>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.7">
+                <p id="section-toc.1-1.3.2.7.1"><a href="#section-3.7" class="auto internal xref">3.7</a>.  <a href="#name-udpcl-security" class="internal xref">UDPCL Security</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.7.2.1">
+                    <p id="section-toc.1-1.3.2.7.2.1.1"><a href="#section-3.7.1" class="auto internal xref">3.7.1</a>.  <a href="#name-entity-identification" class="internal xref">Entity Identification</a></p>
 </li>
-          <li class="toc compact ulEmpty" id="section-toc.1-1.4">
-            <p id="section-toc.1-1.4.1"><a href="#section-4" class="xref">4</a>.  <a href="#name-implementation-status" class="xref">Implementation Status</a></p>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.7.2.2">
+                    <p id="section-toc.1-1.3.2.7.2.2.1"><a href="#section-3.7.2" class="auto internal xref">3.7.2</a>.  <a href="#name-certificate-profile-for-udp" class="internal xref">Certificate Profile for UDPCL</a></p>
 </li>
-          <li class="toc compact ulEmpty" id="section-toc.1-1.5">
-            <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-security-considerations" class="xref">Security Considerations</a></p>
-<ul class="toc compact ulEmpty">
-<li class="toc compact ulEmpty" id="section-toc.1-1.5.2.1">
-                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="xref">5.1</a>.  <a href="#name-threat-passive-leak-of-node" class="xref">Threat: Passive Leak of Node Data</a></p>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.7.2.3">
+                    <p id="section-toc.1-1.3.2.7.2.3.1"><a href="#section-3.7.3" class="auto internal xref">3.7.3</a>.  <a href="#name-dtls-handshake" class="internal xref">DTLS Handshake</a></p>
 </li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.2">
-                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="xref">5.2</a>.  <a href="#name-threat-passive-leak-of-bund" class="xref">Threat: Passive Leak of Bundle Data</a></p>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.7.2.4">
+                    <p id="section-toc.1-1.3.2.7.2.4.1"><a href="#section-3.7.4" class="auto internal xref">3.7.4</a>.  <a href="#name-dtls-authentication" class="internal xref">DTLS Authentication</a></p>
 </li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.3">
-                <p id="section-toc.1-1.5.2.3.1"><a href="#section-5.3" class="xref">5.3</a>.  <a href="#name-threat-transport-security-s" class="xref">Threat: Transport Security Stripping</a></p>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.7.2.5">
+                    <p id="section-toc.1-1.3.2.7.2.5.1"><a href="#section-3.7.5" class="auto internal xref">3.7.5</a>.  <a href="#name-policy-recommendations" class="internal xref">Policy Recommendations</a></p>
 </li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.4">
-                <p id="section-toc.1-1.5.2.4.1"><a href="#section-5.4" class="xref">5.4</a>.  <a href="#name-threat-weak-dtls-configurat" class="xref">Threat: Weak DTLS Configurations</a></p>
-</li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.5">
-                <p id="section-toc.1-1.5.2.5.1"><a href="#section-5.5" class="xref">5.5</a>.  <a href="#name-threat-untrusted-end-entity" class="xref">Threat: Untrusted End-Entity Certificate</a></p>
-</li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.6">
-                <p id="section-toc.1-1.5.2.6.1"><a href="#section-5.6" class="xref">5.6</a>.  <a href="#name-threat-certificate-validati" class="xref">Threat: Certificate Validation Vulnerabilities</a></p>
-</li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.7">
-                <p id="section-toc.1-1.5.2.7.1"><a href="#section-5.7" class="xref">5.7</a>.  <a href="#name-threat-bp-node-impersonatio" class="xref">Threat: BP Node Impersonation</a></p>
-</li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.8">
-                <p id="section-toc.1-1.5.2.8.1"><a href="#section-5.8" class="xref">5.8</a>.  <a href="#name-threat-denial-of-service" class="xref">Threat: Denial of Service</a></p>
-</li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.9">
-                <p id="section-toc.1-1.5.2.9.1"><a href="#section-5.9" class="xref">5.9</a>.  <a href="#name-mandatory-to-implement-dtls" class="xref">Mandatory-to-Implement DTLS</a></p>
-</li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.10">
-                <p id="section-toc.1-1.5.2.10.1"><a href="#section-5.10" class="xref">5.10</a>. <a href="#name-alternate-uses-of-dtls" class="xref">Alternate Uses of DTLS</a></p>
-<ul class="toc compact ulEmpty">
-<li class="toc compact ulEmpty" id="section-toc.1-1.5.2.10.2.1">
-                    <p id="section-toc.1-1.5.2.10.2.1.1"><a href="#section-5.10.1" class="xref">5.10.1</a>.  <a href="#name-dtls-without-authentication" class="xref">DTLS Without Authentication</a></p>
-</li>
-                  <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.10.2.2">
-                    <p id="section-toc.1-1.5.2.10.2.2.1"><a href="#section-5.10.2" class="xref">5.10.2</a>.  <a href="#name-non-certificate-dtls-use" class="xref">Non-Certificate DTLS Use</a></p>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.7.2.6">
+                    <p id="section-toc.1-1.3.2.7.2.6.1"><a href="#section-3.7.6" class="auto internal xref">3.7.6</a>.  <a href="#name-example-secured-and-bidirec" class="internal xref">Example Secured and Bidirectional Transfers</a></p>
 </li>
                 </ul>
 </li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.11">
-                <p id="section-toc.1-1.5.2.11.1"><a href="#section-5.11" class="xref">5.11</a>. <a href="#name-predictability-of-transfer-" class="xref">Predictability of Transfer IDs</a></p>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-implementation-status" class="internal xref">Implementation Status</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
+                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-threat-passive-leak-of-node" class="internal xref">Threat: Passive Leak of Node Data</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
+                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-threat-passive-leak-of-bund" class="internal xref">Threat: Passive Leak of Bundle Data</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.3">
+                <p id="section-toc.1-1.5.2.3.1"><a href="#section-5.3" class="auto internal xref">5.3</a>.  <a href="#name-threat-transport-security-s" class="internal xref">Threat: Transport Security Stripping</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.4">
+                <p id="section-toc.1-1.5.2.4.1"><a href="#section-5.4" class="auto internal xref">5.4</a>.  <a href="#name-threat-weak-dtls-configurat" class="internal xref">Threat: Weak DTLS Configurations</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.5">
+                <p id="section-toc.1-1.5.2.5.1"><a href="#section-5.5" class="auto internal xref">5.5</a>.  <a href="#name-threat-untrusted-end-entity" class="internal xref">Threat: Untrusted End-Entity Certificate</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.6">
+                <p id="section-toc.1-1.5.2.6.1"><a href="#section-5.6" class="auto internal xref">5.6</a>.  <a href="#name-threat-certificate-validati" class="internal xref">Threat: Certificate Validation Vulnerabilities</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.7">
+                <p id="section-toc.1-1.5.2.7.1"><a href="#section-5.7" class="auto internal xref">5.7</a>.  <a href="#name-threat-bp-node-impersonatio" class="internal xref">Threat: BP Node Impersonation</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.8">
+                <p id="section-toc.1-1.5.2.8.1"><a href="#section-5.8" class="auto internal xref">5.8</a>.  <a href="#name-threat-denial-of-service" class="internal xref">Threat: Denial of Service</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.9">
+                <p id="section-toc.1-1.5.2.9.1"><a href="#section-5.9" class="auto internal xref">5.9</a>.  <a href="#name-mandatory-to-implement-dtls" class="internal xref">Mandatory-to-Implement DTLS</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.10">
+                <p id="section-toc.1-1.5.2.10.1"><a href="#section-5.10" class="auto internal xref">5.10</a>. <a href="#name-alternate-uses-of-dtls" class="internal xref">Alternate Uses of DTLS</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.10.2.1">
+                    <p id="section-toc.1-1.5.2.10.2.1.1"><a href="#section-5.10.1" class="auto internal xref">5.10.1</a>.  <a href="#name-dtls-without-authentication" class="internal xref">DTLS Without Authentication</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.10.2.2">
+                    <p id="section-toc.1-1.5.2.10.2.2.1"><a href="#section-5.10.2" class="auto internal xref">5.10.2</a>.  <a href="#name-non-certificate-dtls-use" class="internal xref">Non-Certificate DTLS Use</a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.11">
+                <p id="section-toc.1-1.5.2.11.1"><a href="#section-5.11" class="auto internal xref">5.11</a>. <a href="#name-predictability-of-transfer-" class="internal xref">Predictability of Transfer IDs</a></p>
 </li>
             </ul>
 </li>
-          <li class="toc compact ulEmpty" id="section-toc.1-1.6">
-            <p id="section-toc.1-1.6.1"><a href="#section-6" class="xref">6</a>.  <a href="#name-iana-considerations" class="xref">IANA Considerations</a></p>
-<ul class="toc compact ulEmpty">
-<li class="toc compact ulEmpty" id="section-toc.1-1.6.2.1">
-                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="xref">6.1</a>.  <a href="#name-port-number" class="xref">Port Number</a></p>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1">
+                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-port-number" class="internal xref">Port Number</a></p>
 </li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.6.2.2">
-                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="xref">6.2</a>.  <a href="#name-udpcl-extension-types" class="xref">UDPCL Extension Types</a></p>
-</li>
-            </ul>
-</li>
-          <li class="toc compact ulEmpty" id="section-toc.1-1.7">
-            <p id="section-toc.1-1.7.1"><a href="#section-7" class="xref">7</a>.  <a href="#name-acknowledgments" class="xref">Acknowledgments</a></p>
-</li>
-          <li class="toc compact ulEmpty" id="section-toc.1-1.8">
-            <p id="section-toc.1-1.8.1"><a href="#section-8" class="xref">8</a>.  <a href="#name-references" class="xref">References</a></p>
-<ul class="toc compact ulEmpty">
-<li class="toc compact ulEmpty" id="section-toc.1-1.8.2.1">
-                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="xref">8.1</a>.  <a href="#name-normative-references" class="xref">Normative References</a></p>
-</li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.8.2.2">
-                <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="xref">8.2</a>.  <a href="#name-informative-references" class="xref">Informative References</a></p>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.2">
+                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-udpcl-extension-types" class="internal xref">UDPCL Extension Types</a></p>
 </li>
             </ul>
 </li>
-          <li class="toc compact ulEmpty" id="section-toc.1-1.9">
-            <p id="section-toc.1-1.9.1"><a href="#section-appendix.a" class="xref">Appendix A</a>.  <a href="#name-significant-changes-from-rf" class="xref">Significant changes from RFC7122</a></p>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
 </li>
-          <li class="toc compact ulEmpty" id="section-toc.1-1.10">
-            <p id="section-toc.1-1.10.1"><a href="#section-appendix.b" class="xref"></a><a href="#name-authors-address" class="xref">Author's Address</a></p>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.1">
+                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="auto internal xref">8.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.2">
+                <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="auto internal xref">8.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-significant-changes-from-rf" class="internal xref">Significant changes from RFC7122</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
 </li>
         </ul>
 </nav>
@@ -1466,20 +1494,20 @@ This version of UDPCL also includes security and extensibility mechanisms.<a hre
 <p id="section-1-1">
 This document describes the UDP-based convergence-layer protocol for Delay-Tolerant Networking.
 Delay-Tolerant Networking is an end-to-end architecture providing communications in and/or through highly stressed environments, including those with intermittent connectivity, long and/or variable delays, and high bit error rates.
-More detailed descriptions of the rationale and capabilities of these networks can be found in "Delay-Tolerant Network Architecture" <span>[<a href="#RFC4838" class="xref">RFC4838</a>]</span>.<a href="#section-1-1" class="pilcrow">¶</a></p>
+More detailed descriptions of the rationale and capabilities of these networks can be found in "Delay-Tolerant Network Architecture" <span>[<a href="#RFC4838" class="cite xref">RFC4838</a>]</span>.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">
 An important goal of the DTN architecture is to accommodate a wide range of networking technologies and environments.
-The protocol used for DTN communications is the Bundle Protocol Version 7 (BPv7) <span>[<a href="#I-D.ietf-dtn-bpbis" class="xref">I-D.ietf-dtn-bpbis</a>]</span>, an application-layer protocol that is used to construct a store-and-forward overlay network.
+The protocol used for DTN communications is the Bundle Protocol Version 7 (BPv7) <span>[<a href="#I-D.ietf-dtn-bpbis" class="cite xref">I-D.ietf-dtn-bpbis</a>]</span>, an application-layer protocol that is used to construct a store-and-forward overlay network.
 BPv7 requires the services of a "convergence-layer adapter" (CLA) to send and receive bundles using the service of some "native" link, network, or Internet protocol.
 This document describes one such convergence-layer adapter that uses the well-known User Datagram Protocol (UDP).
 This convergence layer is referred to as UDP Convergence Layer (UDPCL).
 For the remainder of this document, the abbreviation "BP" without the version suffix refers to BPv7.<a href="#section-1-2" class="pilcrow">¶</a></p>
 <p id="section-1-3">
-The locations of the UDPCL and the BP in the Internet model protocol stack (described in <span>[<a href="#RFC1122" class="xref">RFC1122</a>]</span>) are shown in <a href="#fig-udpcl-ip-stack" class="xref">Figure 1</a>.
+The locations of the UDPCL and the BP in the Internet model protocol stack (described in <span>[<a href="#RFC1122" class="cite xref">RFC1122</a>]</span>) are shown in <a href="#fig-udpcl-ip-stack" class="auto internal xref">Figure 1</a>.
 In particular, when BP is using UDP as its bearer with UDPCL as its convergence layer, both BP and UDPCL reside at the application layer of the Internet model.<a href="#section-1-3" class="pilcrow">¶</a></p>
 <span id="name-the-locations-of-the-bundle"></span><div id="fig-udpcl-ip-stack">
 <figure id="figure-1">
-        <div class="artwork art-text alignCenter art-ascii-art" id="section-1-4.1">
+        <div class="alignCenter art-ascii-art art-text artwork" id="section-1-4.1">
 <pre>
 +-------------------------+
 |     DTN Application     | -\
@@ -1511,7 +1539,7 @@ This document describes the format of the protocol data units passed between ent
 This document does not address:<a href="#section-1.1-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1.1-2.1">
-The format of protocol data units of the Bundle Protocol, as those are defined elsewhere in <span>[<a href="#I-D.ietf-dtn-bpbis" class="xref">I-D.ietf-dtn-bpbis</a>]</span>.
+The format of protocol data units of the Bundle Protocol, as those are defined elsewhere in <span>[<a href="#I-D.ietf-dtn-bpbis" class="cite xref">I-D.ietf-dtn-bpbis</a>]</span>.
 This includes the concept of bundle fragmentation or bundle encapsulation.
 The UDPCL transfers bundles as opaque data blocks.<a href="#section-1.1-2.1" class="pilcrow">¶</a>
 </li>
@@ -1530,7 +1558,7 @@ Logic for performing rate control and congestion control of bundle transfers, bo
 Policies or mechanisms for issuing Public Key Infrastructure Using X.509 (PKIX) certificates; provisioning, deploying, or accessing certificates and private keys; deploying or accessing certificate revocation lists (CRLs); or configuring security parameters on an individual entity or across a network.<a href="#section-1.1-2.5" class="pilcrow">¶</a>
 </li>
           <li class="normal" id="section-1.1-2.6">
-Uses of Datagram Transport Layer Security (DTLS) which are not based on PKIX certificate authentication (see <a href="#sec-security-tlsnopki" class="xref">Section 5.10.2</a>) or in which authentication of both entities is not possible (see <a href="#sec-security-tlsnoauth" class="xref">Section 5.10.1</a>).<a href="#section-1.1-2.6" class="pilcrow">¶</a>
+Uses of Datagram Transport Layer Security (DTLS) which are not based on PKIX certificate authentication (see <a href="#sec-security-tlsnopki" class="auto internal xref">Section 5.10.2</a>) or in which authentication of both entities is not possible (see <a href="#sec-security-tlsnoauth" class="auto internal xref">Section 5.10.1</a>).<a href="#section-1.1-2.6" class="pilcrow">¶</a>
 </li>
         </ul>
 <p id="section-1.1-3">
@@ -1541,15 +1569,15 @@ Any UDPCL implementation requires a BP agent to perform those above listed funct
 <a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-use-of-cddl" class="section-name selfRef">Use of CDDL</a>
         </h3>
 <p id="section-1.2-1">
-This document defines CBOR structure using the Concise Data Definition Language (CDDL) of <span>[<a href="#RFC8610" class="xref">RFC8610</a>]</span>.
+This document defines CBOR structure using the Concise Data Definition Language (CDDL) of <span>[<a href="#RFC8610" class="cite xref">RFC8610</a>]</span>.
 The entire CDDL structure can be extracted from the XML version of this document using the XPath expression:<a href="#section-1.2-1" class="pilcrow">¶</a></p>
-<div id="section-1.2-2">
-<pre class="sourcecode">'//sourcecode[@type="cddl"]'</pre><a href="#section-1.2-2" class="pilcrow">¶</a>
+<div class="sourcecode" id="section-1.2-2">
+<pre>'//sourcecode[@type="cddl"]'</pre><a href="#section-1.2-2" class="pilcrow">¶</a>
 </div>
 <p id="section-1.2-3">
 The following initial fragment defines the top-level symbols of this document's CDDL.<a href="#section-1.2-3" class="pilcrow">¶</a></p>
-<div id="section-1.2-4">
-<pre class="sourcecode lang-cddl">
+<div class="lang-cddl sourcecode" id="section-1.2-4">
+<pre>
 start = udpcl-ext-map
 </pre><a href="#section-1.2-4" class="pilcrow">¶</a>
 </div>
@@ -1559,7 +1587,7 @@ start = udpcl-ext-map
 <a href="#section-1.3" class="section-number selfRef">1.3. </a><a href="#name-requirements-language" class="section-name selfRef">Requirements Language</a>
         </h3>
 <p id="section-1.3-1">
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 <span>[<a href="#RFC2119" class="xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="xref">RFC8174</a>]</span> when, and only when, they appear in all capitals, as shown here.<a href="#section-1.3-1" class="pilcrow">¶</a></p>
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they appear in all capitals, as shown here.<a href="#section-1.3-1" class="pilcrow">¶</a></p>
 </section>
 <div id="sec-term-defs">
 <section id="section-1.4">
@@ -1585,7 +1613,7 @@ A UDPCL Entity MAY support zero or more passive listening elements that listen f
 </li>
             </ul>
 <p id="section-1.4-2.2.3">
-These relationships are illustrated in <a href="#fig-entity-transfer-relations" class="xref">Figure 2</a>.
+These relationships are illustrated in <a href="#fig-entity-transfer-relations" class="auto internal xref">Figure 2</a>.
 For the remainder of this document, the term "entity" without the prefix "UDPCL" refers to a UDPCL entity.<a href="#section-1.4-2.2.3" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
@@ -1614,7 +1642,7 @@ This refers to a transfer incoming to an entity as seen from that receiving enti
 </dl>
 <span id="name-the-relationships-between-u"></span><div id="fig-entity-transfer-relations">
 <figure id="figure-2">
-          <div class="artwork art-text alignCenter art-ascii-art" id="section-1.4-3.1">
+          <div class="alignCenter art-ascii-art art-text artwork" id="section-1.4-3.1">
 <pre>
 +----------------------------------------+
 |              UDPCL Entity              |
@@ -1676,7 +1704,7 @@ Each of these interactions can be associated with any number of additional metad
           <dt id="section-2.1-2.1">Begin Transmission:</dt>
           <dd style="margin-left: 1.5em" id="section-2.1-2.2">
 The principal purpose of the UDPCL is to allow a BP agent to transmit bundle data to one or more other entities.
-The receiver of each transfer is identified by an (destination) IPv4 or IPv6 address and a UDP port number (see <a href="#sec-operation" class="xref">Section 3</a> for details).
+The receiver of each transfer is identified by an (destination) IPv4 or IPv6 address and a UDP port number (see <a href="#sec-operation" class="auto internal xref">Section 3</a> for details).
 The CL does not necessarily perform any transmission queueing, but may block while transmissions are being processed at the UDP layer.
 Any queueing of transmissions is the obligation of the BP agent.<a href="#section-2.1-2.2" class="pilcrow">¶</a>
 </dd>
@@ -1702,17 +1730,17 @@ The UDPCL entity indicates to the BP agent when a bundle transfer has begun, whi
 <dt id="section-2.1-2.9">Reception Success:</dt>
           <dd style="margin-left: 1.5em" id="section-2.1-2.10">
 The UDPCL entity indicates to the BP agent when a bundle has been fully transferred from a peer entity.
-The transmitter of each transfer is identified by an (source) IP address and a UDP port number (see <a href="#sec-operation" class="xref">Section 3</a> for details).<a href="#section-2.1-2.10" class="pilcrow">¶</a>
+The transmitter of each transfer is identified by an (source) IP address and a UDP port number (see <a href="#sec-operation" class="auto internal xref">Section 3</a> for details).<a href="#section-2.1-2.10" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
 <dt id="section-2.1-2.11">Reception Failure:</dt>
           <dd style="margin-left: 1.5em" id="section-2.1-2.12">
-The UDPCL entity indicates to the BP agent on certain reasons for reception failure, notably upon an unfinished transfer timeout (see <a href="#sec-ext-transfer" class="xref">Section 3.5.2</a>).<a href="#section-2.1-2.12" class="pilcrow">¶</a>
+The UDPCL entity indicates to the BP agent on certain reasons for reception failure, notably upon an unfinished transfer timeout (see <a href="#sec-ext-transfer" class="auto internal xref">Section 3.5.2</a>).<a href="#section-2.1-2.12" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
 <dt id="section-2.1-2.13">Attempt DTLS Session:</dt>
           <dd style="margin-left: 1.5em" id="section-2.1-2.14">
-The UDPCL allows a BP agent to preemptively attempt to establish a DTLS session with a peer entity (see <a href="#sec-ext-starttls" class="xref">Section 3.5.1</a> and <a href="#sec-udpcl-security" class="xref">Section 3.7</a>).
+The UDPCL allows a BP agent to preemptively attempt to establish a DTLS session with a peer entity (see <a href="#sec-ext-starttls" class="auto internal xref">Section 3.5.1</a> and <a href="#sec-udpcl-security" class="auto internal xref">Section 3.7</a>).
 Each session attempt can send a different set of session negotiation parameters as directed by the BP agent.<a href="#section-2.1-2.14" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
@@ -1725,12 +1753,12 @@ The closure request is on a per-session basis.<a href="#section-2.1-2.16" class=
 <dt id="section-2.1-2.17">DTLS Session State Changed:</dt>
           <dd style="margin-left: 1.5em" id="section-2.1-2.18">
 The UDPCL entity indicates to the BP agent when a DTLS session state changes.
-The possible DTLS session states are defined in <span>[<a href="#RFC6347" class="xref">RFC6347</a>]</span>.<a href="#section-2.1-2.18" class="pilcrow">¶</a>
+The possible DTLS session states are defined in <span>[<a href="#RFC6347" class="cite xref">RFC6347</a>]</span>.<a href="#section-2.1-2.18" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
 <dt id="section-2.1-2.19">Begin Sender Listen:</dt>
           <dd style="margin-left: 1.5em" id="section-2.1-2.20">
-The UDPCL allows a BP agent to indicate when packets on a particular address-and-port is listened for (see <a href="#sec-ext-sender-listen" class="xref">Section 3.5.3</a>).
+The UDPCL allows a BP agent to indicate when packets on a particular address-and-port is listened for (see <a href="#sec-ext-sender-listen" class="auto internal xref">Section 3.5.3</a>).
 The Sender Listen interval is configurable for each peer address-and-port.<a href="#section-2.1-2.20" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
@@ -1755,7 +1783,7 @@ The Sender Node ID, if present, is part of this indication.<a href="#section-2.1
         </h3>
 <p id="section-2.2-1">
 This specification gives requirements about how to use PKIX certificates issued by a Certificate Authority (CA), but does not define any mechanisms for how those certificates come to be.
-The UDPCL uses the exact same mechanisms and makes the same assumptions as TCPCL in <span><a href="https://tools.ietf.org/html/draft-ietf-dtn-tcpclv4-26#section-3.4" class="relref">Section 3.4</a> of [<a href="#I-D.ietf-dtn-tcpclv4" class="xref">I-D.ietf-dtn-tcpclv4</a>]</span>.<a href="#section-2.2-1" class="pilcrow">¶</a></p>
+The UDPCL uses the exact same mechanisms and makes the same assumptions as TCPCL in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-dtn-tcpclv4-28#section-3.4" class="relref">Section 3.4</a> of [<a href="#I-D.ietf-dtn-tcpclv4" class="cite xref">I-D.ietf-dtn-tcpclv4</a>]</span>.<a href="#section-2.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sec-policy-fragmentation">
@@ -1765,7 +1793,7 @@ The UDPCL uses the exact same mechanisms and makes the same assumptions as TCPCL
         </h3>
 <p id="section-2.3-1">
 It is a implementation matter for a sending entity to determine the path maximum transmit unit (PMTU) to be used as a target upper-bound UDP datagram size.
-Some techniques to perform MTU discovery are defined in <span>[<a href="#RFC8899" class="xref">RFC8899</a>]</span>.
+Some techniques to perform MTU discovery are defined in <span>[<a href="#RFC8899" class="cite xref">RFC8899</a>]</span>.
 All IP packets sent by a UDPCL entity SHOULD have the "don't fragment" bit set to allow detection of PMTU issues.<a href="#section-2.3-1" class="pilcrow">¶</a></p>
 <p id="section-2.3-2">
 The priority order of fragmentation is the following:<a href="#section-2.3-2" class="pilcrow">¶</a></p>
@@ -1776,12 +1804,12 @@ Bundle payload fragmentation does not help a large bundle if extension blocks ar
 It is outside the scope of UDPCL to manage BP agent fragmentation policies; bundles are received from the BP agent either already fragmented or not.<a href="#section-2.3-3.1" class="pilcrow">¶</a>
 </li>
           <li id="section-2.3-3.2">
-Bundles too large to fit in one PMTU-sized packet SHALL be fragmented as a UDPCL transfer (see <a href="#sec-transfer" class="xref">Section 3.6</a>).
+Bundles too large to fit in one PMTU-sized packet SHALL be fragmented as a UDPCL transfer (see <a href="#sec-transfer" class="auto internal xref">Section 3.6</a>).
 Fragmentation at this level treats bundle transfers as opaque data, so it is independent of bundle block sizes or counts.<a href="#section-2.3-3.2" class="pilcrow">¶</a>
 </li>
           <li id="section-2.3-3.3">
 All IP packets larger than expected PMTU SHALL be fragmented by the transmitting entity to fit within one PMTU.
-Because of the issues listed in <span><a href="https://rfc-editor.org/rfc/rfc8085#section-3.2" class="relref">Section 3.2</a> of [<a href="#RFC8085" class="xref">RFC8085</a>]</span> and <span>[<a href="#RFC8900" class="xref">RFC8900</a>]</span>, it is best to avoid IP fragmentation as much as possible.<a href="#section-2.3-3.3" class="pilcrow">¶</a>
+Because of the issues listed in <span><a href="https://rfc-editor.org/rfc/rfc8085#section-3.2" class="relref">Section 3.2</a> of [<a href="#RFC8085" class="cite xref">RFC8085</a>]</span> and <span>[<a href="#RFC8900" class="cite xref">RFC8900</a>]</span>, it is best to avoid IP fragmentation as much as possible.<a href="#section-2.3-3.3" class="pilcrow">¶</a>
 </li>
         </ol>
 <p id="section-2.3-4">
@@ -1809,8 +1837,8 @@ In general, however, a UDPCL entity SHOULD insure the a bundle's blocks are eith
 <a href="#section-2.5" class="section-number selfRef">2.5. </a><a href="#name-congestion-control-policies" class="section-name selfRef">Congestion Control Policies</a>
         </h3>
 <p id="section-2.5-1">
-The applications using UDPCL for bundle transport SHALL conform to the congestion control requirements of <span><a href="https://rfc-editor.org/rfc/rfc8085#section-3.1" class="relref">Section 3.1</a> of [<a href="#RFC8085" class="xref">RFC8085</a>]</span>.
-The application SHALL either perform active congestion control of bundles or behave as the Low Data-Volume application as defined in <span><a href="https://rfc-editor.org/rfc/rfc8085#section-3.1.3" class="relref">Section 3.1.3</a> of [<a href="#RFC8085" class="xref">RFC8085</a>]</span>.<a href="#section-2.5-1" class="pilcrow">¶</a></p>
+The applications using UDPCL for bundle transport SHALL conform to the congestion control requirements of <span><a href="https://rfc-editor.org/rfc/rfc8085#section-3.1" class="relref">Section 3.1</a> of [<a href="#RFC8085" class="cite xref">RFC8085</a>]</span>.
+The application SHALL either perform active congestion control of bundles or behave as the Low Data-Volume application as defined in <span><a href="https://rfc-editor.org/rfc/rfc8085#section-3.1.3" class="relref">Section 3.1.3</a> of [<a href="#RFC8085" class="cite xref">RFC8085</a>]</span>.<a href="#section-2.5-1" class="pilcrow">¶</a></p>
 <p id="section-2.5-2">
 When nodes have bidirectional transfer capability, the bundle deletion reason code "traffic pared" can be used by a receiving agent to signal to the bundle source application that throttling of bundles along that path SHOULD occur.<a href="#section-2.5-2" class="pilcrow">¶</a></p>
 </section>
@@ -1822,12 +1850,12 @@ When nodes have bidirectional transfer capability, the bundle deletion reason co
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-udpcl-operation" class="section-name selfRef">UDPCL Operation</a>
       </h2>
 <p id="section-3-1">
-This section defines the UDPCL protocol and its interactions with under-layers (IP and UDP) and over-layers (BP), as illustrated in <a href="#fig-udpcl-ip-stack" class="xref">Figure 1</a>.
+This section defines the UDPCL protocol and its interactions with under-layers (IP and UDP) and over-layers (BP), as illustrated in <a href="#fig-udpcl-ip-stack" class="auto internal xref">Figure 1</a>.
 The section is organized from the network layer up toward the BP layer.
-It also discusses behavior within the UDPCL layer, which is illustrated in <a href="#fig-udpcl-sublayers" class="xref">Figure 3</a>.<a href="#section-3-1" class="pilcrow">¶</a></p>
+It also discusses behavior within the UDPCL layer, which is illustrated in <a href="#fig-udpcl-sublayers" class="auto internal xref">Figure 3</a>.<a href="#section-3-1" class="pilcrow">¶</a></p>
 <span id="name-breakdown-of-sub-layers-wit"></span><div id="fig-udpcl-sublayers">
 <figure id="figure-3">
-        <div class="artwork art-text alignCenter art-ascii-art" id="section-3-2.1">
+        <div class="alignCenter art-ascii-art art-text artwork" id="section-3-2.1">
 <pre>
 +------------------------------------------+
 |  Bundle Transfer  |  Extension Signaling | &lt;- Sequencing /
@@ -1848,17 +1876,17 @@ It also discusses behavior within the UDPCL layer, which is illustrated in <a hr
 <a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-ip-addressing" class="section-name selfRef">IP Addressing</a>
         </h3>
 <p id="section-3.1-1">
-The earlier UDPCL specification in <span>[<a href="#RFC7122" class="xref">RFC7122</a>]</span> did not include guidance on IP addressing, interface sourcing, or potential use of multicast, though the architecture of <span>[<a href="#RFC4838" class="xref">RFC4838</a>]</span> explicitly includes multicast and anycast as expected network modes.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+The earlier UDPCL specification in <span>[<a href="#RFC7122" class="cite xref">RFC7122</a>]</span> did not include guidance on IP addressing, interface sourcing, or potential use of multicast, though the architecture of <span>[<a href="#RFC4838" class="cite xref">RFC4838</a>]</span> explicitly includes multicast and anycast as expected network modes.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
 <p id="section-3.1-2">
 The BP agent determines the mapping from destination EID to next-hop CL parameters, including transfer destination address and transfer source interface.
-Some EIDs represent unicast destinations and others non-unicast destinations as defined in <span><a href="https://tools.ietf.org/html/draft-ietf-dtn-bpbis-31#section-4.2.5.1" class="relref">Section 4.2.5.1</a> of [<a href="#I-D.ietf-dtn-bpbis" class="xref">I-D.ietf-dtn-bpbis</a>]</span>.
+Some EIDs represent unicast destinations and others non-unicast destinations as defined in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-dtn-bpbis-31#section-4.2.5.1" class="relref">Section 4.2.5.1</a> of [<a href="#I-D.ietf-dtn-bpbis" class="cite xref">I-D.ietf-dtn-bpbis</a>]</span>.
 The unicast-ness of an EID does not necessarily correspond with the unicast-ness, as some bundle routing schemes involve attempting multiple parallel paths to a unicast endpoint.<a href="#section-3.1-2" class="pilcrow">¶</a></p>
 <p id="section-3.1-3">
 For unicast transfers to a single node, the destination address SHALL be a non-multicast IPv4 or IPv6 address (which does include link-local addresses).
 For unicast transfers, the source interface address MAY be supplied by the BP agent or otherwise determined by the operating system IP routing.
-When performing unicast transfers, a UDPCL entity SHOULD require DTLS use (see <a href="#sec-udpcl-security" class="xref">Section 3.7</a>) or restrict the network to one protected by IPsec or some other under-layer security mechanism (e.g., a virtual private network).<a href="#section-3.1-3" class="pilcrow">¶</a></p>
+When performing unicast transfers, a UDPCL entity SHOULD require DTLS use (see <a href="#sec-udpcl-security" class="auto internal xref">Section 3.7</a>) or restrict the network to one protected by IPsec or some other under-layer security mechanism (e.g., a virtual private network).<a href="#section-3.1-3" class="pilcrow">¶</a></p>
 <p id="section-3.1-4">
-For multicast transfers to one or more nodes, the destination address SHALL be a multicast IPv4 <span>[<a href="#IANA-IPv4-MCAST" class="xref">IANA-IPv4-MCAST</a>]</span> or IPv6 <span>[<a href="#IANA-IPv6-MCAST" class="xref">IANA-IPv6-MCAST</a>]</span> address.
+For multicast transfers to one or more nodes, the destination address SHALL be a multicast IPv4 <span>[<a href="#IANA-IPv4-MCAST" class="cite xref">IANA-IPv4-MCAST</a>]</span> or IPv6 <span>[<a href="#IANA-IPv6-MCAST" class="cite xref">IANA-IPv6-MCAST</a>]</span> address.
 For multicast transfers, the source interface address MUST be supplied by the BP agent rather than inferred by the UDPCL entity.<a href="#section-3.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1868,14 +1896,14 @@ For multicast transfers, the source interface address MUST be supplied by the BP
 <a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-udp-header" class="section-name selfRef">UDP Header</a>
         </h3>
 <p id="section-3.2-1">
-Destination port number 4556 has been assigned by IANA <span>[<a href="#IANA-PORTS" class="xref">IANA-PORTS</a>]</span> as the Registered Port number for the UDP convergence layer and SHALL be used as a default.
+Destination port number 4556 has been assigned by IANA <span>[<a href="#IANA-PORTS" class="cite xref">IANA-PORTS</a>]</span> as the Registered Port number for the UDP convergence layer and SHALL be used as a default.
 Other destination port numbers MAY be used per local configuration.
 Determining a passive entity's destination port number (if different from the registered UDPCL port number) is up to the implementation.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
 <p id="section-3.2-2">
 Any source port number MAY be used for UDPCL transfers.
 Typically an operating system assigned number in the UDP Ephemeral range (49152-65535) is used.
 For repeated messaging to the same destination address-and-port, the active entity SHOULD reuse the same source address-and-port.
-Reusing source address-and-port allows simplifies network monitoring and analysis and also enables bi-directional messaging as defined in <a href="#sec-ext-sender-listen" class="xref">Section 3.5.3</a>.<a href="#section-3.2-2" class="pilcrow">¶</a></p>
+Reusing source address-and-port allows simplifies network monitoring and analysis and also enables bi-directional messaging as defined in <a href="#sec-ext-sender-listen" class="auto internal xref">Section 3.5.3</a>.<a href="#section-3.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sec-udpcl-packet">
@@ -1885,10 +1913,10 @@ Reusing source address-and-port allows simplifies network monitoring and analysi
         </h3>
 <p id="section-3.3-1">
 The lowest layer of UDPCL communication are individual-datagram packets.
-To exchange UDPCL data, an active entity SHALL transmit a UDP datagram to a listening passive entity in accordance with <span>[<a href="#RFC0768" class="xref">RFC0768</a>]</span>, typically by using the services provided by the operating system.
-For backward compatibility with <span>[<a href="#RFC7122" class="xref">RFC7122</a>]</span>, UDPCL has no explicit message type identifier.<a href="#section-3.3-1" class="pilcrow">¶</a></p>
+To exchange UDPCL data, an active entity SHALL transmit a UDP datagram to a listening passive entity in accordance with <span>[<a href="#RFC0768" class="cite xref">RFC0768</a>]</span>, typically by using the services provided by the operating system.
+For backward compatibility with <span>[<a href="#RFC7122" class="cite xref">RFC7122</a>]</span>, UDPCL has no explicit message type identifier.<a href="#section-3.3-1" class="pilcrow">¶</a></p>
 <p id="section-3.3-2">
-Each UDP datagram SHALL contain one or more UDPCL message as defined in <a href="#sec-udpcl-message" class="xref">Section 3.4</a>.
+Each UDP datagram SHALL contain one or more UDPCL message as defined in <a href="#sec-udpcl-message" class="auto internal xref">Section 3.4</a>.
 Each type of message defines additional restrictions on how it may be used in a packet.<a href="#section-3.3-2" class="pilcrow">¶</a></p>
 <p id="section-3.3-3">
 The following are special cases of UDPCL packet uses.<a href="#section-3.3-3" class="pilcrow">¶</a></p>
@@ -1896,13 +1924,13 @@ The following are special cases of UDPCL packet uses.<a href="#section-3.3-3" cl
           <dt id="section-3.3-4.1">Unframed Transfer:</dt>
           <dd style="margin-left: 1.5em" id="section-3.3-4.2">
 An unframed transfer packet SHALL consist of a single encoded BPv6 or BPv7 bundle with no padding.
-This provides backward compatibility with <span>[<a href="#RFC7122" class="xref">RFC7122</a>]</span> and a allows a trivial use of UDPCL which is just embedding an encoded bundle in a UDP datagram.<a href="#section-3.3-4.2" class="pilcrow">¶</a>
+This provides backward compatibility with <span>[<a href="#RFC7122" class="cite xref">RFC7122</a>]</span> and a allows a trivial use of UDPCL which is just embedding an encoded bundle in a UDP datagram.<a href="#section-3.3-4.2" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
 <dt id="section-3.3-4.3">Keepalive</dt>
           <dd style="margin-left: 1.5em" id="section-3.3-4.4">
 A keepalive packet SHALL consist of exactly four octets of padding with no preceding message.
-This behavior maintains backward compatibility with <span>[<a href="#RFC7122" class="xref">RFC7122</a>]</span>.<a href="#section-3.3-4.4" class="pilcrow">¶</a>
+This behavior maintains backward compatibility with <span>[<a href="#RFC7122" class="cite xref">RFC7122</a>]</span>.<a href="#section-3.3-4.4" class="pilcrow">¶</a>
 </dd>
         <dd class="break"></dd>
 </dl>
@@ -1917,20 +1945,20 @@ This behavior maintains backward compatibility with <span>[<a href="#RFC7122" cl
 The middle layer of UDPCL communication are unframed, but self-delimited, messages.
 Specific message types MAY be concatenated together into a single packet, each message type indicates any restrictions on how it can be used within a packet.<a href="#section-3.4-1" class="pilcrow">¶</a></p>
 <p id="section-3.4-2">
-For backward compatibility with <span>[<a href="#RFC7122" class="xref">RFC7122</a>]</span>, UDPCL has no explicit message type identifier.
+For backward compatibility with <span>[<a href="#RFC7122" class="cite xref">RFC7122</a>]</span>, UDPCL has no explicit message type identifier.
 The message type is inferred by the inspecting the data contents according to the following rules:<a href="#section-3.4-2" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-3.4-3">
           <dt id="section-3.4-3.1">BPv6 Bundle:</dt>
           <dd style="margin-left: 1.5em" id="section-3.4-3.2">
-All encoded BP version 6 bundles begin with the version identifier octet 0x06 in accordance with <span>[<a href="#RFC5050" class="xref">RFC5050</a>]</span>.
+All encoded BP version 6 bundles begin with the version identifier octet 0x06 in accordance with <span>[<a href="#RFC5050" class="cite xref">RFC5050</a>]</span>.
 A message with a leading octet value of 0x06 SHALL be treated as a BPv6 bundle.
-Multiple BPv6 Bundles SHOULD NOT be present in one UDPCL packet to maintain compatibility with <span>[<a href="#RFC7122" class="xref">RFC7122</a>]</span>.<a href="#section-3.4-3.2" class="pilcrow">¶</a>
+Multiple BPv6 Bundles SHOULD NOT be present in one UDPCL packet to maintain compatibility with <span>[<a href="#RFC7122" class="cite xref">RFC7122</a>]</span>.<a href="#section-3.4-3.2" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
 <dt id="section-3.4-3.3">BPv7 Bundle:</dt>
           <dd style="margin-left: 1.5em" id="section-3.4-3.4">
             <p id="section-3.4-3.4.1">
-All encoded BP version 7 bundles begin with a CBOR array head in accordance with <span>[<a href="#I-D.ietf-dtn-bpbis" class="xref">I-D.ietf-dtn-bpbis</a>]</span>.
+All encoded BP version 7 bundles begin with a CBOR array head in accordance with <span>[<a href="#I-D.ietf-dtn-bpbis" class="cite xref">I-D.ietf-dtn-bpbis</a>]</span>.
 A message with a leading octet value indicating CBOR array (major type 4) SHALL be treated as a BPv7 bundle.<a href="#section-3.4-3.4.1" class="pilcrow">¶</a></p>
 <p id="section-3.4-3.4.2">
 BPv7 bundles transmitted via UDPCL SHALL NOT include any leading CBOR tag.
@@ -1939,7 +1967,7 @@ If the BP agent provides bundles with such tags the transmitting UDPCL entity SH
           <dd class="break"></dd>
 <dt id="section-3.4-3.5">Extension Map:</dt>
           <dd style="margin-left: 1.5em" id="section-3.4-3.6">
-All UDPCL extensions SHALL be contained in a CBOR map in accordance with the definitions of <a href="#sec-udpcl-extension" class="xref">Section 3.5</a>.
+All UDPCL extensions SHALL be contained in a CBOR map in accordance with the definitions of <a href="#sec-udpcl-extension" class="auto internal xref">Section 3.5</a>.
 The encoded Extension Map SHALL NOT have any CBOR tags.
 A message with a leading octet value indicating CBOR map (major type 5) SHALL be treated as an Extension Map.<a href="#section-3.4-3.6" class="pilcrow">¶</a>
 </dd>
@@ -1958,8 +1986,8 @@ A receiving UDPCL entity SHALL ignore all padding, including any trailing non-ze
 <dt id="section-3.4-3.9">DTLS Record:</dt>
           <dd style="margin-left: 1.5em" id="section-3.4-3.10">
             <p id="section-3.4-3.10.1">
-In addition to the UDPCL specific messaging, immediately after a DTLS Initiation (see <a href="#sec-ext-starttls" class="xref">Section 3.5.1</a>) the DTLS handshake sequence will begin.
-Data with a leading octet value of 0x16 SHALL be treated as a DTLS handshake record in accordance with <span><a href="https://rfc-editor.org/rfc/rfc6347#section-4.1" class="relref">Section 4.1</a> of [<a href="#RFC6347" class="xref">RFC6347</a>]</span>.<a href="#section-3.4-3.10.1" class="pilcrow">¶</a></p>
+In addition to the UDPCL specific messaging, immediately after a DTLS Initiation (see <a href="#sec-ext-starttls" class="auto internal xref">Section 3.5.1</a>) the DTLS handshake sequence will begin.
+Data with a leading octet value of 0x16 SHALL be treated as a DTLS handshake record in accordance with <span><a href="https://rfc-editor.org/rfc/rfc6347#section-4.1" class="relref">Section 4.1</a> of [<a href="#RFC6347" class="cite xref">RFC6347</a>]</span>.<a href="#section-3.4-3.10.1" class="pilcrow">¶</a></p>
 <p id="section-3.4-3.10.2">
 If the datagram with the DTLS Initiation extension is not received by an entity, the entity SHOULD still detect the DTLS handshake records and start the handshake sequence at that point.
 Data with a leading octet value of 0x17--0x19 SHALL be treated as a DTLS sequencing failure; DTLS non-handshake records should never be seen by the UDPCL messaging layer.<a href="#section-3.4-3.10.2" class="pilcrow">¶</a></p>
@@ -1967,8 +1995,8 @@ Data with a leading octet value of 0x17--0x19 SHALL be treated as a DTLS sequenc
         <dd class="break"></dd>
 </dl>
 <p id="section-3.4-4">
-A summary of how a receiving UDPCL entity can interpret the first octet of a datagram is listed in <a href="#tab-message-first-octet" class="xref">Table 1</a>.
-When inspecting using CBOR major types, the range of values is caused by the CBOR head encoding of <span>[<a href="#RFC8949" class="xref">RFC8949</a>]</span>.<a href="#section-3.4-4" class="pilcrow">¶</a></p>
+A summary of how a receiving UDPCL entity can interpret the first octet of a datagram is listed in <a href="#tab-message-first-octet" class="auto internal xref">Table 1</a>.
+When inspecting using CBOR major types, the range of values is caused by the CBOR head encoding of <span>[<a href="#RFC8949" class="cite xref">RFC8949</a>]</span>.<a href="#section-3.4-4" class="pilcrow">¶</a></p>
 <span id="name-first-octet-contents"></span><div id="tab-message-first-octet">
 <table class="center" id="table-1">
           <caption>
@@ -2017,17 +2045,17 @@ When inspecting using CBOR major types, the range of values is caused by the CBO
 <a href="#section-3.5" class="section-number selfRef">3.5. </a><a href="#name-udpcl-extension-items" class="section-name selfRef">UDPCL Extension Items</a>
         </h3>
 <p id="section-3.5-1">
-Extensions to UDPCL are encoded per-datagram in a single CBOR map as defined in <a href="#sec-udpcl-message" class="xref">Section 3.4</a>.
+Extensions to UDPCL are encoded per-datagram in a single CBOR map as defined in <a href="#sec-udpcl-message" class="auto internal xref">Section 3.4</a>.
 Each UDPCL extension item SHALL be identified by a unique Extension ID used as a key in the Extension Map.
 Extension ID values SHALL be a CBOR int item no longer than 16-bits.
-Extension ID assignments are listed in <a href="#sec-iana-extension-types" class="xref">Section 6.2</a>.<a href="#section-3.5-1" class="pilcrow">¶</a></p>
+Extension ID assignments are listed in <a href="#sec-iana-extension-types" class="auto internal xref">Section 6.2</a>.<a href="#section-3.5-1" class="pilcrow">¶</a></p>
 <p id="section-3.5-2">
 Unless prohibited by particular extension type requirements, a single Extension Map MAY contain any combination of extension items.
 Receivers SHALL ignore extension items with unknown Extension ID and continue to process known extension items.<a href="#section-3.5-2" class="pilcrow">¶</a></p>
 <span id="name-extension-map-structure-cdd"></span><div id="fig-udpcl-ext-map">
 <figure id="figure-4">
-          <div id="section-3.5-3.1">
-<pre class="sourcecode lang-cddl">
+          <div class="lang-cddl sourcecode" id="section-3.5-3.1">
+<pre>
 ; Map structure requiring non-zero-int keys.
 ; CDDL cannot enforce type-specific requirements about other items
 ; being present (or not present) in the same map.
@@ -2053,14 +2081,14 @@ The following subsections define the initial UDPCL extension types.<a href="#sec
 <a href="#section-3.5.1" class="section-number selfRef">3.5.1. </a><a href="#name-dtls-initiation-starttls" class="section-name selfRef">DTLS Initiation (STARTTLS)</a>
           </h4>
 <p id="section-3.5.1-1">
-This extension item indicates that the transmitter is about to begin a DTLS handshake sequence in accordance with <a href="#sec-udpcl-security" class="xref">Section 3.7</a>.<a href="#section-3.5.1-1" class="pilcrow">¶</a></p>
+This extension item indicates that the transmitter is about to begin a DTLS handshake sequence in accordance with <a href="#sec-udpcl-security" class="auto internal xref">Section 3.7</a>.<a href="#section-3.5.1-1" class="pilcrow">¶</a></p>
 <p id="section-3.5.1-2">
 The DTLS Initiation value SHALL be an untagged null value.
 There are no DTLS parameters actually transmitted as part of this extension, it only serves to indicate to the recipient that the next datagram will be a DTLS ClientHello.
 Although the datagram containing this extension is not retransmitted, the DTLS handshake itself will retransmit ClientHello messages until confirmation is received.<a href="#section-3.5.1-2" class="pilcrow">¶</a></p>
 <span id="name-dtls-initiation-cddl"></span><figure id="figure-5">
-            <div id="section-3.5.1-3.1">
-<pre class="sourcecode lang-cddl">
+            <div class="lang-cddl sourcecode" id="section-3.5.1-3.1">
+<pre>
 $$udpcl-ext-item //= (
     5: null
 )
@@ -2070,9 +2098,9 @@ $$udpcl-ext-item //= (
 <a href="#name-dtls-initiation-cddl" class="selfRef">DTLS Initiation CDDL</a>
             </figcaption></figure>
 <p id="section-3.5.1-4">
-If the entity is configured to enable exchanging messages according to DTLS 1.2 <span>[<a href="#RFC6347" class="xref">RFC6347</a>]</span> or any successors which are compatible with that DTLS ClientHello, the first message in any sequence to a unicast recipient SHALL be an Extension Map with the DTLS Initiation item.
+If the entity is configured to enable exchanging messages according to DTLS 1.2 <span>[<a href="#RFC6347" class="cite xref">RFC6347</a>]</span> or any successors which are compatible with that DTLS ClientHello, the first message in any sequence to a unicast recipient SHALL be an Extension Map with the DTLS Initiation item.
 The RECOMMENDED policy is to enable DTLS for all unicast recipients, even if security policy does not allow or require authentication.
-This follows the opportunistic security model of <span>[<a href="#RFC7435" class="xref">RFC7435</a>]</span>, though an active attacker could interfere with the exchange in such cases (see <a href="#sec-threat-tls-strip" class="xref">Section 5.3</a>).<a href="#section-3.5.1-4" class="pilcrow">¶</a></p>
+This follows the opportunistic security model of <span>[<a href="#RFC7435" class="cite xref">RFC7435</a>]</span>, though an active attacker could interfere with the exchange in such cases (see <a href="#sec-threat-tls-strip" class="auto internal xref">Section 5.3</a>).<a href="#section-3.5.1-4" class="pilcrow">¶</a></p>
 <p id="section-3.5.1-5">
 The Extension Map containing a DTLS Initiation item SHALL NOT contain any other items.
 A DTLS Initiation item SHALL NOT be present in any message transmitted within a DTLS session.
@@ -2086,7 +2114,7 @@ Between transmitting a DTLS Initiation item and finishing a DTLS handshake (eith
 <a href="#section-3.5.2" class="section-number selfRef">3.5.2. </a><a href="#name-bundle-transfer" class="section-name selfRef">Bundle Transfer</a>
           </h4>
 <p id="section-3.5.2-1">
-This extension item allows CL-layer fragmentation of bundle transfers as defined in <a href="#sec-transfer" class="xref">Section 3.6</a>.<a href="#section-3.5.2-1" class="pilcrow">¶</a></p>
+This extension item allows CL-layer fragmentation of bundle transfers as defined in <a href="#sec-transfer" class="auto internal xref">Section 3.6</a>.<a href="#section-3.5.2-1" class="pilcrow">¶</a></p>
 <p id="section-3.5.2-2">
 The Transfer value SHALL be an untagged CBOR array of four items.
 The items are defined in the following order:<a href="#section-3.5.2-2" class="pilcrow">¶</a></p>
@@ -2115,8 +2143,8 @@ The bstr itself indicates the length of the fragment data.<a href="#section-3.5.
           <dd class="break"></dd>
 </dl>
 <span id="name-transfer-cddl"></span><figure id="figure-6">
-            <div id="section-3.5.2-4.1">
-<pre class="sourcecode lang-cddl">
+            <div class="lang-cddl sourcecode" id="section-3.5.2-4.1">
+<pre>
 $$udpcl-ext-item //= (
     2: [
         transfer-id: uint .size 4,
@@ -2151,8 +2179,8 @@ This repetition continues until the entity is no longer willing to listen for pa
 A receiving entity SHOULD treat a peer as no longer listening after an implementation-defined timeout since the last received Sender Listen item.
 A RECOMMENDED Sender Listen timeout is three (3) times the associated time duration; this allows a single dropped datagram to not interrupt a continuous sequence.<a href="#section-3.5.3-3" class="pilcrow">¶</a></p>
 <span id="name-sender-listen-cddl"></span><figure id="figure-7">
-            <div id="section-3.5.3-4.1">
-<pre class="sourcecode lang-cddl">
+            <div class="lang-cddl sourcecode" id="section-3.5.3-4.1">
+<pre>
 $$udpcl-ext-item //= (
     3: time-duration,
 )
@@ -2163,11 +2191,11 @@ time-duration = uint
 <a href="#name-sender-listen-cddl" class="selfRef">Sender Listen CDDL</a>
             </figcaption></figure>
 <p id="section-3.5.3-5">
-Unlike the generic source port requirement in <a href="#sec-udp-header" class="xref">Section 3.2</a>, when repeated Sender Listen are transmitted in a sequence a consistent source address-and-port SHALL be used.<a href="#section-3.5.3-5" class="pilcrow">¶</a></p>
+Unlike the generic source port requirement in <a href="#sec-udp-header" class="auto internal xref">Section 3.2</a>, when repeated Sender Listen are transmitted in a sequence a consistent source address-and-port SHALL be used.<a href="#section-3.5.3-5" class="pilcrow">¶</a></p>
 <p id="section-3.5.3-6">
 The Sender Listen interval SHOULD be no shorter than 1 second and no longer than 60 seconds.<a href="#section-3.5.3-6" class="pilcrow">¶</a></p>
 <p id="section-3.5.3-7">
-An entity SHOULD include a Sender Node ID item along with a Sender Listen item if the conditions of <a href="#sec-ext-sender-nodeid" class="xref">Section 3.5.4</a> are met.
+An entity SHOULD include a Sender Node ID item along with a Sender Listen item if the conditions of <a href="#sec-ext-sender-nodeid" class="auto internal xref">Section 3.5.4</a> are met.
 An entity MAY include any other extension type along with a Sender Listen item.
 An entity SHALL NOT transmit a Sender Listen item before or along with a DTLS Initiate if DTLS is desired for a conversation.<a href="#section-3.5.3-7" class="pilcrow">¶</a></p>
 <p id="section-3.5.3-8">
@@ -2183,13 +2211,13 @@ An entity SHALL NOT include a Sender Listen item in a message transmitted to a m
           </h4>
 <p id="section-3.5.4-1">
 This extension item indicates the Node ID of the transmitter.
-For DTLS-secured sessions (see <a href="#sec-dtls-authentication" class="xref">Section 3.7.4</a>) this extension can be used to disambiguate an end-entity certificate which has multiple NODE-ID values.<a href="#section-3.5.4-1" class="pilcrow">¶</a></p>
+For DTLS-secured sessions (see <a href="#sec-dtls-authentication" class="auto internal xref">Section 3.7.4</a>) this extension can be used to disambiguate an end-entity certificate which has multiple NODE-ID values.<a href="#section-3.5.4-1" class="pilcrow">¶</a></p>
 <p id="section-3.5.4-2">
 The Sender Node ID value SHALL be an untagged tstr value containing a Node ID.
-Every Node ID SHALL be a URI consistent with the requirements of <span>[<a href="#RFC3986" class="xref">RFC3986</a>]</span> and the URI schemes of the IANA "Bundle Protocol URI Scheme Type" registry <span>[<a href="#IANA-BUNDLE" class="xref">IANA-BUNDLE</a>]</span>.<a href="#section-3.5.4-2" class="pilcrow">¶</a></p>
+Every Node ID SHALL be a URI consistent with the requirements of <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span> and the URI schemes of the IANA "Bundle Protocol URI Scheme Type" registry <span>[<a href="#IANA-BUNDLE" class="cite xref">IANA-BUNDLE</a>]</span>.<a href="#section-3.5.4-2" class="pilcrow">¶</a></p>
 <span id="name-sender-node-id-cddl"></span><figure id="figure-8">
-            <div id="section-3.5.4-3.1">
-<pre class="sourcecode lang-cddl">
+            <div class="lang-cddl sourcecode" id="section-3.5.4-3.1">
+<pre>
 $$udpcl-ext-item //= (
     4: nodeid,
 )
@@ -2203,8 +2231,8 @@ nodeid = tstr
 An entity SHOULD NOT include a Sender Node ID item if a DTLS session has already been established and the presented end-entity certificate contains a single NODE-ID.
 In this case there is no ambiguity about which Node ID is identified by the certificate.<a href="#section-3.5.4-4" class="pilcrow">¶</a></p>
 <p id="section-3.5.4-5">
-If an entity receives a peer Node ID which is not authenticated (by the procedure of <a href="#sec-dtls-authentication" class="xref">Section 3.7.4</a>) that Node ID SHOULD NOT be used by a BP agent for any discovery or routing functions.
-Trusting an unauthenticated Node ID can lead to the threat described in <a href="#sec-threat-node-impersonation" class="xref">Section 5.7</a>.<a href="#section-3.5.4-5" class="pilcrow">¶</a></p>
+If an entity receives a peer Node ID which is not authenticated (by the procedure of <a href="#sec-dtls-authentication" class="auto internal xref">Section 3.7.4</a>) that Node ID SHOULD NOT be used by a BP agent for any discovery or routing functions.
+Trusting an unauthenticated Node ID can lead to the threat described in <a href="#sec-threat-node-impersonation" class="auto internal xref">Section 5.7</a>.<a href="#section-3.5.4-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2216,8 +2244,8 @@ Trusting an unauthenticated Node ID can lead to the threat described in <a href=
         </h3>
 <p id="section-3.6-1">
 This version of UDPCL supports CL-layer fragmentation of bundles larger than the PMTU would otherwise allow.
-Policies related to fragmentation at, above, or below the UDPCL layer are defined in <a href="#sec-policy-fragmentation" class="xref">Section 2.3</a>.
-The entire fragmented bundle is referred to as a Transfer and individual fragments of a transfer are encoded as Transfer extension items in accordance with <a href="#sec-ext-transfer" class="xref">Section 3.5.2</a>.<a href="#section-3.6-1" class="pilcrow">¶</a></p>
+Policies related to fragmentation at, above, or below the UDPCL layer are defined in <a href="#sec-policy-fragmentation" class="auto internal xref">Section 2.3</a>.
+The entire fragmented bundle is referred to as a Transfer and individual fragments of a transfer are encoded as Transfer extension items in accordance with <a href="#sec-ext-transfer" class="auto internal xref">Section 3.5.2</a>.<a href="#section-3.6-1" class="pilcrow">¶</a></p>
 <p id="section-3.6-2">
 This mechanism also allows a bundle transfer to be transmitted along with additional extension items, which the unframed bundle-in-datagram data does not.
 This specification does not define any extension items which augment an associated transfer.<a href="#section-3.6-2" class="pilcrow">¶</a></p>
@@ -2232,10 +2260,10 @@ A Transfer ID does not attempt to address uniqueness of the bundle data itself a
 Each invocation of UDPCL by the BP agent, requesting transmission of a bundle (fragmentary or otherwise), can cause the initiation of a single UDPCL transfer.<a href="#section-3.6.1-1" class="pilcrow">¶</a></p>
 <p id="section-3.6.1-2">
 Because UDPCL operation is connectionless, Transfer IDs from each entity SHALL be unique for the operating duration of the entity.
-In practice, the ID needs only be unique for the longest receiver reassembly time window; but because that information is not part of the protocol there is no way for an transmitting entity to know the reassembly time window of any receiver (see <a href="#sec-transfer-fragmentation" class="xref">Section 3.6.2</a>).
+In practice, the ID needs only be unique for the longest receiver reassembly time window; but because that information is not part of the protocol there is no way for an transmitting entity to know the reassembly time window of any receiver (see <a href="#sec-transfer-fragmentation" class="auto internal xref">Section 3.6.2</a>).
 When there are bidirectional bundle transfers between UDPCL entities, an entity SHOULD NOT rely on any relation between Transfer IDs originating from each side of the conversation.<a href="#section-3.6.1-2" class="pilcrow">¶</a></p>
 <p id="section-3.6.1-3">
-Although there is not a strict requirement for Transfer ID initial values or ordering (see <a href="#sec-security-xferid" class="xref">Section 5.11</a>), in the absence of any other mechanism for generating Transfer IDs an entity SHALL use the following algorithm:
+Although there is not a strict requirement for Transfer ID initial values or ordering (see <a href="#sec-security-xferid" class="auto internal xref">Section 5.11</a>), in the absence of any other mechanism for generating Transfer IDs an entity SHALL use the following algorithm:
 the initial Transfer ID from each entity is zero;
 subsequent Transfer ID values are incremented from the prior Transfer ID value by one;
 upon exhaustion of the entire 32-bit Transfer ID space, the subsequent Transfer ID value is zero.<a href="#section-3.6.1-3" class="pilcrow">¶</a></p>
@@ -2247,7 +2275,7 @@ upon exhaustion of the entire 32-bit Transfer ID space, the subsequent Transfer 
 <a href="#section-3.6.2" class="section-number selfRef">3.6.2. </a><a href="#name-fragmentation-and-reassembl" class="section-name selfRef">Fragmentation and Reassembly</a>
           </h4>
 <p id="section-3.6.2-1">
-The full data content of a transfer SHALL be an unframed (BPv6 or BPv7) bundle as defined in <a href="#sec-udpcl-message" class="xref">Section 3.4</a>.
+The full data content of a transfer SHALL be an unframed (BPv6 or BPv7) bundle as defined in <a href="#sec-udpcl-message" class="auto internal xref">Section 3.4</a>.
 A receiving entity SHALL discard any reassembled transfer which does not properly contain a bundle.<a href="#section-3.6.2-1" class="pilcrow">¶</a></p>
 <p id="section-3.6.2-2">
 A transmitting entity MAY produce a Transfer with a single fragment (i.e., a Fragment Data size identical to the Total Length).
@@ -2292,7 +2320,7 @@ There is no guarantee that the passive entity will accept the request to resume 
 The UDPCL uses DTLS for certificate exchange in both directions to identify each entity and to allow each entity to authenticate its peer.
 Each certificate can potentially identify multiple entities and there is no problem using such a certificate as long as the identifiers are sufficient to meet authentication policy (as described in later sections) for the entity which presents it.<a href="#section-3.7.1-1" class="pilcrow">¶</a></p>
 <p id="section-3.7.1-2">
-The types and priorities of identities used by DTLS in UDPCL is the same as those for TLS in TCPCL as defined in <span><a href="https://tools.ietf.org/html/draft-ietf-dtn-tcpclv4-26#section-4.4.1" class="relref">Section 4.4.1</a> of [<a href="#I-D.ietf-dtn-tcpclv4" class="xref">I-D.ietf-dtn-tcpclv4</a>]</span>.<a href="#section-3.7.1-2" class="pilcrow">¶</a></p>
+The types and priorities of identities used by DTLS in UDPCL is the same as those for TLS in TCPCL as defined in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-dtn-tcpclv4-28#section-4.4.1" class="relref">Section 4.4.1</a> of [<a href="#I-D.ietf-dtn-tcpclv4" class="cite xref">I-D.ietf-dtn-tcpclv4</a>]</span>.<a href="#section-3.7.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sec-udpcl-cert-profile">
@@ -2301,7 +2329,7 @@ The types and priorities of identities used by DTLS in UDPCL is the same as thos
 <a href="#section-3.7.2" class="section-number selfRef">3.7.2. </a><a href="#name-certificate-profile-for-udp" class="section-name selfRef">Certificate Profile for UDPCL</a>
           </h4>
 <p id="section-3.7.2-1">
-All end-entity certificates used by a UDPCL entity SHALL conform to the profile defined in <span><a href="https://tools.ietf.org/html/draft-ietf-dtn-tcpclv4-26#section-4.4.2" class="relref">Section 4.4.2</a> of [<a href="#I-D.ietf-dtn-tcpclv4" class="xref">I-D.ietf-dtn-tcpclv4</a>]</span>.<a href="#section-3.7.2-1" class="pilcrow">¶</a></p>
+All end-entity certificates used by a UDPCL entity SHALL conform to the profile defined in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-dtn-tcpclv4-28#section-4.4.2" class="relref">Section 4.4.2</a> of [<a href="#I-D.ietf-dtn-tcpclv4" class="cite xref">I-D.ietf-dtn-tcpclv4</a>]</span>.<a href="#section-3.7.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sec-dtls-handshake">
@@ -2310,8 +2338,8 @@ All end-entity certificates used by a UDPCL entity SHALL conform to the profile 
 <a href="#section-3.7.3" class="section-number selfRef">3.7.3. </a><a href="#name-dtls-handshake" class="section-name selfRef">DTLS Handshake</a>
           </h4>
 <p id="section-3.7.3-1">
-The signaling for DTLS Initiation is described in <a href="#sec-ext-starttls" class="xref">Section 3.5.1</a>.
-After sending or receiving an Extension Map containing a DTLS Initiation item, an entity SHALL begin the handshake procedure of <span><a href="https://rfc-editor.org/rfc/rfc6347#section-4.2" class="relref">Section 4.2</a> of [<a href="#RFC6347" class="xref">RFC6347</a>]</span>.
+The signaling for DTLS Initiation is described in <a href="#sec-ext-starttls" class="auto internal xref">Section 3.5.1</a>.
+After sending or receiving an Extension Map containing a DTLS Initiation item, an entity SHALL begin the handshake procedure of <span><a href="https://rfc-editor.org/rfc/rfc6347#section-4.2" class="relref">Section 4.2</a> of [<a href="#RFC6347" class="cite xref">RFC6347</a>]</span>.
 By convention, this protocol uses the entity which sent the DTLS Initiation (the active peer) as the "client" role of the DTLS handshake request.<a href="#section-3.7.3-1" class="pilcrow">¶</a></p>
 <p id="section-3.7.3-2">
 Upon receiving an unexpected ClientHello record outside of a DTLS session, an entity SHALL begin the DTLS handshake procedure as if a DTLS Initiation had been received.
@@ -2324,7 +2352,7 @@ This allows recovering from a dropped packet containing DTLS Initiation.<a href=
 <a href="#section-3.7.4" class="section-number selfRef">3.7.4. </a><a href="#name-dtls-authentication" class="section-name selfRef">DTLS Authentication</a>
           </h4>
 <p id="section-3.7.4-1">
-The function and mechanism of DTLS authentication in UDPCL is the same as for TLS in TCPCL as defined in <span><a href="https://tools.ietf.org/html/draft-ietf-dtn-tcpclv4-26#section-4.4.4" class="relref">Section 4.4.4</a> of [<a href="#I-D.ietf-dtn-tcpclv4" class="xref">I-D.ietf-dtn-tcpclv4</a>]</span>, with the exception that Node ID Authentication is based on an optional Sender Node ID extension (see <a href="#sec-ext-sender-nodeid" class="xref">Section 3.5.4</a>) used to disambiguate when an end-entity certificate contains multiple NODE-ID values.<a href="#section-3.7.4-1" class="pilcrow">¶</a></p>
+The function and mechanism of DTLS authentication in UDPCL is the same as for TLS in TCPCL as defined in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-dtn-tcpclv4-28#section-4.4.4" class="relref">Section 4.4.4</a> of [<a href="#I-D.ietf-dtn-tcpclv4" class="cite xref">I-D.ietf-dtn-tcpclv4</a>]</span>, with the exception that Node ID Authentication is based on an optional Sender Node ID extension (see <a href="#sec-ext-sender-nodeid" class="auto internal xref">Section 3.5.4</a>) used to disambiguate when an end-entity certificate contains multiple NODE-ID values.<a href="#section-3.7.4-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sec-dtls-auth-policy-rec">
@@ -2333,15 +2361,15 @@ The function and mechanism of DTLS authentication in UDPCL is the same as for TL
 <a href="#section-3.7.5" class="section-number selfRef">3.7.5. </a><a href="#name-policy-recommendations" class="section-name selfRef">Policy Recommendations</a>
           </h4>
 <p id="section-3.7.5-1">
-The policy recommendations given here are are the same as those for TCPCL in <span><a href="https://tools.ietf.org/html/draft-ietf-dtn-tcpclv4-26#section-4.4.5" class="relref">Section 4.4.5</a> of [<a href="#I-D.ietf-dtn-tcpclv4" class="xref">I-D.ietf-dtn-tcpclv4</a>]</span>.
+The policy recommendations given here are are the same as those for TCPCL in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-dtn-tcpclv4-28#section-4.4.5" class="relref">Section 4.4.5</a> of [<a href="#I-D.ietf-dtn-tcpclv4" class="cite xref">I-D.ietf-dtn-tcpclv4</a>]</span>.
 They are restated in this document for clarity.<a href="#section-3.7.5-1" class="pilcrow">¶</a></p>
 <p id="section-3.7.5-2">
 A RECOMMENDED security policy is to enable the use of OCSP checking during DTLS handshake.
-A RECOMMENDED security policy is that if an Extended Key Usage is present that it needs to contain "id-kp-bundleSecurity" of <span>[<a href="#IANA-SMI" class="xref">IANA-SMI</a>]</span> to be usable with UDPCL security.
+A RECOMMENDED security policy is that if an Extended Key Usage is present that it needs to contain "id-kp-bundleSecurity" of <span>[<a href="#IANA-SMI" class="cite xref">IANA-SMI</a>]</span> to be usable with UDPCL security.
 A RECOMMENDED security policy is to require a validated NODE-ID and to ignore any network-level DNS-ID or IPADDR-ID.<a href="#section-3.7.5-2" class="pilcrow">¶</a></p>
 <p id="section-3.7.5-3">
-This policy relies on and informs the certificate requirements in <a href="#sec-udpcl-cert-profile" class="xref">Section 3.7.2</a>.
-This policy assumes that a DTN-aware CA (see <a href="#sec-pkix-env" class="xref">Section 2.2</a>) will only issue a certificate for a Node ID when it has verified that the private key holder actually controls the DTN node; this is needed to avoid the threat identified in <a href="#sec-threat-node-impersonation" class="xref">Section 5.7</a>.
+This policy relies on and informs the certificate requirements in <a href="#sec-udpcl-cert-profile" class="auto internal xref">Section 3.7.2</a>.
+This policy assumes that a DTN-aware CA (see <a href="#sec-pkix-env" class="auto internal xref">Section 2.2</a>) will only issue a certificate for a Node ID when it has verified that the private key holder actually controls the DTN node; this is needed to avoid the threat identified in <a href="#sec-threat-node-impersonation" class="auto internal xref">Section 5.7</a>.
 This policy requires that a certificate contain a NODE-ID and allows the certificate to also contain network-level identifiers.
 A tailored policy on a more controlled network could relax the requirement on Node ID validation and allow just network-level identifiers to authenticate a peer.<a href="#section-3.7.5-3" class="pilcrow">¶</a></p>
 </section>
@@ -2358,7 +2386,7 @@ The example Entity A has a policy to only send or receive bundles within a DTLS 
 Because Entity A is willing to accept transfers on its ephemeral UDP port, the first outgoing message after the DTLS handshake contains the Sender Listen extension (along with a Sender Node ID indicating its identity to Entity B).<a href="#section-3.7.6-2" class="pilcrow">¶</a></p>
 <span id="name-an-example-of-the-flow-of-p"></span><div id="fig-conversation-example">
 <figure id="figure-9">
-            <div class="artwork art-text alignCenter art-ascii-art" id="section-3.7.6-3.1">
+            <div class="alignCenter art-ascii-art art-text artwork" id="section-3.7.6-3.1">
 <pre>
          Entity A                             Entity B
         active peer                         passive peer
@@ -2405,19 +2433,19 @@ Because Entity A is willing to accept transfers on its ephemeral UDP port, the f
       </h2>
 <p id="section-4-1">This section is to be removed before publishing as an RFC.<a href="#section-4-1" class="pilcrow">¶</a></p>
 <p id="section-4-2">
-[NOTE to the RFC Editor: please remove this section before publication, as well as the reference to <span>[<a href="#RFC7942" class="xref">RFC7942</a>]</span>, <span>[<a href="#github-dtn-demo-agent" class="xref">github-dtn-demo-agent</a>]</span>, and <span>[<a href="#github-dtn-wireshark" class="xref">github-dtn-wireshark</a>]</span>.]<a href="#section-4-2" class="pilcrow">¶</a></p>
+[NOTE to the RFC Editor: please remove this section before publication, as well as the reference to <span>[<a href="#RFC7942" class="cite xref">RFC7942</a>]</span>, <span>[<a href="#github-dtn-demo-agent" class="cite xref">github-dtn-demo-agent</a>]</span>, and <span>[<a href="#github-dtn-wireshark" class="cite xref">github-dtn-wireshark</a>]</span>.]<a href="#section-4-2" class="pilcrow">¶</a></p>
 <p id="section-4-3">
-This section records the status of known implementations of the protocol defined by this specification at the time of posting of this Internet-Draft, and is based on a proposal described in <span>[<a href="#RFC7942" class="xref">RFC7942</a>]</span>.
+This section records the status of known implementations of the protocol defined by this specification at the time of posting of this Internet-Draft, and is based on a proposal described in <span>[<a href="#RFC7942" class="cite xref">RFC7942</a>]</span>.
 The description of implementations in this section is intended to assist the IETF in its decision processes in progressing drafts to RFCs.
 Please note that the listing of any individual implementation here does not imply endorsement by the IETF.
 Furthermore, no effort has been spent to verify the information presented here that was supplied by IETF contributors.
 This is not intended as, and must not be construed to be, a catalog of available implementations or their features.
 Readers are advised to note that other implementations can exist.<a href="#section-4-3" class="pilcrow">¶</a></p>
 <p id="section-4-4">
-An example implementation of the this draft of UDPCL has been created as a GitHub project <span>[<a href="#github-dtn-demo-agent" class="xref">github-dtn-demo-agent</a>]</span> and is intended to use as a proof-of-concept and as a possible source of interoperability testing.
+An example implementation of the this draft of UDPCL has been created as a GitHub project <span>[<a href="#github-dtn-demo-agent" class="cite xref">github-dtn-demo-agent</a>]</span> and is intended to use as a proof-of-concept and as a possible source of interoperability testing.
 This example implementation uses D-Bus as the CL-BP Agent interface, so it only runs on hosts which provide the Python "dbus" library.<a href="#section-4-4" class="pilcrow">¶</a></p>
 <p id="section-4-5">
-A wireshark dissector for UDPCL has been created as a GitHub project <span>[<a href="#github-dtn-wireshark" class="xref">github-dtn-wireshark</a>]</span> and has been kept in-sync with the latest encoding of this specification.<a href="#section-4-5" class="pilcrow">¶</a></p>
+A wireshark dissector for UDPCL has been created as a GitHub project <span>[<a href="#github-dtn-wireshark" class="cite xref">github-dtn-wireshark</a>]</span> and has been kept in-sync with the latest encoding of this specification.<a href="#section-4-5" class="pilcrow">¶</a></p>
 </section>
 <div id="sec-security">
 <section id="section-5">
@@ -2425,7 +2453,7 @@ A wireshark dissector for UDPCL has been created as a GitHub project <span>[<a h
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
 <p id="section-5-1">
-This section separates security considerations into threat categories based on guidance of BCP 72 <span>[<a href="#RFC3552" class="xref">RFC3552</a>]</span>.<a href="#section-5-1" class="pilcrow">¶</a></p>
+This section separates security considerations into threat categories based on guidance of BCP 72 <span>[<a href="#RFC3552" class="cite xref">RFC3552</a>]</span>.<a href="#section-5-1" class="pilcrow">¶</a></p>
 <section id="section-5.1">
         <h3 id="name-threat-passive-leak-of-node">
 <a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-threat-passive-leak-of-node" class="section-name selfRef">Threat: Passive Leak of Node Data</a>
@@ -2433,7 +2461,7 @@ This section separates security considerations into threat categories based on g
 <p id="section-5.1-1">
 When used without DTLS security, the UDPCL can expose the Node ID and other configuration data to passive eavesdroppers.
 This can occur even if no bundle transfers are transmitted.
-This can be avoided by always using DTLS, even if authentication is not available (see <a href="#sec-security-tlsalt" class="xref">Section 5.10</a>).<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+This can be avoided by always using DTLS, even if authentication is not available (see <a href="#sec-security-tlsalt" class="auto internal xref">Section 5.10</a>).<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 </section>
 <section id="section-5.2">
         <h3 id="name-threat-passive-leak-of-bund">
@@ -2441,10 +2469,10 @@ This can be avoided by always using DTLS, even if authentication is not availabl
         </h3>
 <p id="section-5.2-1">
 UDPCL can be used to provide point-to-point unicast transport security, but does not provide multicast security, security of data-at-rest, and does not guarantee end-to-end bundle security.
-In those cases the bundle security mechanisms defined in <span>[<a href="#I-D.ietf-dtn-bpsec" class="xref">I-D.ietf-dtn-bpsec</a>]</span> are to be used instead.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+In those cases the bundle security mechanisms defined in <span>[<a href="#I-D.ietf-dtn-bpsec" class="cite xref">I-D.ietf-dtn-bpsec</a>]</span> are to be used instead.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
 <p id="section-5.2-2">
 When used without DTLS security, the UDPCL exposes all bundle data to passive eavesdroppers.
-This can be avoided by always using DTLS for unicast messaging, even if authentication is not available (see <a href="#sec-security-tlsalt" class="xref">Section 5.10</a>).<a href="#section-5.2-2" class="pilcrow">¶</a></p>
+This can be avoided by always using DTLS for unicast messaging, even if authentication is not available (see <a href="#sec-security-tlsalt" class="auto internal xref">Section 5.10</a>).<a href="#section-5.2-2" class="pilcrow">¶</a></p>
 </section>
 <div id="sec-threat-tls-strip">
 <section id="section-5.3">
@@ -2454,16 +2482,16 @@ This can be avoided by always using DTLS for unicast messaging, even if authenti
 <p id="section-5.3-1">
 When security policy allows non-DTLS messaging, UDPCL does not protect against active network attackers.
 It is possible for a on-path attacker to drop or alter packets containing Extension Map and/or DTLS handshake records, which will cause the receiver to not negotiate a DTLS session.
-This leads to the "SSL Stripping" attack described in <span>[<a href="#RFC7457" class="xref">RFC7457</a>]</span>.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
+This leads to the "SSL Stripping" attack described in <span>[<a href="#RFC7457" class="cite xref">RFC7457</a>]</span>.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
 <p id="section-5.3-2">
 When DTLS is available on an entity, it is strongly encouraged that the security policy disallow non-DTLS messaging for unicast purposes.
 This requires that the DTLS handshake occurs before any other UDPCL messaging, regardless of the policy-driven parameters of the handshake and policy-driven handling of the handshake outcome.<a href="#section-5.3-2" class="pilcrow">¶</a></p>
 <p id="section-5.3-3">
-One mechanism to mitigate the possibility of DTLS stripping is the use of DNS-based Authentication of Named Entities (DANE) <span>[<a href="#RFC6698" class="xref">RFC6698</a>]</span> toward the passive peer.
+One mechanism to mitigate the possibility of DTLS stripping is the use of DNS-based Authentication of Named Entities (DANE) <span>[<a href="#RFC6698" class="cite xref">RFC6698</a>]</span> toward the passive peer.
 This mechanism relies on DNS and is unidirectional, so it doesn't help with applying policy toward the active peer, but it can be useful in an environment using opportunistic security.
 The configuration and use of DANE are outside of the scope of this document.<a href="#section-5.3-3" class="pilcrow">¶</a></p>
 <p id="section-5.3-4">
-The negotiated use of DTLS is identical behavior to STARTTLS use in <span>[<a href="#RFC2595" class="xref">RFC2595</a>]</span>, <span>[<a href="#RFC4511" class="xref">RFC4511</a>]</span>, and others.<a href="#section-5.3-4" class="pilcrow">¶</a></p>
+The negotiated use of DTLS is identical behavior to STARTTLS use in <span>[<a href="#RFC2595" class="cite xref">RFC2595</a>]</span>, <span>[<a href="#RFC4511" class="cite xref">RFC4511</a>]</span>, and others.<a href="#section-5.3-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <section id="section-5.4">
@@ -2472,7 +2500,7 @@ The negotiated use of DTLS is identical behavior to STARTTLS use in <span>[<a hr
         </h3>
 <p id="section-5.4-1">
 Even when using DTLS to secure the UDPCL session, the actual ciphersuite negotiated between the DTLS peers can be insecure.
-Recommendations for ciphersuite use are included in BCP 195 <span>[<a href="#RFC7525" class="xref">RFC7525</a>]</span>.
+Recommendations for ciphersuite use are included in BCP 195 <span>[<a href="#RFC7525" class="cite xref">RFC7525</a>]</span>.
 It is up to security policies within each UDPCL entity to ensure that the negotiated DTLS ciphersuite meets transport security requirements.<a href="#section-5.4-1" class="pilcrow">¶</a></p>
 </section>
 <div id="sec-threat-untrust-cert">
@@ -2481,7 +2509,7 @@ It is up to security policies within each UDPCL entity to ensure that the negoti
 <a href="#section-5.5" class="section-number selfRef">5.5. </a><a href="#name-threat-untrusted-end-entity" class="section-name selfRef">Threat: Untrusted End-Entity Certificate</a>
         </h3>
 <p id="section-5.5-1">
-The profile in <a href="#sec-dtls-authentication" class="xref">Section 3.7.4</a> uses end-entity certificates chained up to a trusted root CA.
+The profile in <a href="#sec-dtls-authentication" class="auto internal xref">Section 3.7.4</a> uses end-entity certificates chained up to a trusted root CA.
 During DTLS handshake, either entity can send a certificate set which does not contain the full chain, possibly excluding intermediate or root CAs.
 In an environment where peers are known to already contain needed root and intermediate CAs there is no need to include those CAs, but this has a risk of an entity not actually having one of the needed CAs.<a href="#section-5.5-1" class="pilcrow">¶</a></p>
 </section>
@@ -2494,8 +2522,8 @@ In an environment where peers are known to already contain needed root and inter
 Even when DTLS itself is operating properly an attacker can attempt to exploit vulnerabilities within certificate check algorithms or configuration to establish a secure DTLS session using an invalid certificate.
 An invalid certificate exploit could lead to bundle data leaking and/or denial of service to the Node ID being impersonated.<a href="#section-5.6-1" class="pilcrow">¶</a></p>
 <p id="section-5.6-2">
-There are many reasons, described in <span>[<a href="#RFC5280" class="xref">RFC5280</a>]</span> and <span>[<a href="#RFC6125" class="xref">RFC6125</a>]</span>, why a certificate can fail to validate, including using the certificate outside of its valid time interval, using purposes for which it was not authorized, or using it after it has been revoked by its CA.
-Validating a certificate is a complex task and can require network connectivity outside of the primary UDPCL network path(s) if a mechanism such as OCSP <span>[<a href="#RFC6960" class="xref">RFC6960</a>]</span> is used by the CA.
+There are many reasons, described in <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>]</span> and <span>[<a href="#RFC6125" class="cite xref">RFC6125</a>]</span>, why a certificate can fail to validate, including using the certificate outside of its valid time interval, using purposes for which it was not authorized, or using it after it has been revoked by its CA.
+Validating a certificate is a complex task and can require network connectivity outside of the primary UDPCL network path(s) if a mechanism such as OCSP <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span> is used by the CA.
 The configuration and use of particular certificate validation methods are outside of the scope of this document.<a href="#section-5.6-2" class="pilcrow">¶</a></p>
 </section>
 <div id="sec-threat-node-impersonation">
@@ -2504,8 +2532,8 @@ The configuration and use of particular certificate validation methods are outsi
 <a href="#section-5.7" class="section-number selfRef">5.7. </a><a href="#name-threat-bp-node-impersonatio" class="section-name selfRef">Threat: BP Node Impersonation</a>
         </h3>
 <p id="section-5.7-1">
-The certificates exchanged by DTLS enable authentication of peer DNS name and Node ID, but it is possible that a peer either not provide a valid certificate or that the certificate does not validate either the DNS-ID/IPADDR-ID or NODE-ID of the peer (see <a href="#sec-pkix-env" class="xref">Section 2.2</a>).
-Having a CA-validated certificate does not alone guarantee the identity of the network host or BP node from which the certificate is provided; additional validation procedures in <a href="#sec-dtls-handshake" class="xref">Section 3.7.3</a> bind the DNS-ID/IPADDR-ID or NODE-ID based on the contents of the certificate.<a href="#section-5.7-1" class="pilcrow">¶</a></p>
+The certificates exchanged by DTLS enable authentication of peer DNS name and Node ID, but it is possible that a peer either not provide a valid certificate or that the certificate does not validate either the DNS-ID/IPADDR-ID or NODE-ID of the peer (see <a href="#sec-pkix-env" class="auto internal xref">Section 2.2</a>).
+Having a CA-validated certificate does not alone guarantee the identity of the network host or BP node from which the certificate is provided; additional validation procedures in <a href="#sec-dtls-handshake" class="auto internal xref">Section 3.7.3</a> bind the DNS-ID/IPADDR-ID or NODE-ID based on the contents of the certificate.<a href="#section-5.7-1" class="pilcrow">¶</a></p>
 <p id="section-5.7-2">
 The DNS-ID/IPADDR-ID validation is a weaker form of authentication, because even if a peer is operating on an authenticated network DNS name or IP address it can provide an invalid Node ID and cause bundles to be "leaked" to an invalid node.
 Especially in DTN environments, network names and addresses of nodes can be time-variable so binding a certificate to a Node ID is a more stable identity.<a href="#section-5.7-2" class="pilcrow">¶</a></p>
@@ -2514,7 +2542,7 @@ NODE-ID validation ensures that the peer to which a bundle is transferred is in 
 In circumstances where certificates can only be issued to DNS names, Node ID validation is not possible but it could be reasonable to assume that a trusted host is not going to present an invalid Node ID.
 Determining when a DNS-ID/IPADDR-ID authentication can be trusted to validate a Node ID is also a policy matter outside of the scope of this document.<a href="#section-5.7-3" class="pilcrow">¶</a></p>
 <p id="section-5.7-4">
-One mitigation to arbitrary entities with valid PKIX certificates impersonating arbitrary Node IDs is the use of the PKIX Extended Key Usage key purpose "id-kp-bundleSecurity" of <span>[<a href="#IANA-SMI" class="xref">IANA-SMI</a>]</span>.
+One mitigation to arbitrary entities with valid PKIX certificates impersonating arbitrary Node IDs is the use of the PKIX Extended Key Usage key purpose "id-kp-bundleSecurity" of <span>[<a href="#IANA-SMI" class="cite xref">IANA-SMI</a>]</span>.
 When this Extended Key Usage is present in the certificate, it represents a stronger assertion that the private key holder should in fact be trusted to operate as a DTN Node.<a href="#section-5.7-4" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2530,7 +2558,7 @@ An entity can send a large amount of data to a UDPCL entity, requiring the recei
 The victim entity can block UDP packets from network peers which are thought to be incorrectly behaving within network.<a href="#section-5.8-2" class="pilcrow">¶</a></p>
 <p id="section-5.8-3">
 An entity can also send only one fragment of a seemingly valid transfer and never send the remaining fragments, which will cause resources on the receiver to be wasted on transfer reassembly state.
-The victim entity can either block packets from network peers or intentionally keep a short unfinished transfer timeout (see <a href="#sec-transfer-fragmentation" class="xref">Section 3.6.2</a>).<a href="#section-5.8-3" class="pilcrow">¶</a></p>
+The victim entity can either block packets from network peers or intentionally keep a short unfinished transfer timeout (see <a href="#sec-transfer-fragmentation" class="auto internal xref">Section 3.6.2</a>).<a href="#section-5.8-3" class="pilcrow">¶</a></p>
 <p id="section-5.8-4">
 The keepalive mechanism can be abused to waste throughput within a network link which would otherwise be usable for bundle transmissions.<a href="#section-5.8-4" class="pilcrow">¶</a></p>
 </section>
@@ -2541,9 +2569,9 @@ The keepalive mechanism can be abused to waste throughput within a network link 
         </h3>
 <p id="section-5.9-1">
 Following IETF best current practice, DTLS is mandatory to implement for all UDPCL implementations but DTLS is optional to use for a any given transfer.
-The recommended configuration of <a href="#sec-ext-starttls" class="xref">Section 3.5.1</a> is to always attempt DTLS, but entities are permitted to disable DTLS based on local configuration.
+The recommended configuration of <a href="#sec-ext-starttls" class="auto internal xref">Section 3.5.1</a> is to always attempt DTLS, but entities are permitted to disable DTLS based on local configuration.
 The configuration to enable or disable DTLS for an entity or a session is outside of the scope of this document.
-The configuration to disable DTLS is different from the threat of DTLS stripping described in <a href="#sec-threat-tls-strip" class="xref">Section 5.3</a>.<a href="#section-5.9-1" class="pilcrow">¶</a></p>
+The configuration to disable DTLS is different from the threat of DTLS stripping described in <a href="#sec-threat-tls-strip" class="auto internal xref">Section 5.3</a>.<a href="#section-5.9-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sec-security-tlsalt">
@@ -2561,7 +2589,7 @@ The following subsections give examples of alternate DTLS uses.<a href="#section
 <a href="#section-5.10.1" class="section-number selfRef">5.10.1. </a><a href="#name-dtls-without-authentication" class="section-name selfRef">DTLS Without Authentication</a>
           </h4>
 <p id="section-5.10.1-1"> In environments where PKI is available but there are restrictions on the issuance of certificates (including the contents of certificates), it may be possible to make use of DTLS in a way which authenticates only the passive entity of a UDPCL transfer or which does not authenticate either entity.
-Using DTLS in a way which does not successfully authenticate some claim of both peer entities of a UDPCL transfer is outside of the scope of this document but does have similar properties to the opportunistic security model of <span>[<a href="#RFC7435" class="xref">RFC7435</a>]</span>.<a href="#section-5.10.1-1" class="pilcrow">¶</a></p>
+Using DTLS in a way which does not successfully authenticate some claim of both peer entities of a UDPCL transfer is outside of the scope of this document but does have similar properties to the opportunistic security model of <span>[<a href="#RFC7435" class="cite xref">RFC7435</a>]</span>.<a href="#section-5.10.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sec-security-tlsnopki">
@@ -2570,7 +2598,7 @@ Using DTLS in a way which does not successfully authenticate some claim of both 
 <a href="#section-5.10.2" class="section-number selfRef">5.10.2. </a><a href="#name-non-certificate-dtls-use" class="section-name selfRef">Non-Certificate DTLS Use</a>
           </h4>
 <p id="section-5.10.2-1">
-In environments where PKI is unavailable, alternate uses of DTLS which do not require certificates such as pre-shared key (PSK) authentication <span>[<a href="#RFC5489" class="xref">RFC5489</a>]</span> and the use of raw public keys <span>[<a href="#RFC7250" class="xref">RFC7250</a>]</span> are available and can be used to ensure confidentiality within UDPCL.
+In environments where PKI is unavailable, alternate uses of DTLS which do not require certificates such as pre-shared key (PSK) authentication <span>[<a href="#RFC5489" class="cite xref">RFC5489</a>]</span> and the use of raw public keys <span>[<a href="#RFC7250" class="cite xref">RFC7250</a>]</span> are available and can be used to ensure confidentiality within UDPCL.
 Using non-PKI node authentication methods is outside of the scope of this document.<a href="#section-5.10.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2595,17 +2623,17 @@ Even when UDPCL is not DTLS secured and there is a on-path attacker altering UDP
 <a href="#section-6" class="section-number selfRef">6. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
       </h2>
 <p id="section-6-1">
-Registration procedures referred to in this section are defined in <span>[<a href="#RFC8126" class="xref">RFC8126</a>]</span>.<a href="#section-6-1" class="pilcrow">¶</a></p>
+Registration procedures referred to in this section are defined in <span>[<a href="#RFC8126" class="cite xref">RFC8126</a>]</span>.<a href="#section-6-1" class="pilcrow">¶</a></p>
 <div id="sec-iana-port">
 <section id="section-6.1">
         <h3 id="name-port-number">
 <a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-port-number" class="section-name selfRef">Port Number</a>
         </h3>
 <p id="section-6.1-1">
-Within the port registry of <span>[<a href="#IANA-PORTS" class="xref">IANA-PORTS</a>]</span>, UDP port number 4556 has been previously assigned as the default port for the UDP convergence layer in <span>[<a href="#RFC7122" class="xref">RFC7122</a>]</span>.
+Within the port registry of <span>[<a href="#IANA-PORTS" class="cite xref">IANA-PORTS</a>]</span>, UDP port number 4556 has been previously assigned as the default port for the UDP convergence layer in <span>[<a href="#RFC7122" class="cite xref">RFC7122</a>]</span>.
 This assignment to UDPCL is unchanged, but the assignment reference is updated to this specification.
-There is no UDPCL version indication on-the-wire but this specification is a superset of <span>[<a href="#RFC7122" class="xref">RFC7122</a>]</span> and is fully backward compatible.
-The related assignment for DCCP port 4556 (registered by <span>[<a href="#RFC7122" class="xref">RFC7122</a>]</span>) is unchanged.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+There is no UDPCL version indication on-the-wire but this specification is a superset of <span>[<a href="#RFC7122" class="cite xref">RFC7122</a>]</span> and is fully backward compatible.
+The related assignment for DCCP port 4556 (registered by <span>[<a href="#RFC7122" class="cite xref">RFC7122</a>]</span>) is unchanged.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
 <table class="center" id="table-2">
           <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
 <thead>
@@ -2654,7 +2682,7 @@ The related assignment for DCCP port 4556 (registered by <span>[<a href="#RFC712
         </h3>
 <p id="section-6.2-1">EDITOR NOTE: sub-registry to-be-created upon publication of this specification.<a href="#section-6.2-1" class="pilcrow">¶</a></p>
 <p id="section-6.2-2">
-IANA will create, under the "Bundle Protocol" registry <span>[<a href="#IANA-BUNDLE" class="xref">IANA-BUNDLE</a>]</span>, a sub-registry titled "Bundle Protocol UDP Convergence-Layer Extension Types" and initialize it with the contents of <a href="#tab-iana-extension-types" class="xref">Table 3</a>.
+IANA will create, under the "Bundle Protocol" registry <span>[<a href="#IANA-BUNDLE" class="cite xref">IANA-BUNDLE</a>]</span>, a sub-registry titled "Bundle Protocol UDP Convergence-Layer Extension Types" and initialize it with the contents of <a href="#tab-iana-extension-types" class="auto internal xref">Table 3</a>.
 For positive code points the registration procedure is Specification Required.
 Negative code points are reserved for use on private networks for functions not published to the IANA.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
 <p id="section-6.2-3">
@@ -2690,25 +2718,25 @@ Expert(s) are encouraged to be biased towards approving registrations unless the
               <td class="text-left" rowspan="1" colspan="1">2</td>
               <td class="text-left" rowspan="1" colspan="1">Transfer</td>
               <td class="text-left" rowspan="1" colspan="1">
-                <a href="#sec-ext-transfer" class="xref">Section 3.5.2</a> of this specification.</td>
+                <a href="#sec-ext-transfer" class="auto internal xref">Section 3.5.2</a> of this specification.</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">3</td>
               <td class="text-left" rowspan="1" colspan="1">Sender Listen</td>
               <td class="text-left" rowspan="1" colspan="1">
-                <a href="#sec-ext-sender-listen" class="xref">Section 3.5.3</a> of this specification.</td>
+                <a href="#sec-ext-sender-listen" class="auto internal xref">Section 3.5.3</a> of this specification.</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">4</td>
               <td class="text-left" rowspan="1" colspan="1">Sender Node ID</td>
               <td class="text-left" rowspan="1" colspan="1">
-                <a href="#sec-ext-sender-nodeid" class="xref">Section 3.5.4</a> of this specification.</td>
+                <a href="#sec-ext-sender-nodeid" class="auto internal xref">Section 3.5.4</a> of this specification.</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">5</td>
               <td class="text-left" rowspan="1" colspan="1">DTLS Initiation (STARTTLS)</td>
               <td class="text-left" rowspan="1" colspan="1">
-                <a href="#sec-ext-starttls" class="xref">Section 3.5.1</a> of this specification.</td>
+                <a href="#sec-ext-starttls" class="auto internal xref">Section 3.5.1</a> of this specification.</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">6-65535</td>
@@ -2798,7 +2826,7 @@ TBD<a href="#section-7-1" class="pilcrow">¶</a></p>
 <dd class="break"></dd>
 <dt id="RFC7525">[RFC7525]</dt>
         <dd>
-<span class="refAuthor">Sheffer, Y.</span>, <span class="refAuthor">Holz, R.</span>, and <span class="refAuthor">P. Saint-Andre</span>, <span class="refTitle">"Recommendations for Secure Use of Transport Layer Security (TLS) and Datagram Transport Layer Security (DTLS)"</span>, <span class="seriesInfo">BCP 195</span>, <span class="seriesInfo">RFC 7525</span>, <span class="seriesInfo">DOI 10.17487/RFC7525</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc7525">https://www.rfc-editor.org/info/rfc7525</a>&gt;</span>. </dd>
+<span class="refAuthor">Sheffer, Y.</span>, <span class="refAuthor">Holz, R.</span>, and <span class="refAuthor">P. Saint-Andre</span>, <span class="refTitle">"Recommendations for Secure Use of Transport Layer Security (TLS) and Datagram Transport Layer Security (DTLS)"</span>, <span class="seriesInfo">RFC 7525</span>, <span class="seriesInfo">DOI 10.17487/RFC7525</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc7525">https://www.rfc-editor.org/info/rfc7525</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC8085">[RFC8085]</dt>
         <dd>
@@ -2822,11 +2850,11 @@ TBD<a href="#section-7-1" class="pilcrow">¶</a></p>
 <dd class="break"></dd>
 <dt id="I-D.ietf-dtn-bpbis">[I-D.ietf-dtn-bpbis]</dt>
         <dd>
-<span class="refAuthor">Burleigh, S.</span>, <span class="refAuthor">Fall, K.</span>, and <span class="refAuthor">E. J. Birrane</span>, <span class="refTitle">"Bundle Protocol Version 7"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-dtn-bpbis-31</span>, <time datetime="2021-01-25" class="refDate">25 January 2021</time>, <span>&lt;<a href="https://tools.ietf.org/html/draft-ietf-dtn-bpbis-31">https://tools.ietf.org/html/draft-ietf-dtn-bpbis-31</a>&gt;</span>. </dd>
+<span class="refAuthor">Burleigh, S.</span>, <span class="refAuthor">Fall, K.</span>, and <span class="refAuthor">E. J. Birrane</span>, <span class="refTitle">"Bundle Protocol Version 7"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-dtn-bpbis-31</span>, <time datetime="2021-01-25" class="refDate">25 January 2021</time>, <span>&lt;<a href="https://www.ietf.org/archive/id/draft-ietf-dtn-bpbis-31.txt">https://www.ietf.org/archive/id/draft-ietf-dtn-bpbis-31.txt</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.ietf-dtn-tcpclv4">[I-D.ietf-dtn-tcpclv4]</dt>
       <dd>
-<span class="refAuthor">Sipos, B.</span>, <span class="refAuthor">Demmer, M.</span>, <span class="refAuthor">Ott, J.</span>, and <span class="refAuthor">S. Perreault</span>, <span class="refTitle">"Delay-Tolerant Networking TCP Convergence Layer Protocol Version 4"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-dtn-tcpclv4-26</span>, <time datetime="2021-02-15" class="refDate">15 February 2021</time>, <span>&lt;<a href="https://tools.ietf.org/html/draft-ietf-dtn-tcpclv4-26">https://tools.ietf.org/html/draft-ietf-dtn-tcpclv4-26</a>&gt;</span>. </dd>
+<span class="refAuthor">Sipos, B.</span>, <span class="refAuthor">Demmer, M.</span>, <span class="refAuthor">Ott, J.</span>, and <span class="refAuthor">S. Perreault</span>, <span class="refTitle">"Delay-Tolerant Networking TCP Convergence-Layer Protocol Version 4"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-dtn-tcpclv4-28</span>, <time datetime="2021-10-06" class="refDate">6 October 2021</time>, <span>&lt;<a href="https://www.ietf.org/archive/id/draft-ietf-dtn-tcpclv4-28.txt">https://www.ietf.org/archive/id/draft-ietf-dtn-tcpclv4-28.txt</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
@@ -2889,7 +2917,7 @@ TBD<a href="#section-7-1" class="pilcrow">¶</a></p>
 <dd class="break"></dd>
 <dt id="I-D.ietf-dtn-bpsec">[I-D.ietf-dtn-bpsec]</dt>
         <dd>
-<span class="refAuthor">III, E. J. B.</span> and <span class="refAuthor">K. McKeever</span>, <span class="refTitle">"Bundle Protocol Security Specification"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-dtn-bpsec-27</span>, <time datetime="2021-02-16" class="refDate">16 February 2021</time>, <span>&lt;<a href="https://tools.ietf.org/html/draft-ietf-dtn-bpsec-27">https://tools.ietf.org/html/draft-ietf-dtn-bpsec-27</a>&gt;</span>. </dd>
+<span class="refAuthor">Birrane, E. J.</span> and <span class="refAuthor">K. McKeever</span>, <span class="refTitle">"Bundle Protocol Security (BPSec)"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-dtn-bpsec-27</span>, <time datetime="2021-02-16" class="refDate">16 February 2021</time>, <span>&lt;<a href="https://www.ietf.org/archive/id/draft-ietf-dtn-bpsec-27.txt">https://www.ietf.org/archive/id/draft-ietf-dtn-bpsec-27.txt</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="github-dtn-demo-agent">[github-dtn-demo-agent]</dt>
         <dd>
@@ -2902,33 +2930,33 @@ TBD<a href="#section-7-1" class="pilcrow">¶</a></p>
 </dl>
 </section>
 </section>
-<section id="section-appendix.a">
+<section id="appendix-A">
       <h2 id="name-significant-changes-from-rf">
-<a href="#section-appendix.a" class="section-number selfRef">Appendix A. </a><a href="#name-significant-changes-from-rf" class="section-name selfRef">Significant changes from RFC7122</a>
+<a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-significant-changes-from-rf" class="section-name selfRef">Significant changes from RFC7122</a>
       </h2>
-<p id="section-appendix.a-1">
-The areas in which changes from <span>[<a href="#RFC7122" class="xref">RFC7122</a>]</span> have been made to existing requirements:<a href="#section-appendix.a-1" class="pilcrow">¶</a></p>
+<p id="appendix-A-1">
+The areas in which changes from <span>[<a href="#RFC7122" class="cite xref">RFC7122</a>]</span> have been made to existing requirements:<a href="#appendix-A-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-appendix.a-2.1">Made explicit references to UDP- and IP-related RFCs.<a href="#section-appendix.a-2.1" class="pilcrow">¶</a>
+<li class="normal" id="appendix-A-2.1">Made explicit references to UDP- and IP-related RFCs.<a href="#appendix-A-2.1" class="pilcrow">¶</a>
 </li>
-        <li class="normal" id="section-appendix.a-2.2">Made more strict Keepalive and Padding requirements.<a href="#section-appendix.a-2.2" class="pilcrow">¶</a>
+        <li class="normal" id="appendix-A-2.2">Made more strict Keepalive and Padding requirements.<a href="#appendix-A-2.2" class="pilcrow">¶</a>
 </li>
-        <li class="normal" id="section-appendix.a-2.3">Defined UDPCL security and made mandatory-to-implement.<a href="#section-appendix.a-2.3" class="pilcrow">¶</a>
+        <li class="normal" id="appendix-A-2.3">Defined UDPCL security and made mandatory-to-implement.<a href="#appendix-A-2.3" class="pilcrow">¶</a>
 </li>
       </ul>
-<p id="section-appendix.a-3">
-The areas in which extensions from <span>[<a href="#RFC7122" class="xref">RFC7122</a>]</span> have been made as new behaviors are:<a href="#section-appendix.a-3" class="pilcrow">¶</a></p>
+<p id="appendix-A-3">
+The areas in which extensions from <span>[<a href="#RFC7122" class="cite xref">RFC7122</a>]</span> have been made as new behaviors are:<a href="#appendix-A-3" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-appendix.a-4.1">Added BPv7 bundle as a possible UDPCL payload.<a href="#section-appendix.a-4.1" class="pilcrow">¶</a>
+<li class="normal" id="appendix-A-4.1">Added BPv7 bundle as a possible UDPCL payload.<a href="#appendix-A-4.1" class="pilcrow">¶</a>
 </li>
-        <li class="normal" id="section-appendix.a-4.2">Added Extension Map message type and initial extension types.<a href="#section-appendix.a-4.2" class="pilcrow">¶</a>
+        <li class="normal" id="appendix-A-4.2">Added Extension Map message type and initial extension types.<a href="#appendix-A-4.2" class="pilcrow">¶</a>
 </li>
-        <li class="normal" id="section-appendix.a-4.3">Defined semantics for UDPCL multicast addressing.<a href="#section-appendix.a-4.3" class="pilcrow">¶</a>
+        <li class="normal" id="appendix-A-4.3">Defined semantics for UDPCL multicast addressing.<a href="#appendix-A-4.3" class="pilcrow">¶</a>
 </li>
       </ul>
 </section>
 <div id="authors-addresses">
-<section id="section-appendix.b">
+<section id="appendix-B">
       <h2 id="name-authors-address">
 <a href="#name-authors-address" class="section-name selfRef">Author's Address</a>
       </h2>

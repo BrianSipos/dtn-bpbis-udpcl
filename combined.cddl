@@ -1,6 +1,6 @@
 
 start = udpcl-ext-map
-        
+
 
 ; Map structure requiring non-zero-int keys.
 ; CDDL cannot enforce type-specific requirements about other items
@@ -13,12 +13,12 @@ udpcl-ext-map-structure = {
     * ext-key => any
 }
 ext-key = (int .size 2) .ne 0
-          
+
 
 $$udpcl-ext-item //= (
     5: null
 )
-            
+
 
 $$udpcl-ext-item //= (
     2: [
@@ -28,16 +28,15 @@ $$udpcl-ext-item //= (
         fragment-data: bstr,
     ]
 )
-              
+
 
 $$udpcl-ext-item //= (
     3: time-duration,
 )
 time-duration = uint
-            
+
 
 $$udpcl-ext-item //= (
     4: nodeid,
 )
 nodeid = tstr
-            
