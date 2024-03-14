@@ -1,0 +1,58 @@
+default:
+  # All jobs run within a target-like environment
+  image: docker-remote.artifactory.jhuapl.edu/ubuntu:22.04
+
+include:
+  # Run pipeline only on branches, not MRs
+  - template: 'Workflows/Branch-Pipelines.gitlab-ci.yml'
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  DEBIAN_FRONTEND: "noninteractive"
+  # for Python/PIP
+  PIP_CERT: /etc/ssl/certs/ca-certificates.crt
+  PIP_DEFAULT_TIMEOUT: "300"
+  # Project-spcific environment
+  XDG_CACHE_HOME: "$CI_PROJECT_DIR/.cache"
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+stages:
+  - build
+
+cache:
+  paths:
+    - .cache/pip
+
+.prep-install-ca: &prep-install-ca |
+  apt-get update && apt-get install -y ca-certificates curl
+  mkdir -p /usr/local/share/ca-certificates
+  curl -svL http://apllinuxdepot.jhuapl.edu/linux/APL-root-cert/JHUAPL-MS-Root-CA-05-21-2038-B64-text.cer -o /usr/local/share/ca-certificates/JHUAPL-MS-Root-CA-05-21-2038-B64-text.crt
+  update-ca-certificates
+
+.prep-install-pip: &prep-install-pip |
+  apt-get update && apt-get install -y python3 python3-venv python3-pip python3-wheel
+  pip3 install --upgrade pip
+  pip3 install pip-tools
+
+.prep-install-doctools: &prep-install-doctools |
+  apt-get install -y aspell cmake ruby ruby-dev xmlstarlet yajl-tools xml2rfc
+  pip3 install xml2rfc
+  gem install cddl
+
+ari-doc:
+  stage: build
+  rules:
+    - changes:
+      - .gitlab-ci.yml
+      - spec/*
+  before_script:
+    - *prep-install-ca
+    - *prep-install-pip
+    - *prep-install-doctools
+  script:
+    - cmake -S . -B build/default -DCMAKE_INSTALL_DOCDIR=$PWD/build/install
+    - cmake --build build/default -v
+    - cmake --install build/default
+  artifacts:
+    paths:
+      - "build/install"
