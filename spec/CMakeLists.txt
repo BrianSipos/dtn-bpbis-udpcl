@@ -127,7 +127,7 @@ else()
     add_custom_command(
         OUTPUT "${CDDLERRORS_TXT}"
         DEPENDS "${COMBINED_CDDL}"
-        COMMAND ${CDDLTOOL} "${COMBINED_CDDL}" generate 2>"${CDDLERRORS_TXT}" 1>&2 || true
+        COMMAND ${CDDLTOOL} "${COMBINED_CDDL}" generate 10 2>"${CDDLERRORS_TXT}" 1>&2 || true
     )
     add_custom_target(
         cddlerrors ALL
