@@ -498,7 +498,8 @@ To avoid a receiver mishandling redundant packets containing Transfer items (see
 For paths where losses over time are bursty, a low redundancy factor but high redundancy delay will ensure that the duplicated packets are transmitted over a longer span of time and (hopefully) do not have a correlated probability of loss.
           </t>
           <t>
-To avoid unnecessary processing on the receiver's BP Agent, when redundant transmission used the method of <xref target="sec-transfer"/> <bcp14>SHALL</bcp14> be used even for single-segment transfers so that the UDPCL entity can discard any duplicate receptions.
+To avoid unnecessary processing on the receiver's BP Agent, when redundant transmission is used the <xref target="sec-transfer">identified transfer</xref> mechanism <bcp14>SHALL</bcp14> be used even for single-segment transfers.
+This allows the UDPCL entity can discard any duplicate receptions before they reach the BP Agent.
 If redundant transmission is used with an unframed transfer the UDPCL has no ability to discard any duplicate receptions and all duplicates will be seen by the receiving BP Agent.
           </t>
         </section>
@@ -517,8 +518,8 @@ The message type is inferred by the inspecting the data contents according to th
           <dt>Bundle:</dt>
           <dd>
             <t>
-When sent outside of an explicit, identified transfer (see <xref target="sec-transfer"/>) an encoded bundle is treated as a separate message type.
-This is for compatibility with <xref target="RFC7122"/> but comes at the expense of the UDPCL not being able to de-duplicate any redundant transfers.
+When sent outside of an explicit <xref target="sec-transfer">identified transfer</xref> an encoded bundle is treated as a separate message type.
+This is for compatibility with <xref target="RFC7122"/> but comes at the expense of the UDPCL not being able to de-duplicate any <xref target="sec-packet-redundancy">redundant transfers</xref>.
             </t>
             <dl>
               <dt>BPv6 Bundle:</dt>
@@ -581,17 +582,17 @@ When inspecting using CBOR major types, the range of values is caused by the CBO
             <tr>
               <td>0x06</td>
               <td>BPv6 Bundle</td>
-              <td>End of self-delimited bundle encoding</td>
+              <td>Remainder of packet (to be decoded by BPA)</td>
             </tr>
             <tr>
-              <td>0x14--0x1A or 0x20--0x3F</td>
+              <td><t>0x14--0x1A or</t><t>0x20--0x3F</t></td>
               <td>DTLS Record</td>
               <td>Remainder of packet</td>
             </tr>
             <tr>
               <td>0x80--0x9F</td>
               <td>BPv7 Bundle (CBOR array)</td>
-              <td>End of array item (self-delimited bundle encoding)</td>
+              <td>Remainder of packet (to be decoded by BPA)</td>
             </tr>
             <tr>
               <td>0xA0--0xBF</td>
