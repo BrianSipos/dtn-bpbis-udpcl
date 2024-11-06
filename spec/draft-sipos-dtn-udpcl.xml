@@ -597,7 +597,7 @@ When inspecting using CBOR major types, the range of values is caused by the CBO
             <tr>
               <td>0xA0--0xBF</td>
               <td>Extension Map (CBOR map)</td>
-              <td>End of map item</td>
+              <td>End of map item, possibly followed by other map or padding</td>
             </tr>
             <tr>
               <td>others</td>
@@ -1463,7 +1463,7 @@ Registration procedures referred to in this section are defined in <xref target=
 This document allocates new routable multicast addresses for use with the UDPCL.
         </t>
         <t>
-Within the port registry of <xref target="IANA-IPv4-MCAST"/>, the sub-registry titled "Internetwork Control Block" has been updated to include the following address.
+Within the IPv4 multicast address registry of <xref target="IANA-IPv4-MCAST"/>, the sub-registry titled "Internetwork Control Block" has been updated to include the following address.
         </t>
         <table align="center">
           <thead>
@@ -1488,7 +1488,7 @@ Within the port registry of <xref target="IANA-IPv4-MCAST"/>, the sub-registry t
           </tbody>
         </table>
         <t>
-Within the port registry of <xref target="IANA-IPv6-MCAST"/>, the sub-registry titled "Variable Scope Multicast Addresses" has been updated to include the following address.
+Within the IPv6 multicast address registry of <xref target="IANA-IPv6-MCAST"/>, the sub-registry titled "Variable Scope Multicast Addresses" has been updated to include the following address.
         </t>
         <table align="center">
           <thead>
@@ -1520,47 +1520,25 @@ Within the port registry of <xref target="IANA-PORTS"/>, UDP port number 4556 ha
 This assignment to UDPCL is unchanged, but the assignment reference is updated to this specification.
 There is no UDPCL version indication on-the-wire but this specification is a superset of <xref target="RFC7122"/> and is fully backward compatible.
         </t>
+        <dl newline="true">
+          <dt>Service Name:</dt>
+          <dd>dtn-bundle</dd>
+          <dt>Transport Protocol(s):</dt>
+          <dd>UDP</dd>
+          <dt>Assignee:</dt>
+          <dd>IESG &lt;iesg@ietf.org&gt;</dd>
+          <dt>Contact:</dt>
+          <dd>IETF Chair &lt;chair@ietf.org&gt;</dd>
+          <dt>Description:</dt>
+          <dd>DTN Bundle UDP CL Protocol</dd>
+          <dt>Reference:</dt>
+          <dd>[This specification]</dd>
+          <dt>Port Number:</dt>
+          <dd>4556</dd>
+        </dl>
         <t>
 The related assignment for DCCP port 4556 (registered by <xref target="RFC7122"/>) is unchanged.
         </t>
-        <table align="center">
-          <thead>
-            <tr>
-              <th>Parameter</th>
-              <th>Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Service Name:</td>
-              <td>dtn-bundle</td>
-            </tr>
-            <tr>
-              <td>Transport Protocol(s):</td>
-              <td>UDP</td>
-            </tr>
-            <tr>
-              <td>Assignee:</td>
-              <td>IESG &lt;iesg@ietf.org&gt;</td>
-            </tr>
-            <tr>
-              <td>Contact:</td>
-              <td>IESG &lt;iesg@ietf.org&gt;</td>
-            </tr>
-            <tr>
-              <td>Description:</td>
-              <td>DTN Bundle UDP CL Protocol</td>
-            </tr>
-            <tr>
-              <td>Reference:</td>
-              <td>[This specification]</td>
-            </tr>
-            <tr>
-              <td>Port Number:</td>
-              <td>4556</td>
-            </tr>
-          </tbody>
-        </table>
       </section>
       <section anchor="sec-iana-extension-types">
         <name>UDPCL Extension Types</name>
