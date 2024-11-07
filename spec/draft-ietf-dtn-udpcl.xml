@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="std" consensus="true" docName="draft-sipos-dtn-udpcl-02" ipr="trust200902" submissionType="IETF" tocInclude="true" version="3" xml:lang="en">
+<rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="std" consensus="true" docName="draft-ietf-dtn-udpcl-00" ipr="trust200902" submissionType="IETF" tocInclude="true" version="3" xml:lang="en">
   <front>
     <title abbrev="DTN UDPCLv2">
       Delay-Tolerant Networking UDP Convergence Layer Protocol Version 2
     </title>
-    <seriesInfo name="Internet-Draft" value="draft-sipos-dtn-udpcl-02"/>
+    <seriesInfo name="Internet-Draft" value="draft-ietf-dtn-udpcl-00"/>
     <author fullname="Brian Sipos" initials="B." surname="Sipos">
       <organization abbrev="JHU/APL">The Johns Hopkins University Applied Physics Laboratory</organization>
       <address>
@@ -16,6 +16,12 @@
           <country>United States of America</country>
         </postal>
         <email>brian.sipos+ietf@gmail.com</email>
+      </address>
+    </author>
+    <author fullname="Joshua Deaton" initials="J." surname="Deaton">
+      <organization abbrev="SAIC">Science Applications International Corporation</organization>
+      <address>
+        <email>joshua.e.deaton@nasa.gov</email>
       </address>
     </author>
     <date/>
@@ -498,7 +504,8 @@ To avoid a receiver mishandling redundant packets containing Transfer items (see
 For paths where losses over time are bursty, a low redundancy factor but high redundancy delay will ensure that the duplicated packets are transmitted over a longer span of time and (hopefully) do not have a correlated probability of loss.
           </t>
           <t>
-To avoid unnecessary processing on the receiver's BP Agent, when redundant transmission used the method of <xref target="sec-transfer"/> <bcp14>SHALL</bcp14> be used even for single-segment transfers so that the UDPCL entity can discard any duplicate receptions.
+To avoid unnecessary processing on the receiver's BP Agent, when redundant transmission is used the <xref target="sec-transfer">identified transfer</xref> mechanism <bcp14>SHALL</bcp14> be used even for single-segment transfers.
+This allows the UDPCL entity can discard any duplicate receptions before they reach the BP Agent.
 If redundant transmission is used with an unframed transfer the UDPCL has no ability to discard any duplicate receptions and all duplicates will be seen by the receiving BP Agent.
           </t>
         </section>
@@ -517,8 +524,8 @@ The message type is inferred by the inspecting the data contents according to th
           <dt>Bundle:</dt>
           <dd>
             <t>
-When sent outside of an explicit, identified transfer (see <xref target="sec-transfer"/>) an encoded bundle is treated as a separate message type.
-This is for compatibility with <xref target="RFC7122"/> but comes at the expense of the UDPCL not being able to de-duplicate any redundant transfers.
+When sent outside of an explicit <xref target="sec-transfer">identified transfer</xref> an encoded bundle is treated as a separate message type.
+This is for compatibility with <xref target="RFC7122"/> but comes at the expense of the UDPCL not being able to de-duplicate any <xref target="sec-packet-redundancy">redundant transfers</xref>.
             </t>
             <dl>
               <dt>BPv6 Bundle:</dt>
@@ -581,22 +588,22 @@ When inspecting using CBOR major types, the range of values is caused by the CBO
             <tr>
               <td>0x06</td>
               <td>BPv6 Bundle</td>
-              <td>End of self-delimited bundle encoding</td>
+              <td>Remainder of packet (to be decoded by BPA)</td>
             </tr>
             <tr>
-              <td>0x14--0x1A or 0x20--0x3F</td>
+              <td><t>0x14--0x1A or</t><t>0x20--0x3F</t></td>
               <td>DTLS Record</td>
               <td>Remainder of packet</td>
             </tr>
             <tr>
               <td>0x80--0x9F</td>
               <td>BPv7 Bundle (CBOR array)</td>
-              <td>End of array item (self-delimited bundle encoding)</td>
+              <td>Remainder of packet (to be decoded by BPA)</td>
             </tr>
             <tr>
               <td>0xA0--0xBF</td>
               <td>Extension Map (CBOR map)</td>
-              <td>End of map item</td>
+              <td>End of map item, possibly followed by other map or padding</td>
             </tr>
             <tr>
               <td>others</td>
@@ -1462,7 +1469,7 @@ Registration procedures referred to in this section are defined in <xref target=
 This document allocates new routable multicast addresses for use with the UDPCL.
         </t>
         <t>
-Within the port registry of <xref target="IANA-IPv4-MCAST"/>, the sub-registry titled "Internetwork Control Block" has been updated to include the following address.
+Within the IPv4 multicast address registry of <xref target="IANA-IPv4-MCAST"/>, the sub-registry titled "Internetwork Control Block" has been updated to include the following address.
         </t>
         <table align="center">
           <thead>
@@ -1487,7 +1494,7 @@ Within the port registry of <xref target="IANA-IPv4-MCAST"/>, the sub-registry t
           </tbody>
         </table>
         <t>
-Within the port registry of <xref target="IANA-IPv6-MCAST"/>, the sub-registry titled "Variable Scope Multicast Addresses" has been updated to include the following address.
+Within the IPv6 multicast address registry of <xref target="IANA-IPv6-MCAST"/>, the sub-registry titled "Variable Scope Multicast Addresses" has been updated to include the following address.
         </t>
         <table align="center">
           <thead>
@@ -1519,47 +1526,25 @@ Within the port registry of <xref target="IANA-PORTS"/>, UDP port number 4556 ha
 This assignment to UDPCL is unchanged, but the assignment reference is updated to this specification.
 There is no UDPCL version indication on-the-wire but this specification is a superset of <xref target="RFC7122"/> and is fully backward compatible.
         </t>
+        <dl newline="true">
+          <dt>Service Name:</dt>
+          <dd>dtn-bundle</dd>
+          <dt>Transport Protocol(s):</dt>
+          <dd>UDP</dd>
+          <dt>Assignee:</dt>
+          <dd>IESG &lt;iesg@ietf.org&gt;</dd>
+          <dt>Contact:</dt>
+          <dd>IETF Chair &lt;chair@ietf.org&gt;</dd>
+          <dt>Description:</dt>
+          <dd>DTN Bundle UDP CL Protocol</dd>
+          <dt>Reference:</dt>
+          <dd>[This specification]</dd>
+          <dt>Port Number:</dt>
+          <dd>4556</dd>
+        </dl>
         <t>
 The related assignment for DCCP port 4556 (registered by <xref target="RFC7122"/>) is unchanged.
         </t>
-        <table align="center">
-          <thead>
-            <tr>
-              <th>Parameter</th>
-              <th>Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Service Name:</td>
-              <td>dtn-bundle</td>
-            </tr>
-            <tr>
-              <td>Transport Protocol(s):</td>
-              <td>UDP</td>
-            </tr>
-            <tr>
-              <td>Assignee:</td>
-              <td>IESG &lt;iesg@ietf.org&gt;</td>
-            </tr>
-            <tr>
-              <td>Contact:</td>
-              <td>IESG &lt;iesg@ietf.org&gt;</td>
-            </tr>
-            <tr>
-              <td>Description:</td>
-              <td>DTN Bundle UDP CL Protocol</td>
-            </tr>
-            <tr>
-              <td>Reference:</td>
-              <td>[This specification]</td>
-            </tr>
-            <tr>
-              <td>Port Number:</td>
-              <td>4556</td>
-            </tr>
-          </tbody>
-        </table>
       </section>
       <section anchor="sec-iana-extension-types">
         <name>UDPCL Extension Types</name>
