@@ -18,6 +18,12 @@
         <email>brian.sipos+ietf@gmail.com</email>
       </address>
     </author>
+    <author fullname="Joshua Deaton" initials="J." surname="Deaton">
+      <organization abbrev="SAIC">Science Applications International Corporation</organization>
+      <address>
+        <email>joshua.e.deaton@nasa.gov</email>
+      </address>
+    </author>
     <date/>
     <area>Transport</area>
     <workgroup>Delay-Tolerant Networking</workgroup>
