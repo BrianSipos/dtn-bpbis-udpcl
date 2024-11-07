@@ -2,9 +2,9 @@
 
 Source for for UDPCLbis draft document.
 
-The final specification is hosted at [draft-sipos-dtn-udpcl](https://datatracker.ietf.org/doc/draft-sipos-dtn-udpcl/).
+The final specification is hosted at [draft-ietf-dtn-udpcl](https://datatracker.ietf.org/doc/draft-ietf-dtn-udpcl/).
 
-A local build of the current main branch is available [draft-sipos-dtn-udpcl.html](https://briansipos.github.io/dtn-bpbis-udpcl/draft-sipos-dtn-udpcl.html).
+A local build of the current main branch is available [draft-ietf-dtn-udpcl.html](https://briansipos.github.io/dtn-bpbis-udpcl/draft-ietf-dtn-udpcl.html).
 
 Prerequisites to building can be installed on Ubuntu with:
 ```
