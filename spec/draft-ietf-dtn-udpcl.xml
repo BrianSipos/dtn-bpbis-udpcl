@@ -632,13 +632,13 @@ Receivers <bcp14>SHALL</bcp14> ignore extension items with unknown Extension ID 
 ; CDDL cannot enforce type-specific requirements about other items
 ; being present (or not present) in the same map.
 udpcl-ext-map = $udpcl-ext-map .within udpcl-ext-map-structure
-$udpcl-ext-map = {
+$udpcl-ext-map /= {
     + $$udpcl-ext-item
 }
 udpcl-ext-map-structure = {
     + ext-key =&gt; any
 }
-ext-key = ((-32768 .. 32767) .within int) .ne 0
+ext-key = (-32768 .. 32767) .ne 0
           </sourcecode>
         </figure>
         <t>
@@ -1027,7 +1027,7 @@ A transmitting entity <bcp14>SHALL NOT</bcp14> produce Transfer segments with ov
 A transmitting entity <bcp14>SHOULD</bcp14> transmit Transfer segments in order of Segment Offset; this makes the behavior deterministic.
           </t>
           <t>
-A receving entity <bcp14>SHALL</bcp14> maintain transfer reassembly state based on the tuple of packet source address-and-port and the Transfer ID sent by that source.
+A receiving entity <bcp14>SHALL</bcp14> maintain transfer reassembly state based on the tuple of packet source address-and-port and the Transfer ID sent by that source.
 This relies on the stability of source port numbers at least for the duration of a single transfer, as required by <xref target="sec-ext-transfer"/>.
 See <xref target="sec-policy-udp-convo"/> for options and implications of source port number use.
           </t>
