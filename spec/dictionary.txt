@@ -3,6 +3,7 @@ ACK
 acknowledgement
 acknowledgements
 anycast
+APL
 AQM
 BCP
 BER
@@ -55,11 +56,13 @@ IESG
 IETF
 incrementing
 INIT
+Internetwork
 interoperation
 IPADDR
 iPAddress
 IPsec
 IPv
+JHU
 keepalive
 Keepalive
 kp
@@ -97,6 +100,7 @@ Retransmit
 retransmitted
 RKF
 routable
+RTT
 Scalable
 SMI
 SSL
