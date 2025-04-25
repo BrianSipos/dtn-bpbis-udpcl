@@ -343,7 +343,7 @@ Because of the issues listed in <xref section="3.2" target="RFC8085"/> and <xref
         </ol>
         <t>
 A UDPCL entity <bcp14>SHOULD NOT</bcp14> proactively drop an outgoing transfer due to datagram size.
-If intermediate network nodes drop IP packets it is an implementation matter to receive network feedback (e.g. ICMP <em>Fragmentation Needed</em> of <xref target="RFC792"/> or ICMPv6 <em>Packet Too Big</em> of <xref section="3.2" target="RFC4443"/>).
+If intermediate network nodes drop IP packets it is an implementation matter to receive network feedback (e.g. ICMP <em>Fragmentation Needed</em> of <xref target="RFC792"/> for IPv4 or ICMPv6 <em>Packet Too Big</em> of <xref section="3.2" target="RFC4443"/> for IPv6).
 The UDPCL itself provides no transfer acknowledgement mechanism or other protocol-level reception feedback other than the optional <xref format="title" target="sec-plpmtud"/> procedure, which is why an accurate PMTU for a peer is critical information.
         </t>
       </section>
@@ -618,7 +618,7 @@ When inspecting using CBOR major types, the range of values is caused by the CBO
         <t>
 Extensions to UDPCL are encoded per-datagram in a single CBOR map as defined in <xref target="sec-udpcl-message"/>.
 Each UDPCL extension item <bcp14>SHALL</bcp14> be identified by a unique Extension ID used as a key in the Extension Map.
-Extension ID values <bcp14>SHALL</bcp14> be a CBOR <tt>int</tt> item which fits within a signed 16-bit integer.
+Extension ID values <bcp14>SHALL</bcp14> be an <tt>int</tt> item which fits within a signed 16-bit integer.
 Extension ID assignments are listed in <xref target="sec-iana-extension-types"/>.
         </t>
         <t>
@@ -650,7 +650,7 @@ The following subsections define the initial UDPCL extension types.
 This extension allows an entity to signal its support for receiving specific UDPCL extension types.
           </t>
           <t>
-The Extension Support value <bcp14>SHALL</bcp14> be a CBOR array of <tt>int</tt> items.
+The Extension Support value <bcp14>SHALL</bcp14> be an array of <tt>int</tt> items.
 Each item <bcp14>SHALL</bcp14> represent an extension type code which is able to be handled by the entity sending the Extension Support.
           </t>
           <t>
@@ -675,7 +675,7 @@ The enveloping UDPCL packet <bcp14>SHALL</bcp14> use the source address-and-port
         <section anchor="sec-ext-transfer">
           <name>Transfer</name>
           <t>
-This extension item allows CL-layer segmentation of bundle transfers as defined in <xref target="sec-transfer"/>.
+This extension item allows identification and segmentation of bundle transfers as defined in <xref target="sec-transfer"/>.
           </t>
           <t>
 The Transfer value <bcp14>SHALL</bcp14> be an untagged CBOR array of two or four items.
@@ -684,23 +684,26 @@ The items are defined in the following order:
           <dl>
             <dt>Transfer ID:</dt>
             <dd>
-This field <bcp14>SHALL</bcp14> be a CBOR <tt>uint</tt> item no larger than 32-bits, which is used to correlate multiple segments.
+This field <bcp14>SHALL</bcp14> be a <tt>uint</tt> item.
+This value is used to correlate multiple segments from the same source address-and-port.
+More specific requirements on the uniqueness of this field are given in <xref target="sec-transfer-id"/>.
             </dd>
             <dt>Total Length:</dt>
             <dd>
-This optional field <bcp14>SHALL</bcp14> be a CBOR <tt>uint</tt> item no larger than 32-bits, which is used to indicate the total length (in octets) of the transfer.
+This optional field <bcp14>SHALL</bcp14> be a <tt>uint</tt> item, which is used to indicate the total length (in octets) of the transfer.
 If multiple Transfer items for the same Transfer ID are received with differing Total Length values, the receiver <bcp14>SHALL</bcp14> treat the transfer as being malformed and refuse to handle any further segments associated with the transfer.
 If a transfer requires only a single segment, this field <bcp14>SHALL</bcp14> be omitted and the total length treated as the size of the Segment Data.
             </dd>
             <dt>Segment Offset:</dt>
             <dd>
-This optional field <bcp14>SHALL</bcp14> be a CBOR <tt>uint</tt> item no larger than 32-bits, which is used to indicate the offset (in octets) into the transfer for the start of this segment.
+This optional field <bcp14>SHALL</bcp14> be a <tt>uint</tt> item, which is used to indicate the offset (in octets) into the transfer for the start of this segment.
 If a transfer requires only a single segment, this field <bcp14>SHALL</bcp14> be omitted and the segment offset treated as zero.
             </dd>
             <dt>Segment Data:</dt>
             <dd>
-This field <bcp14>SHALL</bcp14> be a CBOR bstr item no larger than 2^32-1 octets, in which the segment data is contained.
-The <tt>bstr</tt> itself indicates the length of the segment data.
+This field <bcp14>SHALL</bcp14> be a <tt>bstr</tt> item, in which the segment data is contained.
+The <tt>bstr</tt> item itself indicates the length of the segment data.
+Per requirements in <xref target="sec-transfer-segmentation"/> the size of the segment data will be limited so that the entire UDPCL packet fits within the PMTU size.
             </dd>
           </dl>
           <figure>
@@ -708,10 +711,10 @@ The <tt>bstr</tt> itself indicates the length of the segment data.
             <sourcecode type="cddl">
 $$udpcl-ext-item //= (
     2: [
-        transfer-id: uint .size 4,
+        transfer-id: uint,
         ?(
-            total-length: uint .size 4,
-            segment-offset: uint .size 4,
+            total-length: uint,
+            segment-offset: uint,
         ),
         segment-data: bstr,
     ]
@@ -719,7 +722,7 @@ $$udpcl-ext-item //= (
               </sourcecode>
           </figure>
           <t>
-Multiple Transfer items <bcp14>MAY</bcp14> be present in the same UDPCL packet by concatenating multiple Extension Map into one packet.
+Multiple Transfer items <bcp14>MAY</bcp14> be present in the same UDPCL packet by concatenating multiple Extension Map items into the packet.
           </t>
           <t>
 A transmitting entity <bcp14>SHALL</bcp14> use the same source and destination address-and-port for all UDPCL packets comprising a single segmented transfer.
@@ -791,6 +794,7 @@ nodeid = tstr
           <t>
 An entity <bcp14>SHOULD NOT</bcp14> include a Sender Node ID item if a DTLS session has already been established and the presented end-entity certificate contains a single NODE-ID.
 In this case there is no ambiguity about which Node ID is identified by the certificate.
+Otherwise, after DTLS session establishment and before initiating any transfers an entity <bcp14>SHALL</bcp14> include a Sender Node ID to allow its peer to authenticate its desired identity.
           </t>
           <t>
 If an entity receives a peer Node ID which is not authenticated (by the procedure of <xref target="sec-dtls-authentication"/>) that Node ID <bcp14>SHOULD NOT</bcp14> be used by a BP agent for any discovery or routing functions.
@@ -988,7 +992,7 @@ Because this extension type will only be used for feedback to a specific transmi
       <section anchor="sec-transfer">
         <name>Identified Transfers</name>
         <t>
-This version of UDPCL supports CL-layer identification of bundles and segmentation of bundles larger than the PMTU would otherwise allow.
+This version of UDPCL supports explicit identification of bundle transfers and segmentation of bundles larger than the PMTU would otherwise allow.
 Policies related to segmentation at or fragmentation above, or below the UDPCL layer are defined in <xref target="sec-policy-fragmentation"/>.
 The entire segmented bundle is referred to as a Transfer and individual segments of a transfer are encoded as Transfer extension items in accordance with <xref target="sec-ext-transfer"/>.
         </t>
@@ -999,12 +1003,12 @@ This specification does not define any extension items which augment an associat
         <section anchor="sec-transfer-id">
           <name>Bundle Transfer ID</name>
           <t>
-Each Transfer item contains a Transfer ID which is used to correlate messages for a single bundle transfer.
+Each Transfer item contains a Transfer ID which is used to correlate messages for a single bundle transfer from a single source.
 A Transfer ID does not attempt to address uniqueness of the bundle data itself and has no relation to concepts such as bundle fragmentation.
-Each invocation of UDPCL by the BP agent, requesting transmission of a bundle (fragmentary or otherwise), can cause the initiation of a single UDPCL transfer.
+Each invocation of UDPCL by the BP agent requesting transmission of a bundle PDU (fragmentary or otherwise), can cause the initiation of a single UDPCL transfer.
           </t>
           <t>
-Because UDPCL operation is connectionless, Transfer IDs from each entity <bcp14>SHALL</bcp14> be unique for the operating duration of the entity.
+Because UDPCL operation is connectionless, Transfer IDs from each transmitting entity <bcp14>SHOULD</bcp14> be unique for the operating duration of the entity.
 In practice, the ID needs only be unique for the longest receiver de-duplication and reassembly time window; but because that information is not part of the protocol there is no way for an transmitting entity to know the reassembly time window of any receiver (see <xref target="sec-transfer-segmentation"/>).
 When there are bidirectional bundle transfers between UDPCL entities, an entity <bcp14>SHOULD NOT</bcp14> rely on any relation between Transfer IDs originating from each side of the conversation.
           </t>
@@ -1012,27 +1016,37 @@ When there are bidirectional bundle transfers between UDPCL entities, an entity 
 Although there is not a strict requirement for Transfer ID initial values or ordering (see <xref target="sec-security-xferid"/>), in the absence of any other mechanism for generating Transfer IDs an entity <bcp14>SHALL</bcp14> use the following algorithm:
 the initial Transfer ID from each entity is zero;
 subsequent Transfer ID values are incremented from the prior Transfer ID value by one;
-upon exhaustion of the entire 32-bit Transfer ID space, the subsequent Transfer ID value is zero.
+upon exhaustion of the entire 64-bit Transfer ID space, the subsequent Transfer ID value is zero.
           </t>
         </section>
         <section anchor="sec-transfer-segmentation">
           <name>Segmentation and Reassembly</name>
           <t>
-The full data content of a transfer <bcp14>SHALL</bcp14> be an unframed (BPv6 or BPv7) bundle as defined in <xref target="sec-udpcl-message"/>.
-A receiving entity <bcp14>SHALL</bcp14> discard any reassembled transfer which does not properly contain a bundle as defined in <xref target="sec-udpcl-message"/>.
+The full data content of a transfer <bcp14>SHALL</bcp14> be an unframed (BPv6 or BPv7) bundle PDU as defined in <xref target="sec-udpcl-message"/>.
+A receiving entity <bcp14>SHALL</bcp14> discard any reassembled transfer which does not properly contain a bundle, based on the initial octets of the PDU, as defined in <xref target="sec-udpcl-message"/>.
           </t>
           <t>
-A transmitting entity <bcp14>MAY</bcp14> produce a Transfer with a single segment (i.e., a Segment Data size identical to the Total Length) in which case the redundant Transfer fields are omitted.
+The size of each Segment Data within a transfer <bcp14>SHALL</bcp14> be chosen so that the entire encoded Extension Map and the UDPCL packet in which it is contained fits within a transfer maximum transmit unit (TMTU) size.
+The TMTU needs to be supplied to the transmitting entity either via direct configuration, introspecting the operating system for PMTU information associated with a destination, or can be matched to a PMTU estimated using the procedure in <xref target="sec-plpmtud"/>.
+It is an implementation matter to determine what TMTU to apply to each segmented transfer, including the option to deliberately choose a TMTU larger than the associated PMTU which will cause IP fragmentation (see <xref target="sec-policy-fragmentation"/>).
+          </t>
+          <t>
+A transmitting entity can produce a Transfer with a single segment (i.e., a Segment Data size identical to the Total Length) in which case the redundant fields Total Length and Segment Offset <bcp14>SHALL</bcp14> be omitted.
 A transmitting entity <bcp14>SHALL NOT</bcp14> produce Transfer segments with overlapping span.
 A transmitting entity <bcp14>SHOULD</bcp14> transmit Transfer segments in order of Segment Offset; this makes the behavior deterministic.
           </t>
           <t>
-A receiving entity <bcp14>SHALL</bcp14> maintain transfer reassembly state based on the tuple of packet source address-and-port and the Transfer ID sent by that source.
+A receiving entity <bcp14>SHALL</bcp14> maintain transfer reassembly state based on the tuple of packet source address-and-port and the Transfer ID created by that source.
 This relies on the stability of source port numbers at least for the duration of a single transfer, as required by <xref target="sec-ext-transfer"/>.
 See <xref target="sec-policy-udp-convo"/> for options and implications of source port number use.
           </t>
           <t>
+A single UDPCL entity <bcp14>MAY</bcp14> transmit packets from multiple source address-and-port combinations but these will be treated as separate namespaces for the purposes of Transfer ID correlation and reassembly.
+A receiving entity <bcp14>SHALL NOT</bcp14> attempt to correlate peer identity or state across multiple source address-and-port combinations.
+          </t>
+          <t>
 Because of the nature of UDP transport, there is no guaranteed order or timing of received Transfer items.
+A receiving entity <bcp14>SHALL NOT</bcp14> assume any specific reception order of segments for the same transfer.
 A receiving entity <bcp14>SHALL</bcp14> consider a transport as finished when Segment Data has been received which fully covers the Total Length of the transfer.
           </t>
           <t>
@@ -1236,7 +1250,8 @@ All messaging in this example occurs between the same Entity A address-and-port 
           </t>
           <t>
 The example Entity A has a policy to only send or receive bundles within a DTLS session, so any outgoing bundles to Entity B are queued until the DTLS session is established.
-Because Entity A is willing to accept transfers on its ephemeral UDP port, the first outgoing message after the DTLS handshake contains the Sender Listen extension (along with a Sender Node ID indicating its identity to Entity B).
+Because Entity A is willing to accept transfers on its ephemeral UDP port, the first outgoing message after the DTLS handshake contains the Sender Listen extension along with a Sender Node ID indicating its identity to Entity B.
+Likewise, the first outgoing message from Entity B after the DTLS handshake contains a Sender Node ID indicating its identity to Entity A.
           </t>
           <figure anchor="fig-conversation-example">
             <name>An example of the flow of protocol messages on a single UDP conversation between two entities</name>
@@ -1256,18 +1271,19 @@ Because Entity A is willing to accept transfers on its ephemeral UDP port, the f
                Secured UDPCL messaging can begin.
 
 +-------------------------+
-|   Sender Listen Ext.    | -&gt;
-|   Sender Node ID Ext.   |
-+-------------------------+
+|   Sender Listen Ext.    | -&gt;      +-------------------------+
+|   Sender Node ID Ext.   |      &lt;- |   Sender Node ID Ext.   |
+|  Extension Support Ext. |         |  Extension Support Ext. |
++-------------------------+         +-------------------------+
 
                   NODE-ID authentication occurs.
-         DTLS session is established, transfers can begin.
+                   Secured transfers can begin.
 
 +-------------------------+
 |    Unframed Transfer    | -&gt;      +-------------------------+
 +-------------------------+      &lt;- |    Unframed Transfer    |
 +-------------------------+         +-------------------------+
-|    Unframed Transfer    | -&gt;
+|   Identified Transfer   | -&gt;
 +-------------------------+
 </artwork>
           </figure>
