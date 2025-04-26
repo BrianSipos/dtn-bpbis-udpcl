@@ -1041,7 +1041,7 @@ This relies on the stability of source port numbers at least for the duration of
 See <xref target="sec-policy-udp-convo"/> for options and implications of source port number use.
           </t>
           <t>
-A single UDPCL entity <bcp14>MAY</bcp14> transmit packets from multiple source address-and-port combinations but these will be treated as separate namespaces for the purposes of Transfer ID correlation and reassembly.
+A single UDPCL entity <bcp14>MAY</bcp14> transmit packets from multiple source address-and-port combinations but these will be treated as separate scopes for the purposes of Transfer ID correlation and reassembly.
 A receiving entity <bcp14>SHALL NOT</bcp14> attempt to correlate peer identity or state across multiple source address-and-port combinations.
           </t>
           <t>
