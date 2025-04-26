@@ -703,7 +703,7 @@ If a transfer requires only a single segment, this field <bcp14>SHALL</bcp14> be
             <dd>
 This field <bcp14>SHALL</bcp14> be a <tt>bstr</tt> item, in which the segment data is contained.
 The <tt>bstr</tt> item itself indicates the length of the segment data.
-Per requirements in <xref target="sec-transfer-segmentation"/> the size of the segment data will be limited so that the entire UDPCL packet fits within the PMTU size.
+Per requirements in <xref target="sec-transfer-segmentation"/> the size of the segment data will be limited so that the entire UDPCL packet fits within a size limit.
             </dd>
           </dl>
           <figure>
