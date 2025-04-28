@@ -81,6 +81,7 @@ nodeid
 OCSP
 packetization
 PCH
+PDU
 pipelining
 Pipelining
 PKI
@@ -112,6 +113,7 @@ TCP
 TCPCL
 teardown
 TLS
+TMTU
 tstr
 UDP
 udpcl
