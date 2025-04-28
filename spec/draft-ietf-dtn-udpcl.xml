@@ -1018,6 +1018,10 @@ the initial Transfer ID from each entity is zero;
 subsequent Transfer ID values are incremented from the prior Transfer ID value by one;
 upon exhaustion of the entire 64-bit Transfer ID space, the subsequent Transfer ID value is zero.
           </t>
+          <t>
+A transmitting entity <bcp14>MAY</bcp14> use a smaller range of valid Transfer ID values to reduce encoded size, or partitions of ranges to delegate transfer logic.
+A receiving entity <bcp14>SHALL NOT</bcp14> assume or rely on a specific limited range of Transfer ID when correlating messages.
+          </t>
         </section>
         <section anchor="sec-transfer-segmentation">
           <name>Segmentation and Reassembly</name>
