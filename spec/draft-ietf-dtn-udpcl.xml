@@ -616,12 +616,13 @@ When inspecting using CBOR major types, the range of values is caused by the CBO
       <section anchor="sec-udpcl-extension">
         <name>UDPCL Extension Items</name>
         <t>
-Extensions to UDPCL are encoded per-datagram in a single CBOR map as defined in <xref target="sec-udpcl-message"/>.
+Extensions to UDPCL are encoded per-message in a single CBOR map as defined in <xref target="sec-udpcl-message"/>.
 Each UDPCL extension item <bcp14>SHALL</bcp14> be identified by a unique Extension ID used as a key in the Extension Map.
 Extension ID values <bcp14>SHALL</bcp14> be an <tt>int</tt> item which fits within a signed 16-bit integer.
 Extension ID assignments are listed in <xref target="sec-iana-extension-types"/>.
         </t>
         <t>
+Because of this structure, a single Extension Map can contain only zero or one of each Extension ID.
 Unless prohibited by particular extension type requirements, a single Extension Map <bcp14>MAY</bcp14> contain any combination of extension items.
 Receivers <bcp14>SHALL</bcp14> ignore extension items with unknown Extension ID and continue to process known extension items.
         </t>
