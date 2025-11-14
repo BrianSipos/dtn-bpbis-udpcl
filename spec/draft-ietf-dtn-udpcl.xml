@@ -255,18 +255,25 @@ Because of potential queueing or DTLS setup time, this can be delayed from the B
 The UDPCL entity indicates to the BPA when a bundle has been fully transmitted.
 This is not a positive indication that any next-hop receiver has either received or processed the transfer.
           </dd>
+          <dt>Cancel Transmission:</dt>
+          <dd>
+The UDPCL allows a BPA to cancel a long-running transmission, likely associated with an identified transfer.
+Because UDPCL transfers are unacknowledged, canceling a transmission means simply stop sending UDPCL messages associated with that transmission.
+One outcome of a BPA canceling a transmission before all of its associated messages have been sent is the receiver simply timing out and failing the reception (see <xref target="sec-transfer-segmentation"/>).
+Another possible outcome, if the transmission is short enough, is that all associated messages have already been sent by that time and the entity does nothing.
+          </dd>
           <dt>Reception Started:</dt>
           <dd>
-The UDPCL entity indicates to the BPA when a bundle transfer has begun, which can include information about the total size of a segmented transfer.
+The UDPCL entity indicates to the BPA when a bundle transfer has begun, which can include information about the total size of a segmented transfer and the network parameters associated with the reception (<em>e.g.</em>, IP addresses, UDP port numbers, local interface identifier).
           </dd>
           <dt>Reception Success:</dt>
           <dd>
 The UDPCL entity indicates to the BPA when a bundle has been fully transferred from a peer entity.
-The transmitter of each transfer is identified by a (source) IP address, a UDP port number, and an optional local interface identifier (see <xref target="sec-operation"/> for details).
+The transmitter of each transfer is identified by network parameters associated with the reception.
           </dd>
           <dt>Reception Failure:</dt>
           <dd>
-The UDPCL entity indicates to the BPA on certain reasons for reception failure, notably upon an unfinished transfer timeout (see <xref target="sec-ext-transfer"/>).
+The UDPCL entity indicates to the BPA on certain reasons for reception failure, notably upon an unfinished transfer timeout (see <xref target="sec-transfer-segmentation"/>).
           </dd>
           <dt>Attempt DTLS Session:</dt>
           <dd>
@@ -285,8 +292,8 @@ The possible DTLS session states are defined in <xref target="RFC9147"/>.
           </dd>
           <dt>Begin Sender Listen:</dt>
           <dd>
-The UDPCL allows a BPA to indicate when packets on a particular address-and-port is listened for (see <xref target="sec-ext-sender-listen"/>).
-The Sender Listen interval is configurable for each peer address-and-port.
+The UDPCL allows a BPA to indicate when packets on a particular address-and-port is listened for.
+This includes configuring the local network stack to do the listening as well as optionally sending <xref target="sec-ext-sender-listen">Sender Listen</xref> items to indicate this state.
           </dd>
           <dt>End Sender Listen:</dt>
           <dd>
@@ -788,7 +795,7 @@ An entity <bcp14>SHALL NOT</bcp14> transmit a Sender Listen item before or along
           </t>
           <t>
 This extension is not a neighbor discovery mechanism and does not indicate an entity listening generally on a particular UDP port.
-Sender Listen applies only to UDP datagrams from the the peer address-and-port.
+Sender Listen applies only to UDP datagrams from the the source address-and-port, and does not express information about any other addresses or ports used by the sending node.
           </t>
         </section>
         <section anchor="sec-ext-sender-nodeid">
