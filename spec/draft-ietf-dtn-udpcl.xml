@@ -53,7 +53,7 @@ This convergence layer is referred to as UDP Convergence Layer (UDPCL).
 For the remainder of this document, the abbreviation "BP" without the version suffix refers to BPv7.
       </t>
       <t>
-The locations of the UDPCL and the Bundle Protocol in the Internet model protocol stack (described in <xref target="RFC1122"/>) are shown in <xref target="fig-udpcl-ip-stack"/>.
+The locations of the UDPCL and the Bundle Protocol in the Internet Protocol Suite Model (described in <xref target="RFC1122"/> and <xref target="RFC1123"/>) are shown in <xref target="fig-udpcl-ip-stack"/>.
 In particular, when BP is using UDP as its bearer with UDPCL as its convergence layer, both BP and UDPCL reside at the application layer of the Internet model.
       </t>
       <figure anchor="fig-udpcl-ip-stack">
@@ -143,7 +143,7 @@ This section contains definitions specific to the UDPCL protocol.
 This is the notional UDPCL application that initiates UDPCL transfers.
 This design, implementation, configuration, and specific behavior of such an entity is outside of the scope of this document.
 However, the concept of an entity has utility within the scope of this document as the container and initiator of transfers.
-The relationship between a UDPCL entity and UDPCL sessions is defined as follows:
+The relationship between a UDPCL entity and UDPCL conversations is defined as follows:
             </t>
             <ul spacing="normal">
               <li>
