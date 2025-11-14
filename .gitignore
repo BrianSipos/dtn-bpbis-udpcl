@@ -1,6 +1,7 @@
 .project
 .cproject
 .pydevproject
+.externalToolBuilders/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
