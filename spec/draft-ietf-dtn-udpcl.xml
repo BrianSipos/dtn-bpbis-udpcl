@@ -140,7 +140,7 @@ This specification does not make use of CDDL rules from BP <xref target="RFC9171
       <section anchor="sec-terminology">
         <name>Terminology</name>
         <t>
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 <xref target="RFC2119"/> <xref target="RFC8174"/> when, and only when, they appear in all capitals, as shown here.
+The key words "<bcp14>MUST</bcp14>", "<bcp14>MUST NOT</bcp14>", "<bcp14>REQUIRED</bcp14>", "<bcp14>SHALL</bcp14>", "<bcp14>SHALL NOT</bcp14>", "<bcp14>SHOULD</bcp14>", "<bcp14>SHOULD NOT</bcp14>", "<bcp14>RECOMMENDED</bcp14>", "<bcp14>NOT RECOMMENDED</bcp14>", "<bcp14>MAY</bcp14>", and "<bcp14>OPTIONAL</bcp14>" in this document are to be interpreted as described in BCP 14 <xref target="RFC2119"/> <xref target="RFC8174"/> when, and only when, they appear in all capitals, as shown here.
         </t>
         <t>
 The following are definitions specific to the UDPCL protocol.
@@ -372,7 +372,7 @@ A UDP receiver <bcp14>SHALL NOT</bcp14> disable the checking of received UDP che
         <t>
 Even when UDP checksums are enabled, a small probability of UDP packet corruption remains.
 In some environments, it could be acceptable for a BPA to occasionally receive corrupted input for some blocks.
-In general, however, a BPA is RECOMMENDED to ensure the a bundle's blocks are covered by a CRC so that next-hop receivers can verify the block contents.
+In general, however, a BPA is recommended to ensure the a bundle's blocks are covered by a CRC so that next-hop receivers can verify the block contents.
         </t>
       </section>
       <section anchor="sec-policy-cc">
@@ -669,18 +669,31 @@ The following subsections define the initial UDPCL extension types.
 This extension allows an entity to signal its support for receiving specific UDPCL extension types.
           </t>
           <t>
-The Extension Support value <bcp14>SHALL</bcp14> be an array of <tt>int</tt> items.
-Each item <bcp14>SHALL</bcp14> represent an extension type code which is able to be handled by the entity sending the Extension Support.
+The Extension Support value <bcp14>SHALL</bcp14> be an array of pairs of items representing intervals of included values.
+The first item of the array is the least included value, followed by the number of included values.
+Additional pairs of values represent the number of excluded values followed by the number of included values.
+Each included value <bcp14>SHALL</bcp14> represent an extension type code which is able to be handled by the entity sending the Extension Support.
           </t>
           <t>
-The minimum set of Extension Support <bcp14>SHOULD</bcp14> contain values 1 through 8 inclusive, which are the extension types defined in this document.
+The minimum set of Extension Support <bcp14>SHOULD</bcp14> include values 1 through 8 inclusive, which are the extension types defined in this document.
+This minimum is represented, in the CBOR diagnostic notation, by <tt>[1, 8]</tt> and the largest valid range of support is represented by <tt>[-32768, 65536]</tt>.
           </t>
           <figure>
             <name>Extension Support CDDL</name>
             <sourcecode type="cddl">
 $$udpcl-ext-item //= (
-    1: [ + ext-key ]
+    1: [
+        ; first interval pair
+        least: ext-key,
+        incl: ext-key-offset,
+        * (
+            ; other disjoint interval pairs
+            excl: ext-key-offset,
+            incl: ext-key-offset,
+        )
+    ]
 )
+ext-key-offset = uint .le 65536
             </sourcecode>
           </figure>
           <t>
@@ -764,7 +777,7 @@ This repetition continues until the entity is no longer willing to listen for pa
           </t>
           <t>
 A receiving entity <bcp14>SHOULD</bcp14> treat a peer as no longer listening after an implementation-defined timeout since the last received Sender Listen item.
-A RECOMMENDED Sender Listen timeout is three (3) times the associated time duration; this allows a single dropped datagram to not interrupt a continuous sequence.
+A <bcp14>RECOMMENDED</bcp14> Sender Listen timeout is three (3) times the associated time duration; this allows a single dropped datagram to not interrupt a continuous sequence.
           </t>
           <figure>
             <name>Sender Listen CDDL</name>
@@ -798,7 +811,7 @@ This extension item indicates the Node ID of the transmitter.
 For DTLS-secured sessions (see <xref target="sec-dtls-authentication"/>) this extension can be used to disambiguate an end-entity certificate which has multiple NODE-ID values.
           </t>
           <t>
-The Sender Node ID value <bcp14>SHALL</bcp14> be an untagged tstr value containing a Node ID.
+The Sender Node ID value <bcp14>SHALL</bcp14> be an untagged <tt>tstr</tt> value containing a Node ID.
 Every Node ID <bcp14>SHALL</bcp14> be consistent with the requirements of a URI <xref target="RFC3986"/> and the URI schemes of the IANA "Bundle Protocol URI Scheme Type" registry <xref target="IANA-BUNDLE"/>.
           </t>
           <figure>
@@ -840,7 +853,7 @@ $$udpcl-ext-item //= (
           </figure>
           <t>
 If the entity is configured to enable exchanging messages according to DTLS 1.3 <xref target="RFC9147"/> or any successors which are compatible with that DTLS ClientHello, the first message in any sequence to a unicast recipient <bcp14>SHALL</bcp14> be an Extension Map with the DTLS Initiation item.
-The RECOMMENDED policy is to enable DTLS for all unicast recipients, even if security policy does not allow or require authentication.
+The <bcp14>RECOMMENDED</bcp14> policy is to enable DTLS for all unicast recipients, even if security policy does not allow or require authentication.
 This follows the Opportunistic Security model <xref target="RFC7435"/>, though an active attacker could interfere with the exchange in such cases (see <xref target="sec-threat-tls-strip"/>).
           </t>
           <t>
@@ -1060,7 +1073,7 @@ A transmitting entity <bcp14>SHOULD</bcp14> transmit Transfer segments in order 
           </t>
           <t>
 A receiving entity <bcp14>SHALL</bcp14> maintain transfer reassembly state based on the tuple of packet source address-and-port and the Transfer ID created by that source.
-This relies on the stability of source port numbers at least for the duration of a single transfer, as required by <xref target="sec-ext-transfer"/>.
+This relies on the stability of source port numbers at least for the duration of a single transfer, in accordance with <xref target="sec-ext-transfer"/>.
 See <xref target="sec-policy-udp-convo"/> for options and implications of source port number use.
           </t>
           <t>
@@ -1254,9 +1267,9 @@ The policy recommendations given here are are the same as those for TCPCL in <xr
 They are restated in this document for clarity.
         </t>
           <t>
-A RECOMMENDED security policy is to enable the use of OCSP checking during DTLS handshake.
-A RECOMMENDED security policy is that if an Extended Key Usage is present that it needs to contain the "id-kp-bundleSecurity" value <xref target="IANA-SMI"/> to be usable with UDPCL security.
-A RECOMMENDED security policy is to require a validated NODE-ID and to ignore any network-level DNS-ID or IPADDR-ID.
+A <bcp14>RECOMMENDED</bcp14> security policy is to enable the use of OCSP checking during DTLS handshake.
+A <bcp14>RECOMMENDED</bcp14> security policy is that if an Extended Key Usage is present that it needs to contain the "id-kp-bundleSecurity" value <xref target="IANA-SMI"/> to be usable with UDPCL security.
+A <bcp14>RECOMMENDED</bcp14> security policy is to require a validated NODE-ID and to ignore any network-level DNS-ID or IPADDR-ID.
         </t>
           <t>
 This policy relies on and informs the certificate requirements in <xref target="sec-udpcl-cert-profile"/>.
@@ -1508,7 +1521,7 @@ Registration procedures referred to in this section are defined in <xref target=
 This document allocates new routable multicast addresses for use with the UDPCL.
         </t>
         <t>
-Within the IPv4 multicast address registry <xref target="IANA-IPv4-MCAST"/>, the sub-registry titled "Internetwork Control Block" has been updated to include the following address.
+Within the IPv4 Multicast Address Space registry group <xref target="IANA-IPv4-MCAST"/>, the registry titled "Internetwork Control Block" has been updated to include the following address.
         </t>
         <table align="center">
           <thead>
@@ -1533,7 +1546,7 @@ Within the IPv4 multicast address registry <xref target="IANA-IPv4-MCAST"/>, the
           </tbody>
         </table>
         <t>
-Within the IPv6 multicast address registry <xref target="IANA-IPv6-MCAST"/>, the sub-registry titled "Variable Scope Multicast Addresses" has been updated to include the following address.
+Within the IPv6 Multicast Address Space registry group <xref target="IANA-IPv6-MCAST"/>, the registry titled "Variable Scope Multicast Addresses" has been updated to include the following address.
         </t>
         <table align="center">
           <thead>
