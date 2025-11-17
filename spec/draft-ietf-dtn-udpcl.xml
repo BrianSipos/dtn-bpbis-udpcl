@@ -601,22 +601,22 @@ When inspecting using CBOR major types, the range of values is caused by the CBO
             <tr>
               <td>0x00</td>
               <td>Padding</td>
-              <td>Remainder of packet</td>
+              <td>Remainder of UDPCL packet</td>
             </tr>
             <tr>
               <td>0x06</td>
               <td>BPv6 Bundle</td>
-              <td>Remainder of packet (to be decoded by BPA)</td>
+              <td>Entire UDPCL packet (to be decoded by BPA)</td>
             </tr>
             <tr>
               <td><t>0x14--0x1A or</t><t>0x20--0x3F</t></td>
               <td>DTLS Record</td>
-              <td>Remainder of packet</td>
+              <td>Entire UDPCL packet</td>
             </tr>
             <tr>
               <td>0x80--0x9F</td>
               <td>BPv7 Bundle (CBOR array)</td>
-              <td>Remainder of packet (to be decoded by BPA)</td>
+              <td>Entire UDPCL packet (to be decoded by BPA)</td>
             </tr>
             <tr>
               <td>0xA0--0xBF</td>
@@ -624,8 +624,8 @@ When inspecting using CBOR major types, the range of values is caused by the CBO
               <td>End of map item, possibly followed by other map or padding</td>
             </tr>
             <tr>
-              <td>others</td>
-              <td>unused</td>
+              <td><em>others</em></td>
+              <td>Unused by this specification</td>
               <td/>
             </tr>
           </tbody>
