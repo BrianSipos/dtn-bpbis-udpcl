@@ -95,7 +95,7 @@ This document does not address:
           <li>
 The format of protocol data units of the Bundle Protocol, as those are defined elsewhere in <xref target="RFC9171"/>.
 This includes the concept of bundle fragmentation and bundle encapsulation.
-The UDPCL transfers bundles as opaque data blocks.
+The UDPCL transfers bundles as opaque BP PDUs.
           </li>
           <li>
 Mechanisms for locating or identifying other bundle entities (peers) within a network or across an internet.
@@ -735,7 +735,7 @@ If a transfer requires only a single segment, this field <bcp14>SHALL</bcp14> be
             <dd>
 This field <bcp14>SHALL</bcp14> be a <tt>bstr</tt> item, in which the segment data is contained.
 The <tt>bstr</tt> item itself indicates the length of the segment data.
-Per requirements in <xref target="sec-transfer-segmentation"/> the size of the segment data will be limited so that the entire UDPCL packet fits within a size limit.
+Per requirements in <xref target="sec-transfer-segmentation"/> the size of the segment data will be limited so that the entire UDPCL packet (and its encapsulatin UDP/IP packet) fits within a PMTU size limit.
             </dd>
           </dl>
           <figure>
