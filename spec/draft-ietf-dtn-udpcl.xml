@@ -257,7 +257,7 @@ This is not a positive indication that any next-hop receiver has either received
           </dd>
           <dt>Cancel Transmission:</dt>
           <dd>
-The UDPCL allows a BPA to cancel a long-running transmission, likely associated with an identified transfer.
+The UDPCL allows a BPA to cancel a long-running transmission, likely associated with an identified transfer (because unframed transfers occupy only a single UDPCL packet).
 Because UDPCL transfers are unacknowledged, canceling a transmission means simply stop sending UDPCL messages associated with that transmission.
 One outcome of a BPA canceling a transmission before all of its associated messages have been sent is the receiver simply timing out and failing the reception (see <xref target="sec-transfer-segmentation"/>).
 Another possible outcome, if the transmission is short enough, is that all associated messages have already been sent by that time and the entity does nothing.
