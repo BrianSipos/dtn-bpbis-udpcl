@@ -79,7 +79,7 @@ In particular, when BP is using UDP as its bearer with UDPCL as its convergence 
       <t>
 This specification defines a mechanism to embed protocol extensions in <xref target="sec-udpcl-message"/> and an initial set of extensions in <xref target="sec-udpcl-extension"/>.
 Following IETF best practices <xref target="RFC6709"/> these extension items are all mandatory-to-implement, meaning an interoperable UDPCL entity needs to understand them, but none are mandatory-to-use.
-These initial extensions also define the canonical means of implementing BP PDU segmentation (<xref target="sec-transfer"/>), IP path characterization (<xref target="sec-policy-pathchar"/> and <xref target="sec-pathchar"/>), and congestion control feedback (<xref target="sec-policy-cc"/> and <xref target="sec-cc"/>).
+These initial extensions also define the canonical means of implementing BP PDU segmentation (<xref target="sec-transfer"/>), IP path characterization (<xref target="sec-policy-pathchar"/> and <xref target="sec-pathchar"/>), and congestion control feedback (<xref target="sec-policy-cc"/> and <xref target="sec-ecn"/>).
       </t>
       <t>
 This specification also defines a transport security mechanism based on Datagram Transport Layer Security (DTLS) with Public Key Infrastructure Using X.509 (PKIX) authentication credentials.
@@ -107,7 +107,7 @@ This CL protocol is involved only in transporting bundles between adjacent entit
           </li>
           <li>
 Logic for performing rate control and congestion control of bundle transfers, both incoming and outgoing from a UDPCL entity.
-The signaling defined in <xref target="sec-ext-ecn-counts"/> and <xref target="sec-cc"/> can support a congestion control mechanism, but it is an implementation matter to choose and configure such a mechanism.
+The signaling defined in <xref target="sec-ext-ecn-counts"/> and <xref target="sec-ecn"/> can support a congestion control mechanism, but it is an implementation matter to choose and configure such a mechanism (see <xref target="app-cca"/>).
           </li>
           <li>
 Policies or mechanisms for issuing PKIX certificates; provisioning, deploying, or accessing certificates and private keys; deploying or accessing certificate revocation lists (CRLs); or configuring security parameters on an individual entity or across a network.
@@ -170,7 +170,14 @@ For the remainder of this document, the term "entity" without the prefix "UDPCL"
           <dt>UDP Conversation:</dt>
           <dd>
 This refers to datagrams exchanged between two network peers, with each peer identified by a (unicast IP address, UDP port) tuple.
-Because UDP is connectionless, there is no notion of a conversation being "opened" or "closed" and some conversations are uni-directional.
+Because UDP is connectionless, there is no notion of a conversation being "opened" or "closed" and some conversations are uni-directional, meaning UDP datagrams are exchanged in only one direction between two peers.
+          </dd>
+          <dt>IP Reachable:</dt>
+          <dd>
+The ability of a source IP node to send packets which are received at a destination IP node.
+Reachability requires support not just of the IP endpoints but of the network and middleboxes between the nodes and links along the path between those endpoints.
+Reachability in one direction between two IP endpoints does not imply reachability (at the same time or any other time) in the opposite direction.
+The UDPCL is meant to be usable, with limited capability, in situations where peers are reachable in only one direction.
           </dd>
           <dt>Transfer:</dt>
           <dd>
@@ -340,7 +347,7 @@ These mechanisms are defined in detail under <xref target="sec-pathchar"/>.
       <section anchor="sec-policy-fragmentation">
         <name>Fragmentation Policies</name>
         <t>
-It is a implementation matter for a sending entity to determine the PMTU to be used as a target upper-bound UDP datagram size.
+It is a implementation matter for a transmitting entity to determine the PMTU, from which a target upper-bound UDPCL packet size is derived by subtracting IP- and UDP-layer header sizes.
         </t>
         <t>
 The priority order of fragmentation is the following:
@@ -386,11 +393,11 @@ In general, however, a BPA is recommended to ensure the a bundle's blocks are co
         <name>Congestion Control Policies</name>
         <t>
 The applications using UDPCL for bundle transport <bcp14>SHALL</bcp14> conform to the congestion control requirements of <xref section="3.1" target="RFC8085"/>.
-The application <bcp14>SHALL</bcp14> either perform active congestion control of bundles or behave as the Low Data-Volume application as defined in <xref section="3.1.3" target="RFC8085"/>.
+The application <bcp14>SHALL</bcp14> either perform active congestion control of bundles, behave as the Low Data-Volume application as defined in <xref section="3.1.3" target="RFC8085"/>, or enable congestion control in the UDPCL layer.
         </t>
         <t>
-When nodes have bidirectional IP capability with a peer, the ECN marking and feedback mechanism of <xref target="sec-cc"/> can be used to provide Active Queue Management (AQM) of UDP traffic (and thus BP traffic) to the peer providing feedback.
-It is an implementation matter to ensure that traffic patterns which require UDPCL queuing and rate control are paired with a UDPCL entity capable of AQM and peers which provide requisite ECN feedback.
+When a UDPCL entity has bidirectional IP reachability with a peer, the Explicit Congestion Notification (ECN) marking and feedback mechanism of <xref target="sec-ecn"/> can be used to provide Active Queue Management (AQM) of UDP traffic (and thus BP traffic) to the peer providing feedback.
+It is an implementation matter to ensure that traffic patterns which require UDPCL congestion control are paired with a UDPCL entity capable of AQM as well as IP routers supporting ECN and UDPCL peers which provide requisite ECN feedback.
         </t>
         <t>
 When nodes have bidirectional BP transfer capability, the bundle deletion reason code "traffic pared" can be used by a receiving agent to signal to the bundle source application that throttling of bundles along that BP path needs to occur.
@@ -450,7 +457,7 @@ Identifying an interface for transmission or reception allows a BPA to provide f
 The IPv4 header bit <em>don't fragment</em> (DF) is used as discussed in <xref target="sec-policy-fragmentation"/>.
         </t>
         <t>
-The IPv4 and IPv6 header field for Explicit Congestion Notification (ECN) is used as discussed in <xref target="sec-policy-cc"/> and <xref target="sec-cc"/>.
+The IPv4 and IPv6 header field for ECN marking is used as discussed in <xref target="sec-policy-cc"/> and <xref target="sec-ecn"/>.
         </t>
       </section>
       <section anchor="sec-udp-header">
@@ -464,7 +471,7 @@ Determining a passive entity's destination port number (if different from the re
 If the default source port is not used, typically an operating system assigned number in the UDP Ephemeral range (49152-65535) is used.
 For repeated messaging to the same destination address-and-port, the active entity <bcp14>SHOULD</bcp14> reuse the same source address-and-port.
 For feedback messaging, the passive entity <bcp14>SHALL</bcp14> respond to the same address-and-port that solicited the feedback and use the same source address-and-port which was listed on.
-Reusing source address-and-port allows simplifies network monitoring and analysis and also enables bi-directional messaging as defined in <xref target="sec-ext-sender-listen"/>, <xref target="sec-plpmtud"/>, and <xref target="sec-cc"/>.
+Reusing source address-and-port allows simplifies network monitoring and analysis and also enables bi-directional messaging as defined in <xref target="sec-ext-sender-listen"/>, <xref target="sec-plpmtud"/>, and <xref target="sec-ecn"/>.
           </t>
       </section>
       <section anchor="sec-packet">
@@ -689,18 +696,19 @@ This minimum is represented, in the CBOR diagnostic notation, by <tt>[1, 8]</tt>
             <name>Extension Support CDDL</name>
             <sourcecode type="cddl">
 $$udpcl-ext-item //= (
-    1: [
-        ; first interval pair
-        least: ext-key,
-        incl: ext-key-offset,
-        * (
-            ; other disjoint interval pairs
-            excl: ext-key-offset,
-            incl: ext-key-offset,
-        )
-    ]
+    1: ext-key-range
 )
-ext-key-offset = uint .le 65536
+ext-key-range = [
+    ; first interval pair
+    least: ext-key,
+    incl: ext-key-offset,
+    * (
+        ; other disjoint interval pairs
+        excl: ext-key-offset,
+        incl: ext-key-offset,
+    )
+]
+ext-key-offset = (1 .. 65535) .within uint
             </sourcecode>
           </figure>
           <t>
@@ -847,8 +855,8 @@ This extension item indicates that the transmitter is about to begin a DTLS hand
           </t>
           <t>
 The DTLS Initiation value <bcp14>SHALL</bcp14> be an untagged null value.
-There are no DTLS parameters actually transmitted as part of this extension, it only serves to indicate to the recipient that the next datagram will be a DTLS ClientHello.
-Although the datagram containing this extension is not retransmitted, the DTLS handshake itself will retransmit ClientHello messages until confirmation is received.
+There are no DTLS parameters actually transmitted as part of this extension, it only serves to indicate to the recipient that the next datagram will be a DTLS <tt>ClientHello</tt>.
+Although the datagram containing this extension is not retransmitted, the DTLS handshake itself will retransmit <tt>ClientHello</tt> messages until confirmation is received.
           </t>
           <figure>
             <name>DTLS Initiation CDDL</name>
@@ -859,7 +867,7 @@ $$udpcl-ext-item //= (
             </sourcecode>
           </figure>
           <t>
-If the entity is configured to enable exchanging messages according to DTLS 1.3 <xref target="RFC9147"/> or any successors which are compatible with that DTLS ClientHello, the first message in any sequence to a unicast recipient <bcp14>SHALL</bcp14> be an Extension Map with the DTLS Initiation item.
+If the entity is configured to enable exchanging messages according to DTLS 1.3 <xref target="RFC9147"/> or any successors which are compatible with that DTLS <tt>ClientHello</tt>, the first message in any sequence to a unicast recipient <bcp14>SHALL</bcp14> be an Extension Map with the DTLS Initiation item.
 The <bcp14>RECOMMENDED</bcp14> policy is to enable DTLS for all unicast recipients, even if security policy does not allow or require authentication.
 This follows the Opportunistic Security model <xref target="RFC7435"/>, though an active attacker could interfere with the exchange in such cases (see <xref target="sec-threat-tls-strip"/>).
           </t>
@@ -910,7 +918,7 @@ confirm-delay = uint
             </sourcecode>
           </figure>
           <t>
-When the Peer Probe item is present in a UDPCL packet, the Extension Map <bcp14>SHALL</bcp14> be the only message in the packet and it <bcp14>SHALL</bcp14> be followed by padding to a specific total size.
+When the Peer Probe item is present in a UDPCL packet, the packet <bcp14>SHALL</bcp14> contain a single Extension Map followed by padding to a specific total size.
 A transmitting entity <bcp14>SHALL</bcp14> use the same source and destination address-and-port for all UDPCL packets containing a Peer Probe with the same nonce value.
 This is more strict than the requirements of <xref target="sec-udp-header"/> to ensure consistent confirmation behavior defined below.
           </t>
@@ -951,6 +959,7 @@ The first item <bcp14>SHALL</bcp14> be a <tt>uint</tt> nonce for correlating wit
             <dt>Seen Sequence Range:</dt>
             <dd>
 The second item <bcp14>SHALL</bcp14> be an array of pairs of <tt>uint</tt> values representing the range of sequence numbers of received Probe packets with the same nonce value.
+This is a similar structure to the <xref format="title" target="sec-ext-support"/> extension encoding.
             </dd>
           </dl>
           <t>
@@ -958,10 +967,10 @@ The encoding of ranges is a compressed form in which each pair of values indicat
           </t>
           <ol>
             <li>
-The non-zero offset from the previous one-past-end-of-interval, or the offset from zero if there is no preceding interval
+Either the least-value sequence number for the first interval, or the positive-value length of sequence numbers excluded past the end of the previous interval.
             </li>
             <li>
-The length of this interval, which is inclusive of the first and last contained sequence number so will always be positive
+The positive-value length of this interval, which is inclusive of the first and last included sequence number.
             </li>
           </ol>
           <figure>
@@ -974,11 +983,17 @@ $$udpcl-ext-item //= (
     ],
 )
 ; Range of sequence numbers seen
-seen-range = [ + seen-interval-pair ]
-seen-interval-pair = (
-  offset: uint,
-  length: uint .gt 0,
-)
+seen-range = [
+    ; first interval pair
+    least: uint,
+    incl: seen-offset,
+    * (
+        ; other disjoint interval pairs
+        excl: seen-offset,
+        incl: seen-offset,
+    )
+]
+seen-offset = uint .gt 0
             </sourcecode>
           </figure>
           <t>
@@ -989,7 +1004,7 @@ Upon reception of all Confirmation items within the waiting delay, the entity <b
         <section anchor="sec-ext-ecn-counts">
           <name>ECN Counts</name>
           <t>
-This extension item provides the ECN Feedback functionality for <xref section="4.2" target="RFC9331"/> in order to support congestion control feedback of <xref target="sec-cc"/>.
+This extension item provides the ECN feedback functionality for <xref section="4.2" target="RFC9331"/> in order to support congestion control feedback of <xref target="sec-ecn"/>.
           </t>
           <t>
 The ECN Counts value <bcp14>SHALL</bcp14> be an array of three items.
@@ -1153,71 +1168,94 @@ For relatively low loss rates, a BER can be estimated by assuming each lost pack
 Similarly, a sequence of relatively large-sized (for the expected throughput order-of-magnitude) <xref format="title" target="sec-ext-peer-probe"/> items, each in its own UDPCL packet, and the total volume indicated by corresponding <xref format="title" target="sec-ext-peer-ack"/> items over some time interval can be used to estimate the one-way throughput limit.
           </t>
           <t>
-For both cases above, the Probe packets can be combined with ECN markings as described in <xref target="sec-cc"/> to ensure that losses or throughput limits are not related to intermediate queuing congestion.
+For both cases above, the Probe packets can be combined with ECN markings as described in <xref target="sec-ecn"/> to ensure that losses or throughput limits are not related to intermediate queuing congestion.
           </t>
         </section>
       </section>
-      <section anchor="sec-cc">
-        <name>Congestion Control Feedback</name>
+      <section anchor="sec-ecn">
+        <name>Explicit Congestion Notification</name>
         <t>
-AQM can be performed using "classic" ECN signaling <xref target="RFC3168"/> or with more advanced methods such as the ECN Protocol for Low Latency, Low Loss, and Scalable Throughput (L4S) <xref target="RFC9331"/>.
-These mechanisms allow for endpoints to implement internet-friendly congestion control with a small amount of application-level feedback of ECN data.
-The ECN Counts extension of <xref target="sec-ext-ecn-counts"/> allows a UDPCL entity to both signal that it is ECN capable and to report ECN feedback in a way compatible with both classic ECN <xref target="RFC3168"/> and L4S <xref target="RFC9331"/>.
+Data packet AQM can be performed using "classic" ECN signaling <xref target="RFC3168"/> or with more advanced methods such as the ECN Protocol for Low Latency, Low Loss, and Scalable Throughput (L4S) <xref target="RFC9331"/>.
+These mechanisms allow for endpoints to implement an internet-friendly congestion control algorithm (CCA) with a small amount of application-level feedback of ECN data.
+The ECN Counts extension of <xref target="sec-ext-ecn-counts"/> allows a UDPCL entity to both signal that it is ECN capable and to report ECN feedback in a way compatible with both classic ECN and L4S.
+It is up to specific algorithm requirements and details to determine how and when the ECN Counts needs to be used to support each CCA.
         </t>
         <t>
 Because the information base defined below counts ECN values based on UDP conversation, the feedback occurs at the level of the entire conversation and not an individual message or bundle transfer within.
-When present, any sending queues of a UDPCL entity <bcp14>SHALL</bcp14> be organized around the UDP conversation.
+When present, any CCA sending queues of a UDPCL entity <bcp14>SHALL</bcp14> be organized around the UDP conversation.
         </t>
         <t>
-When an entity has enabled a congestion control mechanism, it <bcp14>SHALL</bcp14> mark outgoing IP packets with an ECN field of either ECT(0) or ECT(1) codepoint if they contain bundle data (either from an unframed transfer or an identified transfer <xref target="sec-ext-transfer"/>).
-This marking is the signal that the sending entity is ECN capable and desires to receive ECN feedback.
+Within the UDPCL, congestion control is applied only to packets containing data to be transferred and not to packets containing purely control information.
+For the structures defined in this document, data packets include <xref target="sec-packet">unframed transfers</xref> and those containing <xref target="sec-ext-transfer">identified transfer</xref> and <xref target="sec-ext-peer-probe">peer probe</xref> extensions.
+This separates UDPCL entity roles for a data flow within a conversation into a transmitting role and a receiving role, and each entity can act as a transmitter for some data as well as a receiver for other data.
+But the congestion control of those two flows is distinct and managed by which IP packets include ECN marking.
         </t>
-        <t>
-When an entity has enabled ECN feedback and receives a UDPCL packet with a unicast IP destination and an ECN field other than the <em>Not-ECT</em> codepoint, the ECN field of the IP packet <bcp14>SHALL</bcp14> be used to update the entry of the ECN Feedback information table corresponding to its UDP Conversation.
-When a new entry is needed in the ECN Feedback information table, the counts <bcp14>SHALL</bcp14> be initialized to zero.
-        </t>
-        <t>
-When an entity has ECN feedback for a peer, it <bcp14>SHALL</bcp14> send ECN Counts extension items to that peer.
-The ECN Counts extension <bcp14>MAY</bcp14> be sent periodically by a timer or when count values are increased above some threshold.
-When triggered by timer, the minimum interval <bcp14>SHOULD</bcp14> be no shorter than 1 second.
-When triggered by count change, the minimum increase <bcp14>SHOULD</bcp14> be no a change in CE Count being <cref>TBD</cref>% of the sum of the changes of ECT(0) Count and ECT(1) Count.
-        </t>
-        <t>
-The information base for ECN Feedback information is a logical table containing the columns of <xref target="tab-info-ecn-counts"/>.
-        </t>
-        <table align="center" anchor="tab-info-ecn-counts">
-          <name>ECN Feedback Information Columns</name>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>UDP Conversation</td>
-              <td>This is the four-tuple of address-and-port for the remote and local UDP endpoints.</td>
-            </tr>
-            <tr>
-              <td>ECT(0) Count</td>
-              <td>
-This is the total number of IP packets received in the UDP Conversation with the ECN field containing the ECT(0) codepoint.
-              </td>
-            </tr>
-            <tr>
-              <td>ECT(1) Count</td>
-              <td>
-This is the total number of IP packets received in the UDP Conversation with the ECN field containing the ECT(0) codepoint.
-              </td>
-            </tr>
-            <tr>
-              <td>CE Count</td>
-              <td>
-This is the total number of IP packets received in the UDP Conversation with the ECN field containing the CE codepoint.
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <section>
+          <name>Transmitting Entity</name>
+          <t>
+When a transmitting entity has enabled a congestion control algorithm, it <bcp14>SHALL</bcp14> mark outgoing IP packets with an ECN field of either ECT(0) or ECT(1) codepoint if they contain data (from an unframed transfer, identified transfer, or Peer Probe).
+This marking is the signal that the transmitting entity is ECN capable and desires to receive ECN feedback.
+          </t>
+          <t>
+There is no explicit synchronization or correlation of ECN marking to ECN feedback.
+The feedback counters maintained by the receiver and sent in the ECN Counts extension are an accumulation of all received ECN markings for that conversation.
+A transmitting entity <bcp14>MAY</bcp14> use the procedure of <xref target="sec-pathchar-delay"/> to estimate RTT as needed to support CCA functions.
+There is no restriction in the UDPCL about interleaving packets for data transfer and path characterization.
+          </t>
+        </section>
+        <section>
+          <name>Receiving Entity</name>
+          <t>
+When a receiving entity has enabled ECN feedback and receives a UDPCL packet with a unicast IP destination and an ECN field other than the <em>Not-ECT</em> codepoint, the ECN field of the IP packet <bcp14>SHALL</bcp14> be used to update the entry of the ECN feedback information table corresponding to its UDP Conversation.
+When a new entry is needed in the ECN feedback information table, the counts <bcp14>SHALL</bcp14> be initialized to zero.
+          </t>
+          <t>
+When a receiving entity has ECN feedback for a peer, it will send ECN Counts extension items to that peer based on CCA-specific logic.
+The ECN Counts extension <bcp14>MAY</bcp14> be sent periodically by a timer, when count values are increased above some threshold, or based on other extension items received by the entity.
+A receiving entity <bcp14>SHOULD</bcp14> suppress sending repeated, identical ECN Counts after an upper limit of duplicates has been sent.
+The upper limit is implementation defined and can depend on expected loss characteristics of the path back to the transmitting entity.
+          </t>
+          <t>
+If the ECN feedback is updated because of ECN marking from a Peer Probe, the receiving entity <bcp14>SHOULD</bcp14> combine any corresponding Peer Confirmation with an ECN Counts in the same extension map.
+This allows some level of implicit synchronization between the packets from the transmitting entity and the ECN feedback.
+          </t>
+          <t>
+The information base for ECN feedback information is a logical table containing the columns of <xref target="tab-info-ecn-counts"/>.
+          </t>
+          <table align="center" anchor="tab-info-ecn-counts">
+            <name>ECN Feedback Information Columns</name>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>UDP Conversation</td>
+                <td>This is the four-tuple of address-and-port for the remote and local UDP endpoints.</td>
+              </tr>
+              <tr>
+                <td>ECT(0) Count</td>
+                <td>
+  This is the total number of IP packets received in the UDP Conversation with the ECN field containing the ECT(0) codepoint.
+                </td>
+              </tr>
+              <tr>
+                <td>ECT(1) Count</td>
+                <td>
+  This is the total number of IP packets received in the UDP Conversation with the ECN field containing the ECT(0) codepoint.
+                </td>
+              </tr>
+              <tr>
+                <td>CE Count</td>
+                <td>
+  This is the total number of IP packets received in the UDP Conversation with the ECN field containing the CE codepoint.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
       </section>
       <section anchor="sec-udpcl-security">
         <name>UDPCL Security</name>
@@ -1257,7 +1295,7 @@ After sending or receiving an Extension Map containing a DTLS Initiation item, a
 By convention, this protocol uses the entity which sent the DTLS Initiation (the active peer) as the "client" role of the DTLS handshake request.
         </t>
           <t>
-Upon receiving an unexpected ClientHello record outside of a DTLS session, an entity <bcp14>SHALL</bcp14> begin the DTLS handshake procedure as if a DTLS Initiation had been received.
+Upon receiving an unexpected <tt>ClientHello</tt> record outside of a DTLS session, an entity <bcp14>SHALL</bcp14> begin the DTLS handshake procedure as if a DTLS Initiation had been received.
 This allows recovering from a dropped packet containing DTLS Initiation.
         </t>
         </section>
@@ -1275,7 +1313,7 @@ They are restated in this document for clarity.
         </t>
           <t>
 A <bcp14>RECOMMENDED</bcp14> security policy is to enable the use of OCSP checking during DTLS handshake.
-A <bcp14>RECOMMENDED</bcp14> security policy is that if an Extended Key Usage is present that it needs to contain the "id-kp-bundleSecurity" value <xref target="IANA-SMI"/> to be usable with UDPCL security.
+A <bcp14>RECOMMENDED</bcp14> security policy is that if an Extended Key Usage is present that it needs to contain the <tt>id-kp-bundleSecurity</tt> value <xref target="IANA-SMI"/> to be usable with UDPCL security.
 A <bcp14>RECOMMENDED</bcp14> security policy is to require a validated NODE-ID and to ignore any network-level DNS-ID or IPADDR-ID.
         </t>
           <t>
@@ -1602,7 +1640,7 @@ There is no UDPCL version indication on-the-wire but this specification is a sup
           <dd>4556</dd>
         </dl>
         <t>
-The related assignment for DCCP port 4556 (registered by <xref target="RFC7122"/>) is unchanged.
+The related assignment for DCCP port 4556, registered by <xref target="RFC7122"/>, is unchanged.
         </t>
       </section>
       <section anchor="sec-iana-extension-types">
@@ -1610,15 +1648,16 @@ The related assignment for DCCP port 4556 (registered by <xref target="RFC7122"/
         <t>EDITOR NOTE: sub-registry to-be-created upon publication of this specification.</t>
         <t>
 IANA will create, under the "Bundle Protocol" registry group <xref target="IANA-BUNDLE"/>, a registry titled "Bundle Protocol UDP Convergence-Layer Extension Types" and initialize it with the contents of <xref target="tab-iana-extension-types"/>.
-For positive code points the registration procedure is Specification Required.
-Negative code points are reserved for use on private networks for functions not published to the IANA.
+Negative code points are reserved for use on private networks for functions not published to IANA.
+For code points between 1 and 255 inclusive the registration procedure is RFC Required.
+For code points between 256 and 32767 inclusive the registration procedure is Specification Required.
         </t>
         <t>
-Specifications of new extension types need to define the CBOR item structure of the extension data as well as the purpose and relationship of the new extension to existing session/transfer state within the baseline UDPCL sequencing.
+Specifications of new extension types need to define the CBOR item structure of the extension data as well as the purpose and relationship of the new extension to existing transfer state within the baseline UDPCL sequencing.
 Receiving entities will ignore items with unknown Extension ID, and that behavior needs to be considered by new extension types.
         </t>
         <t>
-Expert(s) are encouraged to be biased towards approving registrations unless they are abusive, frivolous, or actively harmful (not merely aesthetically displeasing, or architecturally dubious).
+Experts are encouraged to be biased towards approving registrations unless they are abusive, frivolous, or actively harmful (not merely aesthetically displeasing, or architecturally dubious).
         </t>
         <table align="center" anchor="tab-iana-extension-types">
           <name>UDPCL Extension Types</name>
@@ -1773,6 +1812,7 @@ Expert(s) are encouraged to be biased towards approving registrations unless the
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2595.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.3542.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.3552.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.4340.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.4443.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.4511.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.4838.xml"/>
@@ -1788,25 +1828,18 @@ Expert(s) are encouraged to be biased towards approving registrations unless the
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8489.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8900.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.9172.xml"/>
-        <reference anchor="github-dtn-demo-agent" target="https://github.com/BSipos-RKF/dtn-demo-agent/">
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.9743.xml"/>
+        <reference anchor="github-dtn-demo-agent" target="https://github.com/BrianSipos/dtn-demo-agent/">
           <front>
             <title>UDPCL Example Implementation</title>
-            <author fullname="Brian Sipos" initials="B." surname="Sipos">
-              <organization abbrev="RKF Engineering">
-              RKF Engineering Solutions, LLC
-              </organization>
-            </author>
+            <author fullname="Brian Sipos" initials="B." surname="Sipos"/>
             <date/>
           </front>
         </reference>
-        <reference anchor="github-dtn-wireshark" target="https://github.com/BSipos-RKF/dtn-wireshark/">
+        <reference anchor="github-dtn-wireshark" target="https://github.com/BrianSipos/dtn-wireshark/">
           <front>
             <title>UDPCL Wireshark Dissector</title>
-            <author fullname="Brian Sipos" initials="B." surname="Sipos">
-              <organization abbrev="RKF Engineering">
-              RKF Engineering Solutions, LLC
-              </organization>
-            </author>
+            <author fullname="Brian Sipos" initials="B." surname="Sipos"/>
             <date/>
           </front>
         </reference>
@@ -1828,12 +1861,29 @@ The areas in which extensions from the experimental UDPCL <xref target="RFC7122"
       </t>
       <ul spacing="normal">
         <li>Added BPv7 bundle as a possible UDPCL payload.</li>
-        <li>Added discussion about optional explicit redundancy in transmission.</li>
-        <li>Added discussion about optional path MTU discovery.</li>
-        <li>Added discussion about optional congestion control feedback.</li>
-        <li>Defined semantics for IP multicast addressing.</li>
+        <li>Added procedures for optional explicit redundancy in transmission.</li>
+        <li>Added procedures for optional path characterization.</li>
+        <li>Added procedures for optional explicit congestion notification.</li>
+        <li>Defined semantics for IP multicast addressing and allocated IPv4 and IPv6 multicast addresses.</li>
         <li>Defined recommendations for UDP port use and re-use (port stability).</li>
       </ul>
+    </section>
+    <section anchor="app-cca">
+      <name>Congestion Control Algorithms</name>
+      <t>
+The choice of which CCA to use for a particular network, entity, or conversation, and the tuning and configuration of its parameters, is outside the scope of this document.
+Such a choice depends upon the need, or not, to share network resources among other UDPCL and/or non-UDPCL flows and entities each with their own CCA(s).
+Considerations for choosing a CCA are discussed in BCP 133 <xref target="RFC9743"/> and congestion control is an active area of development in the IETF Congestion Control Working Group (CCWG) and the Internet Congestion Control Research Group (ICCRG).
+      </t>
+      <t>
+Because transfers in the UDPCL are not acknowledged by the receiver, there are some subtle differences between a CCA used by the UDPCL and one used by an acknowledged transport protocol (<em>e.g.</em>, TCP or QUIC).
+Because the ECN Counts include a large counter space for all ECN-marked packets these counters can be used as a surrogate for true acknowledgement, although they do not provide a synchronization mechanism for the packets that they are counting (meaning they provide no way to explicitly detect packet loss).
+If a CCA needs a reasonable estimate of RTT to perform properly, or needs a coarse level of ECN Counts synchronization, the procedure of <xref target="sec-pathchar-delay"/> using a single small probe packet can be combined with ECN marking at the expense of additional control traffic.
+      </t>
+      <t>
+Future extensions to UDPCL can be defined in order to negotiate a specific CCA, and its shared parameters, for each entity of a conversation.
+Implementations and extensions should consider the scope and complexity of additions to UDPCL relative to alternative technologies such as the Datagram Congestion Control Protocol (DCCP) <xref target="RFC4340"/>.
+      </t>
     </section>
     <section anchor="sec-doc-ack" numbered="false">
       <name>Acknowledgments</name>

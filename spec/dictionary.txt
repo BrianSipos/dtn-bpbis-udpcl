@@ -11,17 +11,17 @@ BPA
 BPSec
 BPv
 bstr
-bundleSecurity
 Burleigh
 bursty
 CAs
 CBOR
+CCA
+CCWG
 cddl
 CDDL
 checksums
 ciphersuite
 CLA
-ClientHello
 codepoint
 codepoints
 connectionless
@@ -50,6 +50,7 @@ endian
 extensibility
 Heiner
 IANA
+ICCRG
 ICMP
 ICMPv
 IESG
@@ -59,7 +60,6 @@ INIT
 Internetwork
 interoperation
 IPADDR
-iPAddress
 IPsec
 IPv
 JHU
@@ -93,6 +93,9 @@ PMTU
 pre
 PSK
 queueing
+QUIC
+reachability
+Reachability
 Responder
 retransmission
 retransmissions
