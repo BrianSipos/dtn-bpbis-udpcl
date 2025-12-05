@@ -1828,6 +1828,7 @@ Experts are encouraged to be biased towards approving registrations unless they 
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8489.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8900.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.9172.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.9743.xml"/>
         <reference anchor="github-dtn-demo-agent" target="https://github.com/BrianSipos/dtn-demo-agent/">
           <front>
             <title>UDPCL Example Implementation</title>
@@ -1871,8 +1872,8 @@ The areas in which extensions from the experimental UDPCL <xref target="RFC7122"
       <name>Congestion Control Algorithms</name>
       <t>
 The choice of which CCA to use for a particular network, entity, or conversation, and the tuning and configuration of its parameters, is outside the scope of this document.
-Such a choice depends upon the need, or not, to share network resources among other UDPCL and/or non-UDPCL flows and users each with their own CCA(s).
-Congestion control is an active area of development in the IETF and the Internet Congestion Control Research Group (ICCRG).
+Such a choice depends upon the need, or not, to share network resources among other UDPCL and/or non-UDPCL flows and entities each with their own CCA(s).
+Considerations for choosing a CCA are discussed in BCP 133 <xref target="RFC9743"/> and congestion control is an active area of development in the IETF Congestion Control Working Group (CCWG) and the Internet Congestion Control Research Group (ICCRG).
       </t>
       <t>
 Because transfers in the UDPCL are not acknowledged by the receiver, there are some subtle differences between a CCA used by the UDPCL and one used by an acknowledged transport protocol (<em>e.g.</em>, TCP or QUIC).
