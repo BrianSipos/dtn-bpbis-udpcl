@@ -16,6 +16,7 @@ bursty
 CAs
 CBOR
 CCA
+CCWG
 cddl
 CDDL
 checksums
