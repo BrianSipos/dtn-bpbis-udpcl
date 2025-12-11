@@ -999,7 +999,7 @@ When an entity receives a packet with a Peer Confirmation extension item it <bcp
 Upon reception of all Confirmation items within the waiting delay, the entity <bcp14>SHALL</bcp14> treat the largest value of the seen range as the PMTU to the corresponding peer entity.
           </t>
           <t>
-For example, if an entity has received three probes using nonce value 123 with sequence numbers 2, 4, 5, and 6 the Peer Confirmation will contain the same nonce and a seen range of 2..2 included, 3..3 excluded, 4..6 included encoded as <tt>[2,0,0,0,1,2]</tt>
+For example, if an entity has received three probes using nonce value 123 with sequence numbers 2, 4, 5, and 6 the Peer Confirmation will contain the same nonce and a seen range of 2..2 included, 3..3 excluded, 4..6 included encoded as <tt>[2,0, 0,0, 0,2]</tt>
           </t>
         </section>
         <section anchor="sec-ext-ecn-counts">
