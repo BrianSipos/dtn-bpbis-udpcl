@@ -661,7 +661,7 @@ Receivers <bcp14>SHALL</bcp14> ignore extension items with unknown Extension ID 
         <figure anchor="fig-udpcl-ext-map">
           <name>Extension Map structure CDDL</name>
           <sourcecode type="cddl">
-; Map structure requiring non-zero-int keys.
+; Map structure requiring 16-bit int keys.
 ; CDDL cannot enforce type-specific requirements about other items
 ; being present (or not present) in the same map.
 udpcl-ext-map = $udpcl-ext-map .within udpcl-ext-map-structure
@@ -671,7 +671,7 @@ $udpcl-ext-map /= {
 udpcl-ext-map-structure = {
     + ext-key =&gt; any
 }
-ext-key = (-32768 .. 32767) .ne 0
+ext-key = -32768 .. 32767
           </sourcecode>
         </figure>
         <t>
@@ -683,14 +683,15 @@ The following subsections define the initial UDPCL extension types.
 This extension allows an entity to signal its support for receiving specific UDPCL extension types.
           </t>
           <t>
-The Extension Support value <bcp14>SHALL</bcp14> be an array of pairs of items representing intervals of included values.
-The first item of the array is the least included value, followed by the number of included values.
-Additional pairs of values represent the number of excluded values followed by the number of included values.
+The Extension Support value <bcp14>SHALL</bcp14> be an array of items representing sequential intervals of included and excluded values.
+The first item of the array is the least included value, followed by the width of the included interval.
+Additional pairs of values represent the width of excluded interval followed by the width of included values.
+Each width is the difference between the largest value of the interval and the least value.
 Each included value <bcp14>SHALL</bcp14> represent an extension type code which is able to be handled by the entity sending the Extension Support.
           </t>
           <t>
 The minimum set of Extension Support <bcp14>SHOULD</bcp14> include values 1 through 8 inclusive, which are the extension types defined in this document.
-This minimum is represented, in the CBOR diagnostic notation, by <tt>[1, 8]</tt> and the largest valid range of support is represented by <tt>[-32768, 65536]</tt>.
+This minimum is represented, in the CBOR diagnostic notation, by <tt>[1, 7]</tt> and the largest valid range of support is represented by <tt>[-32768, 65535]</tt>.
           </t>
           <figure>
             <name>Extension Support CDDL</name>
@@ -698,17 +699,25 @@ This minimum is represented, in the CBOR diagnostic notation, by <tt>[1, 8]</tt>
 $$udpcl-ext-item //= (
     1: ext-key-range
 )
-ext-key-range = [
-    ; first interval pair
-    least: ext-key,
-    incl: ext-key-offset,
+ext-key-range = int-range&lt;ext-key,(0 .. 65535)&gt;
+
+; A general-purpose, non-empty range of finite integer intervals.
+; The `value` type is used for the least included value.
+; The `width` is the maximum possible width of any interval.
+; So the bounding cases are:
+;  - singleton [least,0]
+;  - universe [least_min,least_min + width_max]
+int-range&lt;value,width&gt; = [
+    least: value,
     * (
-        ; other disjoint interval pairs
-        excl: ext-key-offset,
-        incl: ext-key-offset,
+        ; width of included interval
+        incl: width,
+        ; width of excluded interval
+        excl: width
     )
+    ; width of final included interval
+    incl: width
 ]
-ext-key-offset = (1 .. 65535) .within uint
             </sourcecode>
           </figure>
           <t>
@@ -906,14 +915,14 @@ The second item <bcp14>SHALL</bcp14> be a <tt>uint</tt> representing the desired
             <sourcecode type="cddl">
 $$udpcl-ext-item //= (
     6: [
-        nonce,
-        seqno,
+        probe-nonce,
+        probe-seqno,
         confirm-delay
     ],
 )
 ; A correlator nonce for confirmations
-nonce = uint
-seqno = uint
+probe-nonce = uint
+probe-seqno = uint
 confirm-delay = uint
             </sourcecode>
           </figure>
@@ -958,21 +967,17 @@ The first item <bcp14>SHALL</bcp14> be a <tt>uint</tt> nonce for correlating wit
             </dd>
             <dt>Seen Sequence Range:</dt>
             <dd>
-The second item <bcp14>SHALL</bcp14> be an array of pairs of <tt>uint</tt> values representing the range of sequence numbers of received Probe packets with the same nonce value.
-This is a similar structure to the <xref format="title" target="sec-ext-support"/> extension encoding.
+              <t>
+The second item <bcp14>SHALL</bcp14> be an array of <tt>uint</tt> values representing the range of sequence numbers of received Probe packets with the same nonce value.
+This is an identical structure to the <xref format="title" target="sec-ext-support"/> extension encoding with different domain of integer values.
+              </t>
+              <t>
+The first item of the array is the least included value, followed by the width of the included interval.
+Additional pairs of values represent the width of excluded interval followed by the width of included values.
+Each width is the difference between the largest value of the interval and the least value.
+              </t>
             </dd>
           </dl>
-          <t>
-The encoding of ranges is a compressed form in which each pair of values indicates:
-          </t>
-          <ol>
-            <li>
-Either the least-value sequence number for the first interval, or the positive-value length of sequence numbers excluded past the end of the previous interval.
-            </li>
-            <li>
-The positive-value length of this interval, which is inclusive of the first and last included sequence number.
-            </li>
-          </ol>
           <figure>
             <name>Peer Confirmation CDDL</name>
             <sourcecode type="cddl">
@@ -983,17 +988,7 @@ $$udpcl-ext-item //= (
     ],
 )
 ; Range of sequence numbers seen
-seen-range = [
-    ; first interval pair
-    least: uint,
-    incl: seen-offset,
-    * (
-        ; other disjoint interval pairs
-        excl: seen-offset,
-        incl: seen-offset,
-    )
-]
-seen-offset = uint .gt 0
+seen-range = int-range&lt;probe-seqno,uint&gt;
             </sourcecode>
           </figure>
           <t>
