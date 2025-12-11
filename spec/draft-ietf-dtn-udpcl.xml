@@ -683,11 +683,11 @@ The following subsections define the initial UDPCL extension types.
 This extension allows an entity to signal its support for receiving specific UDPCL extension types.
           </t>
           <t>
-The Extension Support value <bcp14>SHALL</bcp14> be an array of items representing sequential intervals of included and excluded values.
+The Extension Support value <bcp14>SHALL</bcp14> be an array of items representing a range of extension type codes which are able to be handled by the entity sending the Extension Support.
 The first item of the array is the least included value, followed by the width of the included interval.
 Additional pairs of values represent the width of excluded interval followed by the width of included values.
 Each width is the difference between the largest value of the interval and the least value.
-Each included value <bcp14>SHALL</bcp14> represent an extension type code which is able to be handled by the entity sending the Extension Support.
+Subsequent intervals have a least value one more than the largest value of the preceding interval.
           </t>
           <t>
 The minimum set of Extension Support <bcp14>SHOULD</bcp14> include values 1 through 8 inclusive, which are the extension types defined in this document.
@@ -900,10 +900,12 @@ The items are defined in the following order:
             <dt>Nonce:</dt>
             <dd>
 The first item <bcp14>SHALL</bcp14> be a <tt>uint</tt> nonce for correlating with <xref format="title" target="sec-ext-peer-ack"/> extensions.
+It is <bcp14>RECOMMENDED</bcp14> to use small nonce values to keep encoded sizes short.
             </dd>
             <dt>Sequence Number:</dt> 
             <dd>
 The second item <bcp14>SHALL</bcp14> be a <tt>uint</tt> sequence number for the specific Probe packet.
+It is <bcp14>RECOMMENDED</bcp14> that sequence numbers begin at zero and increment by one for each subsequent probe using the same nonce value.
             </dd>
             <dt>Confirmation Delay:</dt> 
             <dd>
@@ -975,6 +977,7 @@ This is an identical structure to the <xref format="title" target="sec-ext-suppo
 The first item of the array is the least included value, followed by the width of the included interval.
 Additional pairs of values represent the width of excluded interval followed by the width of included values.
 Each width is the difference between the largest value of the interval and the least value.
+Subsequent intervals have a least value one more than the largest value of the preceding interval.
               </t>
             </dd>
           </dl>
@@ -994,6 +997,9 @@ seen-range = int-range&lt;probe-seqno,uint&gt;
           <t>
 When an entity receives a packet with a Peer Confirmation extension item it <bcp14>SHALL</bcp14> wait for the same confirmation delay used in each Probe item for multiple Confirmation items with the same nonce.
 Upon reception of all Confirmation items within the waiting delay, the entity <bcp14>SHALL</bcp14> treat the largest value of the seen range as the PMTU to the corresponding peer entity.
+          </t>
+          <t>
+For example, if an entity has received three probes using nonce value 123 with sequence numbers 2, 4, 5, and 6 the Peer Confirmation will contain the same nonce and a seen range of 2..2 included, 3..3 excluded, 4..6 included encoded as <tt>[2,0,0,0,1,2]</tt>
           </t>
         </section>
         <section anchor="sec-ext-ecn-counts">
