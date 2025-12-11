@@ -9,8 +9,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          profile: minimal # Installs only rustc and cargo
       - name: dependencies
         run: |
           sudo apt-get install -y cmake python3 python3-pip python3-setuptools python3-wheel ruby xmlstarlet aspell rustup
