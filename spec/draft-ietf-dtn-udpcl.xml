@@ -58,23 +58,23 @@ In particular, when BP is using UDP as its bearer with UDPCL as its convergence 
       </t>
       <figure anchor="fig-udpcl-ip-stack">
         <name>The Locations of BP and UDPCL above the Internet Protocol Stack</name>
-        <artwork align="center" type="ascii-art">
+        <artwork align="center" type="ascii-art"><![CDATA[
 +-------------------------+
 |     DTN Application     | -\
 +-------------------------+   |
-|  Bundle Protocol (BP)   |   -&gt; Application Layer
+|  Bundle Protocol (BP)   |   -> Application Layer
 +-------------------------+   |
 | UDP Conv. Layer (UDPCL) |   |
 +-------------------------+   |
 |     DTLS (optional)     | -/
 +-------------------------+
-|          UDP            | ---&gt; Transport Layer
+|          UDP            | ---> Transport Layer
 +-------------------------+
-|       IPv4/IPv6         | ---&gt; Network Layer
+|       IPv4/IPv6         | ---> Network Layer
 +-------------------------+
-|   Link-Layer Protocol   | ---&gt; Link Layer
+|   Link-Layer Protocol   | ---> Link Layer
 +-------------------------+
-</artwork>
+]]></artwork>
       </figure>
       <t>
 This specification defines a mechanism to embed protocol extensions in <xref target="sec-udpcl-message"/> and an initial set of extensions in <xref target="sec-udpcl-extension"/>.
@@ -195,31 +195,31 @@ This refers to a transfer incoming to an entity as seen from that receiving enti
         </dl>
         <figure anchor="fig-entity-transfer-relations">
           <name>The relationships between UDPCL entities</name>
-          <artwork align="center" type="ascii-art">
+          <artwork align="center" type="ascii-art"><![CDATA[
 +----------------------------------------+
 |              UDPCL Entity              |
 |                                        |      +----------------+
 |   +--------------------------------+   |      |                |-+
-|   | Actively Initiated Transfer #1 |---------&gt;| Other          | |
+|   | Actively Initiated Transfer #1 |--------->| Other          | |
 |   +--------------------------------+   |      | UDPCL Entity's | |
 |                  ...                   |      | Passive        | |
 |   +--------------------------------+   |      | Listener       | |
-|   | Actively Initiated Transfer #n |---------&gt;|                | |
+|   | Actively Initiated Transfer #n |--------->|                | |
 |   |                                |          |                | |
-|   |         Sender Listen          |&lt;---------|                | |
+|   |         Sender Listen          |<---------|                | |
 |   +--------------------------------+   |      +----------------+ |
 |                                        |       +-----------------+
 |      +---------------------------+     |
 |      | +---------------------------+   |      +----------------+
 |      | | Optional Passive          |   |      |                |-+
-|      +-| Listener(s)               |&lt;---------+ Other          | |
+|      +-| Listener(s)               |<---------+ Other          | |
 |        +---------------------------+   |      | UDPCL Entity's | |
 |                                 ^      |      | Active         | |
 |                                 |      |      | Initiator(s)   | |
 |                                 +-------------|                | |
 +----------------------------------------+      +----------------+ |
                                                  +-----------------+
-</artwork>
+]]></artwork>
         </figure>
       </section>
     </section>
@@ -413,19 +413,19 @@ It also discusses behavior within the UDPCL layer, which is illustrated in <xref
       </t>
       <figure anchor="fig-udpcl-sublayers">
         <name>Breakdown of sub-layers within the UDPCL</name>
-        <artwork align="center" type="ascii-art">
+        <artwork align="center" type="ascii-art"><![CDATA[
 +-------------------------------------------+
-| Identified Transfer | Extension Signaling | &lt;- Sequencing /
+| Identified Transfer | Extension Signaling | <- Sequencing /
 +-------------------------------------------+      segmentation
  \                                          /
   ------                   -----------------
         \                 /
 +-------------------------------------------+
-| Bundle | Extension Map |  ...   | Padding | &lt;- Messaging
+| Bundle | Extension Map |  ...   | Padding | <- Messaging
 +-------------------------------------------+
-|                UDPCL Packet               | &lt;- Packetization
+|                UDPCL Packet               | <- Packetization
 +-------------------------------------------+
-</artwork>
+]]></artwork>
       </figure>
       <section anchor="sec-ip-header">
         <name>IP Header</name>
@@ -660,8 +660,8 @@ Receivers <bcp14>SHALL</bcp14> ignore extension items with unknown Extension ID 
         </t>
         <figure anchor="fig-udpcl-ext-map">
           <name>Extension Map structure CDDL</name>
-          <sourcecode type="cddl">
-; Map structure requiring non-zero-int keys.
+          <sourcecode type="cddl"><![CDATA[
+; Map structure requiring 16-bit int keys.
 ; CDDL cannot enforce type-specific requirements about other items
 ; being present (or not present) in the same map.
 udpcl-ext-map = $udpcl-ext-map .within udpcl-ext-map-structure
@@ -669,10 +669,10 @@ $udpcl-ext-map /= {
     + $$udpcl-ext-item
 }
 udpcl-ext-map-structure = {
-    + ext-key =&gt; any
+    + ext-key => any
 }
-ext-key = (-32768 .. 32767) .ne 0
-          </sourcecode>
+ext-key = -32768 .. 32767
+]]></sourcecode>
         </figure>
         <t>
 The following subsections define the initial UDPCL extension types.
@@ -683,33 +683,20 @@ The following subsections define the initial UDPCL extension types.
 This extension allows an entity to signal its support for receiving specific UDPCL extension types.
           </t>
           <t>
-The Extension Support value <bcp14>SHALL</bcp14> be an array of pairs of items representing intervals of included values.
-The first item of the array is the least included value, followed by the number of included values.
-Additional pairs of values represent the number of excluded values followed by the number of included values.
-Each included value <bcp14>SHALL</bcp14> represent an extension type code which is able to be handled by the entity sending the Extension Support.
+The Extension Support value <bcp14>SHALL</bcp14> be an array of items representing a range of extension type codes which are able to be handled by the entity sending the Extension Support in accordance with <xref target="sec-ext-support-range"/>.
           </t>
           <t>
 The minimum set of Extension Support <bcp14>SHOULD</bcp14> include values 1 through 8 inclusive, which are the extension types defined in this document.
-This minimum is represented, in the CBOR diagnostic notation, by <tt>[1, 8]</tt> and the largest valid range of support is represented by <tt>[-32768, 65536]</tt>.
+This minimum is represented, in the CBOR diagnostic notation, by <tt>[1, 7]</tt> and the largest valid range of support is represented by <tt>[-32768, 65535]</tt>.
           </t>
           <figure>
             <name>Extension Support CDDL</name>
-            <sourcecode type="cddl">
+            <sourcecode type="cddl"><![CDATA[
 $$udpcl-ext-item //= (
     1: ext-key-range
 )
-ext-key-range = [
-    ; first interval pair
-    least: ext-key,
-    incl: ext-key-offset,
-    * (
-        ; other disjoint interval pairs
-        excl: ext-key-offset,
-        incl: ext-key-offset,
-    )
-]
-ext-key-offset = (1 .. 65535) .within uint
-            </sourcecode>
+ext-key-range = int-range<ext-key,(0 .. 65535)>
+]]></sourcecode>
           </figure>
           <t>
 This extension type is expected to be used along with <xref format="title" target="sec-ext-sender-listen"/> for announcing presence to (potential) peer entities.
@@ -718,6 +705,58 @@ This extension type is expected to be used along with <xref format="title" targe
 If an entity receives an extension type which it cannot handle, that entity <bcp14>MAY</bcp14> send an Extension Support item in response.
 The enveloping UDPCL packet <bcp14>SHALL</bcp14> use the source address-and-port that sent the unhandled extension type as the destination of the packet.
           </t>
+          <section anchor="sec-ext-support-range">
+            <name>Integer Range Encoding</name>
+            <t>
+This subsection defines a general purpose structure for representing a non-empty range of disjoint, finite integer intervals in a CDDL generic rule.
+This rule is is an array structure parameterized on two types: the <tt>value</tt> type is used for the least included value, and the <tt>width</tt> type is the maximum possible width of any interval.
+            </t>
+            <t>
+The first item of the array is the least included value, followed by the width of the included interval.
+Additional pairs of values represent the width of excluded interval followed by the width of included values.
+Each width is the difference between the largest value of the interval and the least value.
+Subsequent intervals have a least value one more than the largest value of the preceding interval.
+            </t>
+            <figure>
+              <name>Integer Range CDDL</name>
+              <sourcecode type="cddl"><![CDATA[
+int-range<value,width> = [
+    least: value,
+    * (
+        ; width of included interval
+        incl: width,
+        ; width of excluded interval
+        excl: width
+    )
+    ; width of final included interval
+    incl: width
+]
+]]></sourcecode>
+            </figure>
+            <t>
+The interpretation of these parameters are shown in <xref target="fig-diag-int-range"/>, where the top of the diagram indicates values in the domain being covered by the range and the bottom indicates fields in the CBOR structure.
+            </t>
+            <figure anchor="fig-diag-int-range">
+              <name>Integer Range Encoding</name>
+              <artwork align="center"><![CDATA[
+     Include       Exclude       Include
+  min       max min       max min       max    value
+<..|.........|...|.........|...|.........|..>  space
+   |         |   |         |   |         |
+   |<------->|<->|<------->|<->|<------->|
+   |  width    1    width    1    width        encoded
+least                                          fields
+]]></artwork>
+            </figure>
+            <t>
+The bounding cases are for use of this structure are a singleton, a range which includes only single value <tt>val</tt> as the notional array of
+            </t>
+            <sourcecode>[val, 0]</sourcecode>
+            <t>
+and the universe, a range which includes all values in the domain from <tt>least</tt> to <tt>most</tt> as the notional array of
+            </t>
+            <sourcecode>[least, most - least]</sourcecode>
+          </section>
         </section>
         <section anchor="sec-ext-transfer">
           <name>Transfer</name>
@@ -755,7 +794,7 @@ Per requirements in <xref target="sec-transfer-segmentation"/> the size of the s
           </dl>
           <figure>
             <name>Transfer CDDL</name>
-            <sourcecode type="cddl">
+            <sourcecode type="cddl"><![CDATA[
 $$udpcl-ext-item //= (
     2: [
         transfer-id: uint,
@@ -766,7 +805,7 @@ $$udpcl-ext-item //= (
         segment-data: bstr,
     ]
 )
-              </sourcecode>
+]]></sourcecode>
           </figure>
           <t>
 Multiple Transfer items <bcp14>MAY</bcp14> be present in the same UDPCL packet by concatenating multiple Extension Map items into the packet.
@@ -796,12 +835,12 @@ A <bcp14>RECOMMENDED</bcp14> Sender Listen timeout is three (3) times the associ
           </t>
           <figure>
             <name>Sender Listen CDDL</name>
-            <sourcecode type="cddl">
+            <sourcecode type="cddl"><![CDATA[
 $$udpcl-ext-item //= (
     3: time-duration,
 )
 time-duration = uint
-            </sourcecode>
+]]></sourcecode>
           </figure>
           <t>
 Unlike the generic source port requirement in <xref target="sec-udp-header"/>, when repeated Sender Listen are transmitted in a sequence a consistent source address-and-port <bcp14>SHALL</bcp14> be used.
@@ -831,12 +870,12 @@ Every Node ID <bcp14>SHALL</bcp14> be consistent with the requirements of a URI 
           </t>
           <figure>
             <name>Sender Node ID CDDL</name>
-            <sourcecode type="cddl">
+            <sourcecode type="cddl"><![CDATA[
 $$udpcl-ext-item //= (
     4: nodeid,
 )
 nodeid = tstr
-            </sourcecode>
+]]></sourcecode>
           </figure>
           <t>
 An entity <bcp14>SHOULD NOT</bcp14> include a Sender Node ID item if a DTLS session has already been established and the presented end-entity certificate contains a single NODE-ID.
@@ -860,11 +899,11 @@ Although the datagram containing this extension is not retransmitted, the DTLS h
           </t>
           <figure>
             <name>DTLS Initiation CDDL</name>
-            <sourcecode type="cddl">
+            <sourcecode type="cddl"><![CDATA[
 $$udpcl-ext-item //= (
     5: null
 )
-            </sourcecode>
+]]></sourcecode>
           </figure>
           <t>
 If the entity is configured to enable exchanging messages according to DTLS 1.3 <xref target="RFC9147"/> or any successors which are compatible with that DTLS <tt>ClientHello</tt>, the first message in any sequence to a unicast recipient <bcp14>SHALL</bcp14> be an Extension Map with the DTLS Initiation item.
@@ -891,10 +930,12 @@ The items are defined in the following order:
             <dt>Nonce:</dt>
             <dd>
 The first item <bcp14>SHALL</bcp14> be a <tt>uint</tt> nonce for correlating with <xref format="title" target="sec-ext-peer-ack"/> extensions.
+It is <bcp14>RECOMMENDED</bcp14> to use small nonce values to keep encoded sizes short.
             </dd>
             <dt>Sequence Number:</dt> 
             <dd>
 The second item <bcp14>SHALL</bcp14> be a <tt>uint</tt> sequence number for the specific Probe packet.
+It is <bcp14>RECOMMENDED</bcp14> that sequence numbers begin at zero and increment by one for each subsequent probe using the same nonce value.
             </dd>
             <dt>Confirmation Delay:</dt> 
             <dd>
@@ -903,19 +944,19 @@ The second item <bcp14>SHALL</bcp14> be a <tt>uint</tt> representing the desired
           </dl>
           <figure>
             <name>Peer Probe CDDL</name>
-            <sourcecode type="cddl">
+            <sourcecode type="cddl"><![CDATA[
 $$udpcl-ext-item //= (
     6: [
-        nonce,
-        seqno,
+        probe-nonce,
+        probe-seqno,
         confirm-delay
     ],
 )
 ; A correlator nonce for confirmations
-nonce = uint
-seqno = uint
+probe-nonce = uint
+probe-seqno = uint
 confirm-delay = uint
-            </sourcecode>
+]]></sourcecode>
           </figure>
           <t>
 When the Peer Probe item is present in a UDPCL packet, the packet <bcp14>SHALL</bcp14> contain a single Extension Map followed by padding to a specific total size.
@@ -958,24 +999,15 @@ The first item <bcp14>SHALL</bcp14> be a <tt>uint</tt> nonce for correlating wit
             </dd>
             <dt>Seen Sequence Range:</dt>
             <dd>
-The second item <bcp14>SHALL</bcp14> be an array of pairs of <tt>uint</tt> values representing the range of sequence numbers of received Probe packets with the same nonce value.
-This is a similar structure to the <xref format="title" target="sec-ext-support"/> extension encoding.
+              <t>
+The second item <bcp14>SHALL</bcp14> be an array of items representing the range of sequence numbers of received Probe packets with the same nonce value in accordance with <xref target="sec-ext-support-range"/>.
+This is an identical structure to the <xref format="title" target="sec-ext-support"/> extension encoding with different domain of integer values to cover sequence numbers.
+              </t>
             </dd>
           </dl>
-          <t>
-The encoding of ranges is a compressed form in which each pair of values indicates:
-          </t>
-          <ol>
-            <li>
-Either the least-value sequence number for the first interval, or the positive-value length of sequence numbers excluded past the end of the previous interval.
-            </li>
-            <li>
-The positive-value length of this interval, which is inclusive of the first and last included sequence number.
-            </li>
-          </ol>
           <figure>
             <name>Peer Confirmation CDDL</name>
-            <sourcecode type="cddl">
+            <sourcecode type="cddl"><![CDATA[
 $$udpcl-ext-item //= (
     7: [
         nonce,
@@ -983,22 +1015,15 @@ $$udpcl-ext-item //= (
     ],
 )
 ; Range of sequence numbers seen
-seen-range = [
-    ; first interval pair
-    least: uint,
-    incl: seen-offset,
-    * (
-        ; other disjoint interval pairs
-        excl: seen-offset,
-        incl: seen-offset,
-    )
-]
-seen-offset = uint .gt 0
-            </sourcecode>
+seen-range = int-range<probe-seqno,uint>
+]]></sourcecode>
           </figure>
           <t>
 When an entity receives a packet with a Peer Confirmation extension item it <bcp14>SHALL</bcp14> wait for the same confirmation delay used in each Probe item for multiple Confirmation items with the same nonce.
 Upon reception of all Confirmation items within the waiting delay, the entity <bcp14>SHALL</bcp14> treat the largest value of the seen range as the PMTU to the corresponding peer entity.
+          </t>
+          <t>
+For example, if an entity has received three probes using nonce value 123 with sequence numbers 2, 4, 5, and 6 the Peer Confirmation will contain the same nonce and a seen range of 2..2 included, 3..3 excluded, 4..6 included encoded as <tt>[2,0, 0,0, 0,2]</tt>
           </t>
         </section>
         <section anchor="sec-ext-ecn-counts">
@@ -1026,7 +1051,7 @@ The third item <bcp14>SHALL</bcp14> be a <tt>uint</tt> count of packets marked w
           </dl>
           <figure>
             <name>ECN Counts CDDL</name>
-            <sourcecode type="cddl">
+            <sourcecode type="cddl"><![CDATA[
 $$udpcl-ext-item //= (
     8: [
         ect0: ecn-count,
@@ -1036,7 +1061,7 @@ $$udpcl-ext-item //= (
 )
 ; Wraps around at 32-bits
 ecn-count = uint .size 4
-            </sourcecode>
+]]></sourcecode>
           </figure>
           <t>
 Because this extension type will only be used for feedback to a specific transmitting peer, it <bcp14>SHALL NOT</bcp14> be present in any UDPCL packet with an IP multicast destination.
@@ -1336,15 +1361,15 @@ Likewise, the first outgoing message from Entity B after the DTLS handshake cont
           </t>
           <figure anchor="fig-conversation-example">
             <name>An example of the flow of protocol messages on a single UDP conversation between two entities</name>
-            <artwork align="center" type="ascii-art">
+            <artwork align="center" type="ascii-art"><![CDATA[
          Entity A                             Entity B
         active peer                         passive peer
 
 +-------------------------+
-|    Initiate DTLS Ext.   | -&gt;
+|    Initiate DTLS Ext.   | ->
 +-------------------------+
 +-------------------------+         +-------------------------+
-|     DTLS Negotiation    | -&gt;   &lt;- |     DTLS Negotiation    |
+|     DTLS Negotiation    | ->   <- |     DTLS Negotiation    |
 |       (as client)       |         |       (as server)       |
 +-------------------------+         +-------------------------+
 
@@ -1352,8 +1377,8 @@ Likewise, the first outgoing message from Entity B after the DTLS handshake cont
                Secured UDPCL messaging can begin.
 
 +-------------------------+
-|   Sender Listen Ext.    | -&gt;      +-------------------------+
-|   Sender Node ID Ext.   |      &lt;- |   Sender Node ID Ext.   |
+|   Sender Listen Ext.    | ->      +-------------------------+
+|   Sender Node ID Ext.   |      <- |   Sender Node ID Ext.   |
 |  Extension Support Ext. |         |  Extension Support Ext. |
 +-------------------------+         +-------------------------+
 
@@ -1361,12 +1386,12 @@ Likewise, the first outgoing message from Entity B after the DTLS handshake cont
                    Secured transfers can begin.
 
 +-------------------------+
-|    Unframed Transfer    | -&gt;      +-------------------------+
-+-------------------------+      &lt;- |    Unframed Transfer    |
+|    Unframed Transfer    | ->      +-------------------------+
++-------------------------+      <- |    Unframed Transfer    |
 +-------------------------+         +-------------------------+
-|   Identified Transfer   | -&gt;
+|   Identified Transfer   | ->
 +-------------------------+
-</artwork>
+]]></artwork>
           </figure>
         </section>
       </section>
