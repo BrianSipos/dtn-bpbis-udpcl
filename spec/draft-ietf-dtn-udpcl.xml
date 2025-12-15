@@ -693,9 +693,9 @@ This minimum is represented, in the CBOR diagnostic notation, by <tt>[1, 7]</tt>
             <name>Extension Support CDDL</name>
             <sourcecode type="cddl"><![CDATA[
 $$udpcl-ext-item //= (
-    1: ext-key-range
+    ; Range of extension key support
+    1: int-range<ext-key,(0 .. 65535)>
 )
-ext-key-range = int-range<ext-key,(0 .. 65535)>
 ]]></sourcecode>
           </figure>
           <t>
@@ -939,7 +939,7 @@ It is <bcp14>RECOMMENDED</bcp14> that sequence numbers begin at zero and increme
             </dd>
             <dt>Confirmation Delay:</dt> 
             <dd>
-The second item <bcp14>SHALL</bcp14> be a <tt>uint</tt> representing the desired confirmation delay time (in milliseconds).
+The third item <bcp14>SHALL</bcp14> be a <tt>uint</tt> representing the desired confirmation delay time (in milliseconds).
             </dd>
           </dl>
           <figure>
@@ -1010,12 +1010,12 @@ This is an identical structure to the <xref format="title" target="sec-ext-suppo
             <sourcecode type="cddl"><![CDATA[
 $$udpcl-ext-item //= (
     7: [
-        nonce,
-        seen-range
+        ; Correlator with all probes
+        probe-nonce,
+        ; Range of sequence numbers seen
+        seen-range: int-range<probe-seqno,uint>
     ],
 )
-; Range of sequence numbers seen
-seen-range = int-range<probe-seqno,uint>
 ]]></sourcecode>
           </figure>
           <t>
@@ -1023,7 +1023,8 @@ When an entity receives a packet with a Peer Confirmation extension item it <bcp
 Upon reception of all Confirmation items within the waiting delay, the entity <bcp14>SHALL</bcp14> treat the largest value of the seen range as the PMTU to the corresponding peer entity.
           </t>
           <t>
-For example, if an entity has received three probes using nonce value 123 with sequence numbers 2, 4, 5, and 6 the Peer Confirmation will contain the same nonce and a seen range of 2..2 included, 3..3 excluded, 4..6 included encoded as <tt>[2,0, 0,0, 0,2]</tt>
+For example, if an entity has received three probes using nonce value 123 with sequence numbers 2, 4, 5, and 6 the Peer Confirmation will contain the same nonce and a seen range of 2..2 included, 3..3 excluded, 4..6 included.
+This will be encoded as the extension map value <tt>[123,[2,0, 0,0, 0,2]]</tt>.
           </t>
         </section>
         <section anchor="sec-ext-ecn-counts">
