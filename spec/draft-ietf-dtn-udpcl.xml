@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="std" consensus="true" docName="draft-ietf-dtn-udpcl-03" ipr="trust200902" submissionType="IETF" tocInclude="true" version="3" xml:lang="en">
   <front>
-    <title abbrev="DTN UDPCLv2">
-      Delay-Tolerant Networking UDP Convergence Layer Protocol Version 2
-    </title>
+    <title abbrev="DTN UDPCLv2">Delay-Tolerant Networking UDP Convergence Layer Protocol Version 2</title>
     <seriesInfo name="Internet-Draft" value="draft-ietf-dtn-udpcl-03"/>
     <author fullname="Brian Sipos" initials="B." surname="Sipos">
       <organization abbrev="JHU/APL">The Johns Hopkins University Applied Physics Laboratory</organization>
@@ -739,13 +737,15 @@ The interpretation of these parameters are shown in <xref target="fig-diag-int-r
             <figure anchor="fig-diag-int-range">
               <name>Integer Range Encoding</name>
               <artwork align="center"><![CDATA[
-     Include       Exclude       Include
-  min       max min       max min       max    value
-<..|.........|...|.........|...|.........|..>  space
-   |         |   |         |   |         |
-   |<------->|<->|<------->|<->|<------->|
-   |  width    1    width    1    width        encoded
-least                                          fields
+      _____(repeated)______
+     /                     \
+      Include       Exclude       Include
+   min       max min       max min       max    value
+ <..|.........|...|.........|...|.........|..>  space
+    |         |   |         |   |         |
+    |<------->|<->|<------->|<->|<------->|
+   /   incl     1    excl     1    incl         encoded
+least  width         width         width        fields
 ]]></artwork>
             </figure>
             <t>
@@ -1584,7 +1584,7 @@ Even when UDPCL is not DTLS secured and there is a on-path attacker altering UDP
     <section anchor="sec-iana">
       <name>IANA Considerations</name>
       <t>
-Registration procedures referred to in this section are defined in <xref target="RFC8126"/>.
+This section provides guidance to the Internet Assigned Numbers Authority (IANA) regarding registration of code points in existing registries and creation of a new UDPCL registry in accordance with BCP 26 <xref target="RFC8126"/>.
       </t>
       <section anchor="sec-iana-ip-mcast">
         <name>IP Multicast Addresses</name>

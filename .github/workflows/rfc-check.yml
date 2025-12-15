@@ -15,6 +15,7 @@ jobs:
           toolchain: stable
       - name: dependencies
         run: |
+          sudo apt-get update
           sudo apt-get install -y cmake python3 python3-pip python3-setuptools python3-wheel ruby xmlstarlet aspell
           sudo pip3 install xml2rfc
           sudo gem install cbor-diag
