@@ -1225,15 +1225,21 @@ This marking is the signal that the transmitting entity is ECN capable and desir
           </t>
           <t>
 There is no explicit synchronization or correlation of ECN marking to ECN feedback.
-The feedback counters maintained by the receiver and sent in the ECN Counts extension are an accumulation of all received ECN markings for that conversation.
+The feedback counters maintained by the receiver and sent in the ECN Counts extension are an accumulation of all received ECN markings within that conversation.
 A transmitting entity <bcp14>MAY</bcp14> use the procedure of <xref target="sec-pathchar-delay"/> to estimate RTT as needed to support CCA functions.
 There is no restriction in the UDPCL about interleaving packets for data transfer and path characterization.
+          </t>
+          <t>
+Each state represented by the ECN Counts extension is independent and supersedes earlier state, meaning there is no need for the transmitting entity to maintain a history of ECN Counts for its half of a conversation.
+Because the fields of ECN Counts increase monotonically (modulo the 32-bit wrap-around) instances of that extension can be ordered and earlier ECN Counts state <bcp14>SHOULD</bcp14> be discarded for a conversation.
+The reception of an ECN Counts extension does not need to trigger or synchronize with any CCA activity.
+For example, a CCA can update its state at regular intervals (<em>e.g.</em>, based on estimated RTT) and update based on whatever was the latest ECN Counts for its half of a conversation.
           </t>
         </section>
         <section>
           <name>Receiving Entity</name>
           <t>
-When a receiving entity has enabled ECN feedback and receives a UDPCL packet with a unicast IP destination and an ECN field other than the <em>Not-ECT</em> codepoint, the ECN field of the IP packet <bcp14>SHALL</bcp14> be used to update the entry of the ECN feedback information table corresponding to its UDP Conversation.
+When a receiving entity has enabled ECN feedback and receives a UDPCL packet with a unicast IP destination and an ECN field other than the <em>Not-ECT</em> codepoint, the ECN field of the IP packet <bcp14>SHALL</bcp14> be used to update the entry of the ECN feedback information table corresponding to its UDP conversation.
 When a new entry is needed in the ECN feedback information table, the counts <bcp14>SHALL</bcp14> be initialized to zero.
           </t>
           <t>
