@@ -706,14 +706,15 @@ The enveloping UDPCL packet <bcp14>SHALL</bcp14> use the source address-and-port
           <section anchor="sec-ext-support-range">
             <name>Integer Range Encoding</name>
             <t>
-This subsection defines a general purpose structure for representing a non-empty range of disjoint, finite integer intervals in a CDDL generic rule.
-This rule is is an array structure parameterized on two types: the <tt>value</tt> type is used for the least included value, and the <tt>width</tt> type is the maximum possible width of any interval.
+This subsection defines a general purpose structure for representing a non-empty range of disjoint, finite, integer intervals in a CDDL generic rule.
+This rule is is an array structure parameterized on two types: the <tt>value</tt> type is used for the least included value in the domain, and the <tt>width</tt> type is the maximum possible width of any interval in the domain.
             </t>
             <t>
-The first item of the array is the least included value, followed by the width of the included interval.
-Additional pairs of values represent the width of excluded interval followed by the width of included values.
+The first item of the array is the least included value.
+Each other item is a width of of a finite interval, alternating between values included in the range and values excluded from the range.
+The last interval represented is always the included one.
 Each width is the difference between the largest value of the interval and the least value.
-Subsequent intervals have a least value one more than the largest value of the preceding interval.
+Each subsequent interval has a least value one more than the largest value of the preceding interval.
             </t>
             <figure>
               <name>Integer Range CDDL</name>
