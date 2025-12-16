@@ -1230,7 +1230,7 @@ A transmitting entity <bcp14>MAY</bcp14> use the procedure of <xref target="sec-
 There is no restriction in the UDPCL about interleaving packets for data transfer and path characterization.
           </t>
           <t>
-Each state represented by the ECN Counts extension is independent and supersedes earlier state, meaning there is no need for the transmitting entity to maintain a history of ECN Counts for its half of a conversation beyond whatever is needed to support a CCA.
+Each state represented by the ECN Counts extension is independent and supersedes earlier state, meaning there is no need for the transmitting entity to maintain a history of ECN Counts for its half of a conversation.
 Because the fields of ECN Counts increase monotonically (modulo the 32-bit wrap-around) instances of that extension can be ordered and earlier ECN Counts state <bcp14>SHOULD</bcp14> be discarded for a conversation.
 The reception of an ECN Counts extension does not need to trigger or synchronize with any CCA activity.
 For example, a CCA can update its state at regular intervals (<em>e.g.</em>, based on estimated RTT) and update based on whatever was the latest ECN Counts for its half of a conversation.
