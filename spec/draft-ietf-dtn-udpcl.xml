@@ -105,7 +105,7 @@ This CL protocol is involved only in transporting bundles between adjacent entit
           </li>
           <li>
 Logic for performing rate control and congestion control of bundle transfers, both incoming and outgoing from a UDPCL entity.
-The signaling defined in <xref target="sec-ext-ecn-counts"/> and <xref target="sec-ecn"/> can support a congestion control mechanism, but it is an implementation matter to choose and configure such a mechanism (see <xref target="app-cca"/>).
+The signaling defined in <xref target="sec-ext-ecn-counts"/> and <xref target="sec-ecn"/> can support a congestion control mechanism, but it is an implementation matter to choose and configure such a mechanism (see <xref target="sec-ops-cca"/>).
           </li>
           <li>
 Policies or mechanisms for issuing PKIX certificates; provisioning, deploying, or accessing certificates and private keys; deploying or accessing certificate revocation lists (CRLs); or configuring security parameters on an individual entity or across a network.
@@ -1435,27 +1435,25 @@ Likewise, the first outgoing message from Entity B after the DTLS handshake cont
         </section>
       </section>
     </section>
-    <section>
+    <section anchor="sec-ops">
       <name>Operational Considerations</name>
       <t>
 This section explains different operational topics of UDPCLv2 based on guidance of <xref target="RFC5706"/>.
 Many of these topics are related to capabilities explained in <xref target="sec-intro"/> which are not mandatory to use, and the discussion in this section is about when it is appropriate (or not) to use them.
       </t>
       <section>
-        <name>IP Address Uses</name>
+        <name>Listening and Sending Transport Parameters</name>
         <t>
 Some specific aspects of this UDPCL are sensitive to the IP address used by each pair of entities in a conversation, specifically the requirement for address-and-port stability within a single segmented transfer and the DTLS requirements which bind to the specific address-and-port of each endpoint.
 Beyond those cases, the UDPCL can use any IP addresses to communicate between two entities including multi-homing of either or both entities and mobility-over-time of either or both entity.
         </t>
-      </section>
-      <section>
-        <name>UDP Port Numbers</name>
         <t>
 The requirements in <xref target="sec-udp-header"/> constrain how UDP port numbers are used within transfers and for specific types of extension items (<em>e.g.</em>, where to send ECN Counts).
 Beyond those constraints, there is wide latitude given to implementations about which and how many IP address and/or UDP port numbers are listened on for UDPCL packets and used for the source of UDPCL packets.
         </t>
         <t>
 While this document registers a default port number with IANA in <xref target="sec-iana-udp-port"/>, interoperation between UDPCL entities is expected to be available on any port numbers chosen by any entity.
+How those port choices are communicated to a sending entity (<em>e.g.</em>, through advertisement) is an implementation matter discussed in <xref target="sec-ops-advert"/>.
         </t>
       </section>
       <section>
@@ -1487,13 +1485,25 @@ On the other side, it is an implementation matter for how to handle a DTLS hands
 Depending on the specific DTLS options used by the client, the server can choose to not use certain ciphersuite or algorithm families or choose to not expose specific data if the <tt>ClientHello</tt> is sent in plaintext.
 The same opportunistic security logic applies to the server role just as well as the client side.
         </t>
-        <t>
+        <section>
+          <name>DTLS Options</name>
+          <t>
+There are many options available within a DTLS handshake and following session, and the mechanism is extensible to enable supporting future security needs and best practices.
+This document only defines the interoperability minimum of DTLS options.
+Details about best current practices for using DTLS are defined in BCP 195 <xref target="RFC9325"/>.
+          </t>
+        </section>
+        <section>
+          <name>PKIX Options</name>
+          <t>
 The use of DTLS as specified in this document also requires the use of PKIX for mutual authentication.
 This can be a large barrier to use in some environments, so there is a trade-off between choosing to use transport security versus IP-layer or link-layer security.
 Each has their own requirements and security assurances.
-        </t>
+This document only defines the interoperability minimum of PKIX options.
+          </t>
+        </section>
       </section>
-      <section>
+      <section anchor="sec-ops-advert">
         <name>Use of Advertisement</name>
         <t>
 The advertisement extension items explained in <xref target="sec-advert"/> are intended to be used in limited manner because those extensions alone are not considered to be part of the congestion controlled data from a node.
@@ -1546,16 +1556,37 @@ Again, even in that situation there could be value in occasionally probing to co
         </t>
       </section>
       <section>
-        <name>Use of ECN and a CCA</name>
+        <name>Use of ECN and Any CCA</name>
         <t>
-
+The use of ECN marking, counters, and feedback defined in <xref target="sec-ecn"/> allows a UDPCL flow to interact with IP routers and middleboxes in ways compatible with classic ECN and L4S.
+The choice of if, when, and how to enable ECT markings on data packets sent to a particular peer entity is an implementation matter.
+On the other side, it is an implementation matter on the peer entity to enable or disable counting ECN markings generally or for specific peers or flows.
         </t>
         <t>
-<cref>On the other side, it is an implementation matter on the peer entity to enable or disable the path characterization procedures that enable PLPMTUD to operate.</cref>
+Any CCA is likely to be sensitive to configuration about its window size, scaling factors, and an expected consistent RTT and ability to estimate that RTT.
+If any of the CCA parameters are not properly configured or if the RTT is large or inconsistent, there will likely be bad effects of the CCA (either sending faster or slower than the actual path capacity).
+This especially applies to long-delay paths where any ECN feedback would be so out-of-date as to be useless.
         </t>
         <t>
 If a single UDPCL flow is operated over a well-characterized path exclusive of other flows, a more simple form of average rate control or packet pacing could be used.
 When links or network segments are shared between UDPCL flows and other flows, or even when there is variability of link or middlebox performance, there is the potential for congestion to arise which will cause dropped UDPCL packets and thus failed transfers.
+        </t>
+      </section>
+      <section anchor="sec-ops-cca">
+        <name>Choice of Congestion Control Algorithm</name>
+        <t>
+The choice of which CCA to use for a particular network, entity, or conversation, and the tuning and configuration of its parameters, is outside the scope of this document.
+Such a choice depends upon the need, or not, to share network resources among other UDPCL and/or non-UDPCL flows and entities each with their own CCA(s).
+Considerations for choosing a CCA are discussed in BCP 133 <xref target="RFC9743"/> and congestion control is an active area of development in the IETF Congestion Control Working Group (CCWG) and the Internet Congestion Control Research Group (ICCRG).
+        </t>
+        <t>
+Because transfers in the UDPCL are not acknowledged by the receiver, there are some subtle differences between a CCA used by the UDPCL and one used by an acknowledged transport protocol (<em>e.g.</em>, TCP or QUIC).
+Because the ECN Counts include a large counter space for all ECN-marked packets these counters can be used as a surrogate for true acknowledgement, although they do not provide a synchronization mechanism for the packets that they are counting (meaning they provide no way to explicitly detect packet loss).
+If a CCA needs a reasonable estimate of RTT to perform properly, or needs a coarse level of ECN Counts synchronization, the procedure of <xref target="sec-pathchar-delay"/> using a single small probe packet can be combined with ECN marking at the expense of additional control traffic.
+        </t>
+        <t>
+Future extensions to UDPCL can be defined in order to negotiate a specific CCA, and its shared parameters, for each entity of a conversation.
+Implementations and extensions should consider the scope and complexity of additions to UDPCL relative to alternative technologies such as the Datagram Congestion Control Protocol (DCCP) <xref target="RFC4340"/>.
         </t>
       </section>
     </section>
@@ -2035,23 +2066,6 @@ The areas in which extensions from the experimental UDPCL <xref target="RFC7122"
         <li>Defined semantics for IP multicast addressing and allocated IPv4 and IPv6 multicast addresses.</li>
         <li>Defined recommendations for UDP port use and re-use (port stability).</li>
       </ul>
-    </section>
-    <section anchor="app-cca">
-      <name>Congestion Control Algorithms</name>
-      <t>
-The choice of which CCA to use for a particular network, entity, or conversation, and the tuning and configuration of its parameters, is outside the scope of this document.
-Such a choice depends upon the need, or not, to share network resources among other UDPCL and/or non-UDPCL flows and entities each with their own CCA(s).
-Considerations for choosing a CCA are discussed in BCP 133 <xref target="RFC9743"/> and congestion control is an active area of development in the IETF Congestion Control Working Group (CCWG) and the Internet Congestion Control Research Group (ICCRG).
-      </t>
-      <t>
-Because transfers in the UDPCL are not acknowledged by the receiver, there are some subtle differences between a CCA used by the UDPCL and one used by an acknowledged transport protocol (<em>e.g.</em>, TCP or QUIC).
-Because the ECN Counts include a large counter space for all ECN-marked packets these counters can be used as a surrogate for true acknowledgement, although they do not provide a synchronization mechanism for the packets that they are counting (meaning they provide no way to explicitly detect packet loss).
-If a CCA needs a reasonable estimate of RTT to perform properly, or needs a coarse level of ECN Counts synchronization, the procedure of <xref target="sec-pathchar-delay"/> using a single small probe packet can be combined with ECN marking at the expense of additional control traffic.
-      </t>
-      <t>
-Future extensions to UDPCL can be defined in order to negotiate a specific CCA, and its shared parameters, for each entity of a conversation.
-Implementations and extensions should consider the scope and complexity of additions to UDPCL relative to alternative technologies such as the Datagram Congestion Control Protocol (DCCP) <xref target="RFC4340"/>.
-      </t>
     </section>
     <section anchor="sec-doc-ack" numbered="false">
       <name>Acknowledgments</name>
