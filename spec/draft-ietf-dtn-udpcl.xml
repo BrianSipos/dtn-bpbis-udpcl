@@ -76,12 +76,12 @@ In particular, when BP is using UDP as its bearer with UDPCL as its convergence 
       </figure>
       <t>
 This specification defines a mechanism to embed protocol extensions in <xref target="sec-udpcl-message"/> and an initial set of extensions in <xref target="sec-udpcl-extension"/>.
-Following IETF best practices <xref target="RFC6709"/> these extension items are all mandatory-to-implement, meaning an interoperable UDPCL entity needs to understand them, but none are mandatory-to-use.
-These initial extensions also define the canonical means of implementing BP PDU segmentation (<xref target="sec-transfer"/>), IP path characterization (<xref target="sec-policy-pathchar"/> and <xref target="sec-pathchar"/>), and congestion control feedback (<xref target="sec-policy-cc"/> and <xref target="sec-ecn"/>).
+Following IETF best practices <xref target="RFC6709"/> these extension items are all mandatory-to-implement, meaning an interoperable UDPCL entity needs to understand them, but none are mandatory-to-use (see <xref target="sec-ops"/>).
+The initial extensions define the canonical means of implementing BP PDU segmentation (<xref target="sec-transfer"/>), UDPCL advertisement (<xref target="sec-policy-advert"/> and <xref target="sec-advert"/>), IP path characterization (<xref target="sec-policy-pathchar"/> and <xref target="sec-pathchar"/>), and congestion control feedback (<xref target="sec-policy-cc"/> and <xref target="sec-ecn"/>).
       </t>
       <t>
-This specification also defines a transport security mechanism based on Datagram Transport Layer Security (DTLS) with Public Key Infrastructure Using X.509 (PKIX) authentication credentials.
-Similar to extension support, the use of DTLS with PKIX is mandatory-to-implement but not mandatory-to-use and is the canonical means of providing transport security.
+This specification also defines a transport security mechanism based on Datagram Transport Layer Security (DTLS) with Public Key Infrastructure Using X.509 (PKIX) authentication credentials (see <xref target="sec-pkix-env"/> and <xref target="sec-udpcl-security"/>).
+Similar to extension support, the use of DTLS with PKIX is mandatory-to-implement but not mandatory-to-use and is the canonical means of providing transport security for UDPCL.
       </t>
       <section>
         <name>Scope</name>
@@ -105,7 +105,7 @@ This CL protocol is involved only in transporting bundles between adjacent entit
           </li>
           <li>
 Logic for performing rate control and congestion control of bundle transfers, both incoming and outgoing from a UDPCL entity.
-The signaling defined in <xref target="sec-ext-ecn-counts"/> and <xref target="sec-ecn"/> can support a congestion control mechanism, but it is an implementation matter to choose and configure such a mechanism (see <xref target="app-cca"/>).
+The signaling defined in <xref target="sec-ext-ecn-counts"/> and <xref target="sec-ecn"/> can support a congestion control mechanism, but it is an implementation matter to choose and configure such a mechanism (see <xref target="sec-ops-cca"/>).
           </li>
           <li>
 Policies or mechanisms for issuing PKIX certificates; provisioning, deploying, or accessing certificates and private keys; deploying or accessing certificate revocation lists (CRLs); or configuring security parameters on an individual entity or across a network.
@@ -229,15 +229,16 @@ This document specifies the optional segmentation of bundles, procedures for DTL
 The general operation of the protocol is as follows.
       </t>
       <t>
-Fundamentally, the UDPCL is a (logically) unidirectional "transmit and forget" protocol which itself maintains no long-term state and provides no feedback from the receiver to the transmitter.
-The only long-term state related to UDPCL is used by DTLS in its session keeping (which is bound to a UDP conversation).
+Fundamentally, the UDPCL is a (logically) unidirectional "transmit and forget" protocol which itself maintains no long-term transfer state and provides no transfer feedback from the receiver to the transmitter.
+The only long-term state related to UDPCL is used by DTLS in its session keeping, for congestion control state, and congestion counters (all of which are bound to a UDP conversation).
 An entity receiving a bundle from a particular source address-and-port does not imply that the transmitter is willing to accept bundle transfers on that same address-and-port.
 It is the obligation of a BPA and its routing schemes to determine a bundle return path (if such a path even exists).
+The UDPCL can provide hints to a BPA based on information advertised by peer entities.
       </t>
       <section anchor="sec-cl-services">
         <name>Convergence Layer Services</name>
         <t>
-This version of the UDPCL provides the following services to support the over-laying BPA.
+This version of UDPCL provides the following services to support the over-laying BPA.
 In all cases, this is not an API definition but a logical description of how the UDPCL entity can interact with the BPA.
 Each of these interactions can be associated with any number of additional metadata items as necessary to support the operation of the CL or BPA.
         </t>
@@ -332,13 +333,30 @@ This enables the UDPCL to be more compatible with network address translation (N
 There is a trade-off between stability of UDP conversations and a possible need to protect from off-path data injection, as described in <xref target="sec-threat-injection"/>, so the conversation long-term stability (in <xref target="sec-ip-header"/> and <xref target="sec-udp-header"/>) is recommended while specific cases of short-term consistency <xref target="sec-ext-transfer"/>, <xref target="sec-ext-sender-listen"/>, and <xref target="sec-ext-peer-probe"/> are required.
         </t>
       </section>
+      <section anchor="sec-policy-advert">
+        <name>Advertisement Policies</name>
+        <t>
+The earlier experimental UDPCL definition <xref target="RFC7122"/> assumed that each UDPCL peer had enough information available to it to reach its UDPCL peer entities without the need for any explicit in-band advertisement.
+This makes deployment of UDPCL complex because it requires every sending node to have the transport parameters of all of its UDPCL-enabled peers.
+In cases where those peers use dynamic IP addressing or are are behind a NAT, the parameters will not be static enough to enable reachability without human intervention or an external control protocol.
+        </t>
+        <t>
+This version of UDPCL provides several extensions which enable an entity to advertise its own extension support, BP node identity, and/or UDP return reachability.
+This enables UDPCL reachability to peers which were either not known through prior configuration or have their transport parameters dynamically assigned.
+These mechanisms are explained in detail under <xref target="sec-advert"/>.
+        </t>
+        <t>
+It is an implementation matter to control if, when, and how often an entity will advertise its own information.
+It is a separate implementation matter to control if and how any received advertised information is used by an entity to influence its own operation.
+        </t>
+      </section>
       <section anchor="sec-policy-pathchar">
         <name>Path Characterization Policies</name>
         <t>
 The earlier experimental UDPCL definition <xref target="RFC7122"/> assumed that BP node operators had deep visibility into the IP networks over which bundles would be transferred, specifically that the IP paths between UDPCL sender and receiver had well-characterized parameters for: path maximum transmit unit (PMTU), one-way delay time, one-way throughput limit, and packet loss statistics (both due to congestion and to link errors).
         </t>
         <t>
-In situations where node operators do not have prior information about those parameters, this version of the UDPCL supports mechanisms to measure or estimate them.
+In situations where node operators do not have prior information about those parameters, this version of UDPCL supports mechanisms to measure or estimate them.
 These mechanisms are defined in detail under <xref target="sec-pathchar"/>.
         </t>
       </section>
@@ -850,11 +868,6 @@ Unlike the generic source port requirement in <xref target="sec-udp-header"/>, w
 The Sender Listen interval <bcp14>SHOULD</bcp14> be no shorter than 1 second and no longer than 60 seconds.
           </t>
           <t>
-An entity <bcp14>SHOULD</bcp14> include an <xref format="title" target="sec-ext-support"/> and <xref format="title" target="sec-ext-sender-nodeid"/> item along with a Sender Listen item if the conditions of those extension types are met.
-An entity <bcp14>MAY</bcp14> include any other extension type along with a Sender Listen item.
-An entity <bcp14>SHALL NOT</bcp14> transmit a Sender Listen item before or along with a DTLS Initiate if DTLS is desired for a conversation.
-          </t>
-          <t>
 This extension is not a neighbor discovery mechanism and does not indicate an entity listening generally on a particular UDP port.
 Sender Listen applies only to UDP datagrams from the the source address-and-port, and does not express information about any other addresses or ports used by the sending node.
           </t>
@@ -1138,7 +1151,7 @@ A receiving entity <bcp14>SHALL</bcp14> consider a transport as finished when Se
 A receiving entity <bcp14>SHALL</bcp14> discard any Transfer item containing different CBOR types than defined in this document.
 A receiving entity <bcp14>SHALL</bcp14> discard any Transfer item containing a segment with a span overlapping any other in the reassembly state.
 That includes overlapping span because of a redundant transmission (see <xref target="sec-packet-redundancy"/>).
-Because there is no feedback indication at the UDPCL layer, a transmitter has no indication when a Transfer item is discarded by the receiver.
+Because there is no transfer feedback indication at the UDPCL layer, a transmitter has no indication when a Transfer item is discarded by the receiver.
           </t>
           <t>
 A receiving entity <bcp14>SHOULD</bcp14> discard unfinished reassembly state after an implementation-defined timeout since the last received segment.
@@ -1148,6 +1161,25 @@ Entities <bcp14>SHOULD</bcp14> choose a transfer timeout interval no longer than
 Discarding an unfinished transfer causes no indication to the transmitting entity, but does indicate this to the receiving BPA.
           </t>
         </section>
+      </section>
+      <section anchor="sec-advert">
+        <name>UDPCL Advertisement</name>
+        <t>
+This version of UDPCL supports explicit advertisement of specific operational data from an individual entity to one or many peer entities.
+Individual extension items enable an entity to advertise its own UDPCL <xref target="sec-ext-support">extension support</xref>, BP node <xref target="sec-ext-sender-nodeid">identity</xref>, and/or UDP <xref target="sec-ext-sender-listen">return reachability</xref>.
+Each of these extension items can be sent to a unicast IP address, either pre-configured or discovered by a lower-layer discovery mechanism, or can be sent to one of the well-known multicast addresses from <xref target="sec-iana-ip-mcast"/> to advertise to all UDPCL-enabled peers in some network scope.
+        </t>
+        <t>
+When advertising its presence, an entity <bcp14>SHALL</bcp14> include a <xref format="title" target="sec-ext-sender-listen"/> item to inform receivers of return reachability.
+When advertising, an entity <bcp14>SHOULD</bcp14> include an <xref format="title" target="sec-ext-support"/> and <xref format="title" target="sec-ext-sender-nodeid"/> item along with a Sender Listen item if the conditions of those extension types are met.
+An entity <bcp14>MAY</bcp14> include any other extension type along with a Sender Listen item.
+An entity <bcp14>SHALL NOT</bcp14> transmit a Sender Listen item before or along with a DTLS Initiate if DTLS is desired for a conversation.
+        </t>
+        <t>
+An advertising entity <bcp14>MAY</bcp14> change the advertised information over time across different UDPCL packets addressed to the same destination.
+This could be caused by configuration changes on the entity, software updates, or any other reason.
+The recipient of any UDPCL advertisement <bcp14>SHALL NOT</bcp14> assume that the information being advertised will be unchanging for the lifetime of the advertising entity.
+        </t>
       </section>
       <section anchor="sec-pathchar">
         <name>Path Characterization Procedures</name>
@@ -1293,7 +1325,7 @@ The information base for ECN feedback information is a logical table containing 
       <section anchor="sec-udpcl-security">
         <name>UDPCL Security</name>
         <t>
-This version of the UDPCL supports establishing a DTLS session within an existing UDP conversation.
+This version of UDPCL supports establishing a DTLS session within an existing UDP conversation.
 When DTLS is used within the UDPCL it affects the entire conversation.
 There is no concept of a plaintext message being sent in a conversation after a DTLS session is established.
         </t>
@@ -1404,26 +1436,160 @@ Likewise, the first outgoing message from Entity B after the DTLS handshake cont
         </section>
       </section>
     </section>
-    <section removeInRFC="true">
-      <name>Implementation Status</name>
+    <section anchor="sec-ops">
+      <name>Operational Considerations</name>
       <t>
-[NOTE to the RFC Editor: please remove this section before publication, as well as the reference to <xref target="RFC7942"/>, <xref target="github-dtn-demo-agent"/>, and <xref target="github-dtn-wireshark"/>.]
+This section explains different operational topics of UDPCLv2 based on guidance of <xref target="RFC5706"/>.
+Many of these topics are related to capabilities explained in <xref target="sec-intro"/> which are not mandatory to use, and the discussion in this section is about when it is appropriate (or not) to use them.
       </t>
-      <t>
-This section records the status of known implementations of the protocol defined by this specification at the time of posting of this Internet-Draft, and is based on a proposal described in <xref target="RFC7942"/>.
-The description of implementations in this section is intended to assist the IETF in its decision processes in progressing drafts to RFCs.
-Please note that the listing of any individual implementation here does not imply endorsement by the IETF.
-Furthermore, no effort has been spent to verify the information presented here that was supplied by IETF contributors.
-This is not intended as, and must not be construed to be, a catalog of available implementations or their features.
-Readers are advised to note that other implementations can exist.
-      </t>
-      <t>
-An example implementation of the this draft of UDPCL has been created as a GitHub project <xref target="github-dtn-demo-agent"/> and is intended to use as a proof-of-concept and as a possible source of interoperability testing.
-This example implementation uses D-Bus as the CL--BPA interface, so it only runs on hosts which provide the Python "dbus" library.
-      </t>
-      <t>
-A wireshark dissector for UDPCL has been created as a GitHub project <xref target="github-dtn-wireshark"/> and has been kept in-sync with the latest encoding of this specification.
-      </t>
+      <section>
+        <name>Listening and Sending Transport Parameters</name>
+        <t>
+Some specific aspects of this UDPCL are sensitive to the IP address used by each pair of entities in a conversation, specifically the requirement for address-and-port stability within a single segmented transfer and the DTLS requirements which bind to the specific address-and-port of each endpoint.
+Beyond those cases, the UDPCL can use any IP addresses to communicate between two entities including multi-homing of either or both entities and mobility-over-time of either or both entity.
+        </t>
+        <t>
+The requirements in <xref target="sec-udp-header"/> constrain how UDP port numbers are used within transfers and for specific types of extension items (<em>e.g.</em>, where to send ECN Counts).
+Beyond those constraints, there is wide latitude given to implementations about which and how many IP address and/or UDP port numbers are listened on for UDPCL packets and used for the source of UDPCL packets.
+        </t>
+        <t>
+While this document registers a default port number with IANA in <xref target="sec-iana-udp-port"/>, interoperation between UDPCL entities is expected to be available on any port numbers chosen by any entity.
+How those port choices are communicated to a sending entity (<em>e.g.</em>, through advertisement) is an implementation matter discussed in <xref target="sec-ops-advert"/>.
+        </t>
+      </section>
+      <section>
+        <name>Use of Identified Transfers</name>
+        <t>
+The <xref target="sec-packet">unframed transfer</xref> mechanism is limited to fit an entire BP PDU into a single UDP datagram (itself limited by path MTU and maximum datagram size).
+Any transfer larger than that is required to use the <xref target="sec-transfer">identified transfer</xref> mechanism by the sender.
+        </t>
+        <t>
+When making use of <xref target="sec-packet-redundancy">redundant transfers</xref>, using identified transfers enables de-duplication in the UDPCL rather than waiting for logic in the associated receiving BPA to handle duplicates.
+        </t>
+        <t>
+It is also a reasonable policy for a sender to always use identified transfers in order to simplify its configuration and logic.
+The only drawback to always using identified transfers is the (possibly) increased use of Transfer IDs and any counters associated with them.
+        </t>
+      </section>
+      <section>
+        <name>Use of Transport Security</name>
+        <t>
+The security mechanisms defined in <xref target="sec-udpcl-security"/> enable UDPCL entities to mutually authenticate each other before any other UDPCL messaging is performed.
+This allows the UDPCL to operate in a zero-trust environment and in a way that keeps all UDPCL messages confidential from eavesdroppers.
+        </t>
+        <t>
+The decision to initiate a DTLS handshake with a peer is an implementation matter and can be conditioned on the specific peer, specific IP network used to reach a peer, or any other consideration.
+It is a separate decision about how to handle the failure of a DTLS handshake or subsequent NODE-ID authentication; when an entity desires opportunistic security it is possible to attempt a handshake with all peers then allow some to fail and simply continue without transport security or without <xref target="sec-security-tlsnoauth">full authentication</xref>.b
+        </t>
+        <t>
+On the other side, it is an implementation matter for how to handle a DTLS handshake from the server role.
+Depending on the specific DTLS options used by the client, the server can choose to not use certain ciphersuite or algorithm families or choose to not expose specific data if the <tt>ClientHello</tt> is sent in plaintext.
+The same opportunistic security logic applies to the server role just as well as the client side.
+        </t>
+        <section>
+          <name>DTLS Options</name>
+          <t>
+There are many options available within a DTLS handshake and following session, and the mechanism is extensible to enable supporting future security needs and best practices.
+This document only defines the interoperability minimum of DTLS options.
+Details about best current practices for using DTLS are defined in BCP 195 <xref target="RFC9325"/>.
+          </t>
+        </section>
+        <section>
+          <name>PKIX Options</name>
+          <t>
+The use of DTLS as specified in this document also requires the use of PKIX for mutual authentication.
+This can be a large barrier to use in some environments, so there is a trade-off between choosing to use transport security versus IP-layer or link-layer security.
+Each has their own requirements and security assurances.
+This document only defines the interoperability minimum of PKIX options.
+          </t>
+        </section>
+      </section>
+      <section anchor="sec-ops-advert">
+        <name>Use of Advertisement</name>
+        <t>
+The advertisement extension items explained in <xref target="sec-advert"/> are intended to be used in limited manner because those extensions alone are not considered to be part of the congestion controlled data from a node.
+An implementation is expected to be configurable about how often and to which peers advertisement items are sent.
+        </t>
+        <t>
+Separately, each entity needs configuration about when received advertisement items are used to control the entity's behavior.
+Specifically when receiving a Sender Node ID item, it needs to be treated as an unauthenticated hint about possible BP node presence.
+Either DTLS or BP-layer security is needed to actually authenticate the peer identity.
+        </t>
+        <t>
+When peer UDPCL entities have transport parameters which are static and known through prior configuration, there is no need to use these advertisement items.
+        </t>
+        <t>
+When used appropriately, the advertisement extension items enable this version of UDPCL to operate over a wide variety of dynamic and possibly time-varying network topologies.
+        </t>
+      </section>
+      <section>
+        <name>Use of PLPMTUD</name>
+        <t>
+The procedure in <xref target="sec-plpmtud"/> allows an entity to probe the path MTU to a peer in a deterministic way.
+It is an implementation matter to determine if, when, and how often to perform PLPMTUD with any peer entity.
+        </t>
+        <t>
+On the other side, it is an implementation matter on the peer entity to enable or disable the path characterization procedures that enable PLPMTUD to operate.
+Depending on security posture and firewall rules, probing might not be enabled by a peer for specific IP networks so PLPMTUD using that procedure will never succeed.
+        </t>
+        <t>
+The UDPCL path characterization procedures are intentionally insensitive to the absolute round trip delay, which allows them to be used in long-delay paths.
+        </t>
+        <t>
+When the path MTU to a peer is well-characterized, so is either stable or known by a schedule, there is no need to perform PLPMTUD.
+Even in that situation, there could still be value in occasionally probing around the expected path MTU to verify its validity.
+That applies especially if the MTU is scheduled and there are low wall-clock tolerances on the MTU-limiting links or middleboxes.
+        </t>
+      </section>
+      <section>
+        <name>Use of RTT Estimation</name>
+        <t>
+Similar to the use of PLPMTUD, the procedure in <xref target="sec-pathchar-delay"/> allows an entity to probe and estimate the RTT with a peer.
+Having an RTT estimate, either from prior information or from estimation, is needed to operate a CCA if one is enabled.
+Also similar to with PLPMTUD, both the entity and its peer need to be configured to enable RTT estimation.
+        </t>
+        <t>
+The UDPCL path characterization procedures are intentionally insensitive to the absolute round trip delay, which allows them to be used in long-delay paths.
+        </t>
+        <t>
+When the delay with a peer is well-characterized, either by being stable or known by a schedule, there is no need to perform RTT estimation.
+Again, even in that situation there could be value in occasionally probing to confirm that the estimated RTT is near to the expected value.
+        </t>
+      </section>
+      <section>
+        <name>Use of ECN and Any CCA</name>
+        <t>
+The use of ECN marking, counters, and feedback defined in <xref target="sec-ecn"/> allows a UDPCL flow to interact with IP routers and middleboxes in ways compatible with classic ECN and L4S.
+The choice of if, when, and how to enable ECT markings on data packets sent to a particular peer entity is an implementation matter.
+On the other side, it is an implementation matter on the peer entity to enable or disable counting ECN markings generally or for specific peers or flows.
+        </t>
+        <t>
+Any CCA is likely to be sensitive to configuration about its window size, scaling factors, and an expected consistent RTT and ability to estimate that RTT.
+If any of the CCA parameters are not properly configured or if the RTT is large or inconsistent, there will likely be bad effects of the CCA (either sending faster or slower than the actual path capacity).
+This especially applies to long-delay paths where any ECN feedback would be so out-of-date as to be useless.
+        </t>
+        <t>
+If a single UDPCL flow is operated over a well-characterized path exclusive of other flows, a more simple form of average rate control or packet pacing could be used.
+When links or network segments are shared between UDPCL flows and other flows, or even when there is variability of link or middlebox performance, there is the potential for congestion to arise which will cause dropped UDPCL packets and thus failed transfers.
+        </t>
+      </section>
+      <section anchor="sec-ops-cca">
+        <name>Choice of Congestion Control Algorithm</name>
+        <t>
+The choice of which CCA to use for a particular network, entity, or conversation, and the tuning and configuration of its parameters, is outside the scope of this document.
+Such a choice depends upon the need, or not, to share network resources among other UDPCL and/or non-UDPCL flows and entities each with their own CCA(s).
+Considerations for choosing a CCA are discussed in BCP 133 <xref target="RFC9743"/> and congestion control is an active area of development in the IETF Congestion Control Working Group (CCWG) and the Internet Congestion Control Research Group (ICCRG).
+        </t>
+        <t>
+Because transfers in the UDPCL are not acknowledged by the receiver, there are some subtle differences between a CCA used by the UDPCL and one used by an acknowledged transport protocol (<em>e.g.</em>, TCP or QUIC).
+Because the ECN Counts include a large counter space for all ECN-marked packets these counters can be used as a surrogate for true acknowledgement, although they do not provide a synchronization mechanism for the packets that they are counting (meaning they provide no way to explicitly detect packet loss).
+If a CCA needs a reasonable estimate of RTT to perform properly, or needs a coarse level of ECN Counts synchronization, the procedure of <xref target="sec-pathchar-delay"/> using a single small probe packet can be combined with ECN marking at the expense of additional control traffic.
+        </t>
+        <t>
+Future extensions to UDPCL can be defined in order to negotiate a specific CCA, and its shared parameters, for each entity of a conversation.
+Implementations and extensions should consider the scope and complexity of additions to UDPCL relative to alternative technologies such as the Datagram Congestion Control Protocol (DCCP) <xref target="RFC4340"/>.
+        </t>
+      </section>
     </section>
     <section anchor="sec-security">
       <name>Security Considerations</name>
@@ -1850,6 +2016,7 @@ Experts are encouraged to be biased towards approving registrations unless they 
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.4511.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.4838.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5489.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5706.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.6698.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.6709.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7122.xml"/>
@@ -1901,28 +2068,32 @@ The areas in which extensions from the experimental UDPCL <xref target="RFC7122"
         <li>Defined recommendations for UDP port use and re-use (port stability).</li>
       </ul>
     </section>
-    <section anchor="app-cca">
-      <name>Congestion Control Algorithms</name>
-      <t>
-The choice of which CCA to use for a particular network, entity, or conversation, and the tuning and configuration of its parameters, is outside the scope of this document.
-Such a choice depends upon the need, or not, to share network resources among other UDPCL and/or non-UDPCL flows and entities each with their own CCA(s).
-Considerations for choosing a CCA are discussed in BCP 133 <xref target="RFC9743"/> and congestion control is an active area of development in the IETF Congestion Control Working Group (CCWG) and the Internet Congestion Control Research Group (ICCRG).
-      </t>
-      <t>
-Because transfers in the UDPCL are not acknowledged by the receiver, there are some subtle differences between a CCA used by the UDPCL and one used by an acknowledged transport protocol (<em>e.g.</em>, TCP or QUIC).
-Because the ECN Counts include a large counter space for all ECN-marked packets these counters can be used as a surrogate for true acknowledgement, although they do not provide a synchronization mechanism for the packets that they are counting (meaning they provide no way to explicitly detect packet loss).
-If a CCA needs a reasonable estimate of RTT to perform properly, or needs a coarse level of ECN Counts synchronization, the procedure of <xref target="sec-pathchar-delay"/> using a single small probe packet can be combined with ECN marking at the expense of additional control traffic.
-      </t>
-      <t>
-Future extensions to UDPCL can be defined in order to negotiate a specific CCA, and its shared parameters, for each entity of a conversation.
-Implementations and extensions should consider the scope and complexity of additions to UDPCL relative to alternative technologies such as the Datagram Congestion Control Protocol (DCCP) <xref target="RFC4340"/>.
-      </t>
-    </section>
     <section anchor="sec-doc-ack" numbered="false">
       <name>Acknowledgments</name>
       <t>
 Much pre-draft review was performed to make the document clear and readable by Sarah Heiner of JHU/APL.
        </t>
+    </section>
+    <section removeInRFC="true" numbered="false">
+      <name>Implementation Status</name>
+      <t>
+[NOTE to the RFC Editor: please remove this section before publication, as well as the reference to <xref target="RFC7942"/>, <xref target="github-dtn-demo-agent"/>, and <xref target="github-dtn-wireshark"/>.]
+      </t>
+      <t>
+This section records the status of known implementations of the protocol defined by this specification at the time of posting of this Internet-Draft, and is based on a proposal described in <xref target="RFC7942"/>.
+The description of implementations in this section is intended to assist the IETF in its decision processes in progressing drafts to RFCs.
+Please note that the listing of any individual implementation here does not imply endorsement by the IETF.
+Furthermore, no effort has been spent to verify the information presented here that was supplied by IETF contributors.
+This is not intended as, and must not be construed to be, a catalog of available implementations or their features.
+Readers are advised to note that other implementations can exist.
+      </t>
+      <t>
+An example implementation of the this draft of UDPCL has been created as a GitHub project <xref target="github-dtn-demo-agent"/> and is intended to use as a proof-of-concept and as a possible source of interoperability testing.
+This example implementation uses D-Bus as the CL--BPA interface, so it only runs on hosts which provide the Python "dbus" library.
+      </t>
+      <t>
+A wireshark dissector for UDPCL has been created as a GitHub project <xref target="github-dtn-wireshark"/> and has been kept in-sync with the latest encoding of this specification.
+      </t>
     </section>
   </back>
 </rfc>
