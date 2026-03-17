@@ -76,12 +76,12 @@ In particular, when BP is using UDP as its bearer with UDPCL as its convergence 
       </figure>
       <t>
 This specification defines a mechanism to embed protocol extensions in <xref target="sec-udpcl-message"/> and an initial set of extensions in <xref target="sec-udpcl-extension"/>.
-Following IETF best practices <xref target="RFC6709"/> these extension items are all mandatory-to-implement, meaning an interoperable UDPCL entity needs to understand them, but none are mandatory-to-use.
-These initial extensions also define the canonical means of implementing BP PDU segmentation (<xref target="sec-transfer"/>), capability advertisement (<xref target="sec-policy-advert"/> and <xref target="sec-advert"/>), IP path characterization (<xref target="sec-policy-pathchar"/> and <xref target="sec-pathchar"/>), and congestion control feedback (<xref target="sec-policy-cc"/> and <xref target="sec-ecn"/>).
+Following IETF best practices <xref target="RFC6709"/> these extension items are all mandatory-to-implement, meaning an interoperable UDPCL entity needs to understand them, but none are mandatory-to-use (see <xref target="sec-ops"/>).
+The initial extensions define the canonical means of implementing BP PDU segmentation (<xref target="sec-transfer"/>), UDPCL advertisement (<xref target="sec-policy-advert"/> and <xref target="sec-advert"/>), IP path characterization (<xref target="sec-policy-pathchar"/> and <xref target="sec-pathchar"/>), and congestion control feedback (<xref target="sec-policy-cc"/> and <xref target="sec-ecn"/>).
       </t>
       <t>
-This specification also defines a transport security mechanism based on Datagram Transport Layer Security (DTLS) with Public Key Infrastructure Using X.509 (PKIX) authentication credentials.
-Similar to extension support, the use of DTLS with PKIX is mandatory-to-implement but not mandatory-to-use and is the canonical means of providing transport security.
+This specification also defines a transport security mechanism based on Datagram Transport Layer Security (DTLS) with Public Key Infrastructure Using X.509 (PKIX) authentication credentials (see <xref target="sec-pkix-env"/> and <xref target="sec-udpcl-security"/>).
+Similar to extension support, the use of DTLS with PKIX is mandatory-to-implement but not mandatory-to-use and is the canonical means of providing transport security for UDPCL.
       </t>
       <section>
         <name>Scope</name>
@@ -229,10 +229,11 @@ This document specifies the optional segmentation of bundles, procedures for DTL
 The general operation of the protocol is as follows.
       </t>
       <t>
-Fundamentally, the UDPCL is a (logically) unidirectional "transmit and forget" protocol which itself maintains no long-term state and provides no feedback from the receiver to the transmitter.
-The only long-term state related to UDPCL is used by DTLS in its session keeping (which is bound to a UDP conversation).
+Fundamentally, the UDPCL is a (logically) unidirectional "transmit and forget" protocol which itself maintains no long-term state and provides no transfer feedback from the receiver to the transmitter.
+The only long-term state related to UDPCL is used by DTLS in its session keeping and for ECN counter feedback (both of which are bound to a UDP conversation).
 An entity receiving a bundle from a particular source address-and-port does not imply that the transmitter is willing to accept bundle transfers on that same address-and-port.
 It is the obligation of a BPA and its routing schemes to determine a bundle return path (if such a path even exists).
+The UDPCL can provide hints to a BPA based on information advertised by peer entities.
       </t>
       <section anchor="sec-cl-services">
         <name>Convergence Layer Services</name>
@@ -1150,7 +1151,7 @@ A receiving entity <bcp14>SHALL</bcp14> consider a transport as finished when Se
 A receiving entity <bcp14>SHALL</bcp14> discard any Transfer item containing different CBOR types than defined in this document.
 A receiving entity <bcp14>SHALL</bcp14> discard any Transfer item containing a segment with a span overlapping any other in the reassembly state.
 That includes overlapping span because of a redundant transmission (see <xref target="sec-packet-redundancy"/>).
-Because there is no feedback indication at the UDPCL layer, a transmitter has no indication when a Transfer item is discarded by the receiver.
+Because there is no transfer feedback indication at the UDPCL layer, a transmitter has no indication when a Transfer item is discarded by the receiver.
           </t>
           <t>
 A receiving entity <bcp14>SHOULD</bcp14> discard unfinished reassembly state after an implementation-defined timeout since the last received segment.
