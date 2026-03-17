@@ -229,8 +229,8 @@ This document specifies the optional segmentation of bundles, procedures for DTL
 The general operation of the protocol is as follows.
       </t>
       <t>
-Fundamentally, the UDPCL is a (logically) unidirectional "transmit and forget" protocol which itself maintains no long-term state and provides no transfer feedback from the receiver to the transmitter.
-The only long-term state related to UDPCL is used by DTLS in its session keeping and for ECN counter feedback (both of which are bound to a UDP conversation).
+Fundamentally, the UDPCL is a (logically) unidirectional "transmit and forget" protocol which itself maintains no long-term transfer state and provides no transfer feedback from the receiver to the transmitter.
+The only long-term state related to UDPCL is used by DTLS in its session keeping, for congestion control state, and congestion counters (all of which are bound to a UDP conversation).
 An entity receiving a bundle from a particular source address-and-port does not imply that the transmitter is willing to accept bundle transfers on that same address-and-port.
 It is the obligation of a BPA and its routing schemes to determine a bundle return path (if such a path even exists).
 The UDPCL can provide hints to a BPA based on information advertised by peer entities.
