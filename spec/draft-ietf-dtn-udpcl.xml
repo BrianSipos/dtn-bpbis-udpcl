@@ -167,8 +167,14 @@ For the remainder of this document, the term "entity" without the prefix "UDPCL"
           </dd>
           <dt>UDP Conversation:</dt>
           <dd>
-This refers to datagrams exchanged between two network peers, with each peer identified by a (unicast IP address, UDP port) tuple.
+This refers to datagrams exchanged between two network peers, with each peer externally identified by a (unicast IP address, UDP port) tuple and the entire conversation optionally internally related to a specific network interface.
 Because UDP is connectionless, there is no notion of a conversation being "opened" or "closed" and some conversations are uni-directional, meaning UDP datagrams are exchanged in only one direction between two peers.
+          </dd>
+          <dt>Transport Parameters:</dt>
+          <dd>
+This refers to how each entity identifies a specific UDP listener or UDP conversation internally.
+It is an implementation matter if and how an entity binds and tracks listeners or conversations based on interface identifiers.
+It is also an implementation matter for if and how an entity allows control over the local address-and-port when sending UDPCL packets.
           </dd>
           <dt>IP Reachable:</dt>
           <dd>
@@ -1455,6 +1461,9 @@ Beyond those constraints, there is wide latitude given to implementations about 
         <t>
 While this document registers a default port number with IANA in <xref target="sec-iana-udp-port"/>, interoperation between UDPCL entities is expected to be available on any port numbers chosen by any entity.
 How those port choices are communicated to a sending entity (<em>e.g.</em>, through advertisement) is an implementation matter discussed in <xref target="sec-ops-advert"/>.
+        </t>
+        <t>
+Because the UDPCL can operate over arbitrary network interfaces with arbitrary IP addresses (including IP multicast destinations) implementations on hosts with multiple interfaces might need to include an interface identifier in its transport parameters for listening, in order to control how and from where packets are accepted, and/or sending, in order to control how and to where packets are transmitted.
         </t>
       </section>
       <section>
