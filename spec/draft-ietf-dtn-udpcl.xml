@@ -1213,9 +1213,6 @@ Specifically the UDPCL supports the requirements of <xref section="6.1" target="
 Because the Peer Confirmation acknowledges a possibly large range of Peer Probe packets, this makes the UDPCL less sensitive to large or time-variable path delays than if each Probe was separately acknowledged.
           </t>
           <t>
-The use of PLPMTUD is especially helpful when DTLS is used to secure UDPCL conversations, as the DTLS confidentiality mechanism and associated record layer reduces the maximum packet size (MPS) by an amount depending upon the negotiated ciphersuite.
-          </t>
-          <t>
 In case one or more Peer Probe items are sent but no corresponding Peer Confirmation is ever received, this might indicate that the peer has not implemented or enabled PLPMTUD and <bcp14>SHOULD NOT</bcp14> be treated as an indication that the peer is unreachable.
           </t>
         </section>
@@ -1563,7 +1560,11 @@ On the other side, it is an implementation matter on the peer entity to enable o
 Depending on security posture and firewall rules, probing might not be enabled by a peer for specific IP networks so PLPMTUD using that procedure will never succeed.
         </t>
         <t>
-The UDPCL path characterization procedures are intentionally insensitive to the absolute round trip delay, which allows them to be used in long-delay paths.
+The UDPCL path characterization procedures are intentionally insensitive to the absolute round trip delay, which allows them to be used in long-delay paths with many probe packets are in transit at the same time.
+        </t>
+        <t>
+The use of PLPMTUD is helpful or even necessary when DTLS is used to secure UDPCL conversations.
+The DTLS confidentiality mechanism and associated record layer reduces the maximum packet size (MPS) from the outer path MTU by an amount depending upon the negotiated ciphersuite, and that amount can either be unknown or unavailable to the UDPCL entity.
         </t>
         <t>
 When the path MTU to a peer is well-characterized, so is either stable or known by a schedule, there is no need to perform PLPMTUD.
