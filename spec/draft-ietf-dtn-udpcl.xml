@@ -1484,11 +1484,30 @@ It is also a reasonable policy for a sender to always use identified transfers i
 The only drawback to always using identified transfers is the (possibly) increased use of Transfer IDs and any counters associated with them.
         </t>
       </section>
+      <section anchor="sec-ops-advert">
+        <name>Use of Advertisement</name>
+        <t>
+The advertisement extension items explained in <xref target="sec-advert"/> are intended to be used in limited manner because those extensions alone are not considered to be part of the congestion controlled data from a node.
+An implementation is expected to be configurable about how often and to which peers advertisement items are sent.
+        </t>
+        <t>
+Separately, each entity needs configuration about when received advertisement items are used to control the entity's behavior.
+Specifically when receiving a Sender Node ID item, it needs to be treated as an unauthenticated hint about possible BP node presence.
+Either DTLS or BP-layer security is needed to actually authenticate the peer identity.
+        </t>
+        <t>
+When peer UDPCL entities have transport parameters which are static and known through prior configuration, there is no need to use these advertisement items.
+        </t>
+        <t>
+When used appropriately, the advertisement extension items enable this version of UDPCL to operate over a wide variety of dynamic and possibly time-varying network topologies.
+        </t>
+      </section>
       <section>
         <name>Use of Keepalive</name>
         <t>
-The keepalive packet defined in <xref target="sec-packet"/> allows a UDPCL packet to convey no information, unlike <xref target="sec-advert">advertisement</xref>, but still exercise a transport path between two entities.
+The keepalive packet defined in <xref target="sec-packet"/> allows exercising one direction a UDP conversation between two entities in a way which is similar to advertisement but conveys no information from the sender.
 This could be used in situations where policy forbids advertisement (for whatever reason) but there is still a need to periodically exercise a UDP conversation, for example to ensure a middlebox NAT or firewall keeps relevant state active.
+Keepalive is also usable over unidirectional links or by sending entities which are not listening for UDPCL packets.
         </t>
         <t>
 It is an implementation matter to determine if and how often to send keepalive packets, possibly depending on the associated network interface or peer IP address.
@@ -1526,24 +1545,6 @@ Each has their own requirements and security assurances.
 This document only defines the interoperability minimum of PKIX options.
           </t>
         </section>
-      </section>
-      <section anchor="sec-ops-advert">
-        <name>Use of Advertisement</name>
-        <t>
-The advertisement extension items explained in <xref target="sec-advert"/> are intended to be used in limited manner because those extensions alone are not considered to be part of the congestion controlled data from a node.
-An implementation is expected to be configurable about how often and to which peers advertisement items are sent.
-        </t>
-        <t>
-Separately, each entity needs configuration about when received advertisement items are used to control the entity's behavior.
-Specifically when receiving a Sender Node ID item, it needs to be treated as an unauthenticated hint about possible BP node presence.
-Either DTLS or BP-layer security is needed to actually authenticate the peer identity.
-        </t>
-        <t>
-When peer UDPCL entities have transport parameters which are static and known through prior configuration, there is no need to use these advertisement items.
-        </t>
-        <t>
-When used appropriately, the advertisement extension items enable this version of UDPCL to operate over a wide variety of dynamic and possibly time-varying network topologies.
-        </t>
       </section>
       <section>
         <name>Use of PLPMTUD</name>
