@@ -338,6 +338,10 @@ This enables the UDPCL to be more compatible with network address translation (N
         <t>
 There is a trade-off between stability of UDP conversations and a possible need to protect from off-path data injection, as described in <xref target="sec-threat-injection"/>, so the conversation long-term stability (in <xref target="sec-ip-header"/> and <xref target="sec-udp-header"/>) is recommended while specific cases of short-term consistency <xref target="sec-ext-transfer"/>, <xref target="sec-ext-sender-listen"/>, and <xref target="sec-ext-peer-probe"/> are required.
         </t>
+        <t>
+When not constrained by explicit, BPA-provided parameters a UDPCL entity is <bcp14>RECOMMENDED</bcp14> to reuse existing endpoint address-and-port or interface bindings for sending packets to peers.
+This provides an additional level of stability of UDPCL traffic from an entity and prefers to make use of the UDP conversation tuple for correlating traffic with peers rather than rely on ephemeral port assignments.
+        </t>
       </section>
       <section anchor="sec-policy-advert">
         <name>Advertisement Policies</name>
@@ -1463,7 +1467,7 @@ While this document registers a default port number with IANA in <xref target="s
 How those port choices are communicated to a sending entity (<em>e.g.</em>, through advertisement) is an implementation matter discussed in <xref target="sec-ops-advert"/>.
         </t>
         <t>
-Because the UDPCL can operate over arbitrary network interfaces with arbitrary IP addresses (including IP multicast destinations) implementations on hosts with multiple interfaces might need to include an interface identifier in its transport parameters for listening, in order to control how and from where packets are accepted, and/or sending, in order to control how and to where packets are transmitted.
+Because the UDPCL can operate over arbitrary network interfaces with arbitrary IP addresses (including IP link-local addresses and IP multicast destinations) implementations on hosts with multiple interfaces might need to include an interface identifier in its transport parameters for listening, in order to control how and from where packets are accepted, and/or sending, in order to control how and to where packets are transmitted.
         </t>
       </section>
       <section>
@@ -1478,6 +1482,16 @@ When making use of <xref target="sec-packet-redundancy">redundant transfers</xre
         <t>
 It is also a reasonable policy for a sender to always use identified transfers in order to simplify its configuration and logic.
 The only drawback to always using identified transfers is the (possibly) increased use of Transfer IDs and any counters associated with them.
+        </t>
+      </section>
+      <section>
+        <name>Use of Keepalive</name>
+        <t>
+The keepalive packet defined in <xref target="sec-packet"/> allows a UDPCL packet to convey no information, unlike <xref target="sec-advert">advertisement</xref>, but still exercise a transport path between two entities.
+This could be used in situations where policy forbids advertisement (for whatever reason) but there is still a need to periodically exercise a UDP conversation, for example to ensure a middlebox NAT or firewall keeps relevant state active.
+        </t>
+        <t>
+It is an implementation matter to determine if and how often to send keepalive packets, possibly depending on the associated network interface or peer IP address.
         </t>
       </section>
       <section>
