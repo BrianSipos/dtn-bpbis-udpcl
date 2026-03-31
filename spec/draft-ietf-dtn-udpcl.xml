@@ -172,9 +172,9 @@ Because UDP is connectionless, there is no notion of a conversation being "opene
           </dd>
           <dt>Transport Parameters:</dt>
           <dd>
-This refers to how each entity identifies a specific UDP listener or UDP conversation internally.
-It is an implementation matter if and how an entity binds and tracks listeners or conversations based on interface identifiers.
-It is also an implementation matter for if and how an entity allows control over the local address-and-port when sending UDPCL packets.
+This refers to how each entity identifies a specific UDP listener or peer entity internally.
+It is an implementation matter if and how an entity binds and tracks listeners or peers based on interface identifiers.
+It is also an implementation matter for if and how an entity allows control over the local address-and-port when sending UDPCL packets or how transport parameters are translated into state maintained for UDP conversations.
           </dd>
           <dt>IP Reachable:</dt>
           <dd>
@@ -1458,7 +1458,7 @@ Many of these topics are related to capabilities explained in <xref target="sec-
       <section>
         <name>Listening and Sending Transport Parameters</name>
         <t>
-Some specific aspects of this UDPCL are sensitive to the IP address used by each pair of entities in a conversation, specifically the requirement for address-and-port stability within a single segmented transfer and the DTLS requirements which bind to the specific address-and-port of each endpoint.
+Some aspects of this UDPCL are sensitive to the IP address used by each pair of entities in a conversation, specifically the requirement for address-and-port stability within a single <xref target="sec-transfer">segmented transfer</xref>, the <xref target="sec-udpcl-security">DTLS requirements</xref> which bind security to the specific conversation, <xref target="sec-pathchar">path characterization procedures</xref>, and ECN <xref target="sec-ecn">counting and feedback procedures</xref>.
 Beyond those cases, the UDPCL can use any IP addresses to communicate between two entities including multi-homing of either or both entities and mobility-over-time of either or both entity.
         </t>
         <t>
