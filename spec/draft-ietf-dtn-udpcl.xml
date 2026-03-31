@@ -201,10 +201,13 @@ This refers to a transfer incoming to an entity as seen from that receiving enti
 |   | Actively Initiated Transfer #1 |--------->| Other          | |
 |   +--------------------------------+   |      | UDPCL Entity's | |
 |                  ...                   |      | Passive        | |
-|   +--------------------------------+   |      | Listener       | |
+|   +--------------------------------+   |      | Listener(s)    | |
 |   | Actively Initiated Transfer #n |--------->|                | |
-|   |                                |          |                | |
-|   |         Sender Listen          |<---------|                | |
+|   +--------------------------------+   |      |                | |
+|                    ^                   |      |                | |
+|                    | inform            |      |                | |
+|   +----------------+---------------+   |      |                | |
+|   |     Received Advertisement     |<---------|                | |
 |   +--------------------------------+   |      +----------------+ |
 |                                        |       +-----------------+
 |      +---------------------------+     |
@@ -212,11 +215,13 @@ This refers to a transfer incoming to an entity as seen from that receiving enti
 |      | | Optional Passive          |   |      |                |-+
 |      +-| Listener(s)               |<---------+ Other          | |
 |        +---------------------------+   |      | UDPCL Entity's | |
-|                                 ^      |      | Active         | |
-|                                 |      |      | Initiator(s)   | |
-|                                 +-------------|                | |
-+----------------------------------------+      +----------------+ |
-                                                 +-----------------+
+|                    |            ^      |      | Active         | |
+|                    | inform     |      |      | Initiator(s)   | |
+|                    v            +-------------|                | |
+|   +--------------------------------+   |      |                | |
+|   |       Send Advertisement       |--------->|                | |
+|   +--------------------------------+   |      +----------------+ |
++----------------------------------------+       +-----------------+
 ]]></artwork>
         </figure>
       </section>
@@ -296,16 +301,17 @@ The closure request is on a per-session basis.
 The UDPCL entity indicates to the BPA when a DTLS session state changes.
 The possible DTLS session states are defined in <xref target="RFC9147"/>.
           </dd>
-          <dt>Begin Sender Listen:</dt>
+          <dt>Begin Listen:</dt>
           <dd>
 The UDPCL allows a BPA to indicate when packets on a particular address-and-port is listened for.
-This includes configuring the local network stack to do the listening as well as optionally sending <xref target="sec-ext-sender-listen">Sender Listen</xref> items to indicate this state.
+This includes configuring the local network stack to do the listening as well as optionally sending <xref target="sec-advert">advertisement</xref> items to indicate this state.
           </dd>
-          <dt>End Sender Listen:</dt>
+          <dt>End Listen:</dt>
           <dd>
 The UDPCL allows a BPA to indicate when packets on a particular address-and-port are no longer be accepted.
+This will also halt any related future advertisement.
           </dd>
-          <dt>Sender Listen Received:</dt>
+          <dt>Listen Advertisement Received:</dt>
           <dd>
 The UDPCL entity indicates to the BPA when a Sender Listen extension has been received from a peer.
 The Sender Node ID, if present, is part of this indication.
