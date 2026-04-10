@@ -223,7 +223,7 @@ This refers to a transfer incoming to an entity as seen from that receiving enti
 |        +---------------------------+   |      | UDPCL Entity's | |
 |                    |            ^      |      | Active         | |
 |                    | inform     '-------------| Initiator(s)   | |
-|                    v            |      |      |                | |
+|                    v                   |      |                | |
 |   +--------------------------------+   |      |                | |
 |   |       Send Advertisement       |--------->|                | |
 |   +--------------------------------+   |      +----------------+ |
