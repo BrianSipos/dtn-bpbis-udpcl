@@ -210,9 +210,9 @@ This refers to a transfer incoming to an entity as seen from that receiving enti
 |   +--------------------------------+   |      | Listener(s)    | |
 |   | Actively Initiated Transfer #n |--------->|                | |
 |   +--------------------------------+   |      |                | |
-|                    ^                   |      |                | |
-|                    | inform            |      |                | |
-|   +----------------+---------------+   |      |                | |
+|                ^                       |      |                | |
+|                : inform via BPA        |      |                | |
+|   +------------+-------------------+   |      |                | |
 |   |     Received Advertisement     |<---------|                | |
 |   +--------------------------------+   |      +----------------+ |
 |                                        |       +-----------------+
@@ -222,8 +222,8 @@ This refers to a transfer incoming to an entity as seen from that receiving enti
 |      +-| Listener(s)               |<---------+ Other          | |
 |        +---------------------------+   |      | UDPCL Entity's | |
 |                    |            ^      |      | Active         | |
-|                    | inform     |      |      | Initiator(s)   | |
-|                    v            +-------------|                | |
+|                    | inform     '-------------| Initiator(s)   | |
+|                    v            |      |      |                | |
 |   +--------------------------------+   |      |                | |
 |   |       Send Advertisement       |--------->|                | |
 |   +--------------------------------+   |      +----------------+ |
