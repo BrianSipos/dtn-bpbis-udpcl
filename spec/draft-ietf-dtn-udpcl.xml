@@ -1380,9 +1380,7 @@ This allows recovering from a dropped packet containing DTLS Initiation.
 In order to positively identify the use of UDPCL after the DTLS handshake, the DTLS Application-Layer Protocol Negotiation (ALPN) extension <xref target="RFC7301"/> can be used.
 If the DTLS client supports ALPN, during the handshake the client <bcp14>MAY</bcp14> include an ALPN extension containing the "dtn-udpcl" protocol ID.
 If the DTLS server supports ALPN and the client includes an ALPN extension containing the "dtn-udpcl" protocol ID, during the handshake the server <bcp14>SHOULD</bcp14> include an ALPN extension containing only that protocol ID.
-The use of ALPN by either side is optional, but can be helpful for PKIX certificate selection on the DTLS server.
-ALPN helps to improve diagnostics and tool compatibility in cases where the <xref target="sec-udp-header">default UDP port number</xref> is not used.
-ALPN can also help avoid misconfiguration by positively identifying the purpose of a DTLS handshake from both entities.
+The use of ALPN by either side is optional and discussed in <xref target="sec-ops-security-dtls"/>.
         </t>
         </section>
         <section anchor="sec-dtls-authentication">
@@ -1524,7 +1522,7 @@ Keepalive is also usable over unidirectional links or by sending entities which 
 It is an implementation matter to determine if and how often to send keepalive packets, possibly depending on the associated network interface or peer IP address.
         </t>
       </section>
-      <section>
+      <section anchor="sec-ops-security">
         <name>Use of Transport Security</name>
         <t>
 The security mechanisms defined in <xref target="sec-udpcl-security"/> enable UDPCL entities to mutually authenticate each other before any other UDPCL messaging is performed.
@@ -1539,15 +1537,18 @@ On the other side, it is an implementation matter for how to handle a DTLS hands
 Depending on the specific DTLS options used by the client, the server can choose to not use certain ciphersuite or algorithm families or choose to not expose specific data if the <tt>ClientHello</tt> is sent in plaintext.
 The same opportunistic security logic applies to the server role just as well as the client side.
         </t>
-        <section>
+        <section anchor="sec-ops-security-dtls">
           <name>DTLS Options</name>
           <t>
 There are many options available within a DTLS handshake and following session, and the mechanism is extensible to enable supporting future security needs and best practices.
 This document only defines the interoperability minimum of DTLS options.
 Details about best current practices for using DTLS are defined in BCP 195 <xref target="RFC9325"/>.
           </t>
+          <t>
+The use of ALPN by either entity within a DTLS handshake is optional but can be helpful for a few aspects, inclding: PKIX certificate selection on the DTLS server, improving diagnostics and tool compatibility in cases where the <xref target="sec-udp-header">default UDP port number</xref> is not used, and avoiding misconfiguration by positively identifying the purpose of a DTLS handshake.
+          </t>
         </section>
-        <section>
+        <section anchor="sec-ops-security-pkix">
           <name>PKIX Options</name>
           <t>
 The use of DTLS as specified in this document also requires the use of PKIX for mutual authentication.
