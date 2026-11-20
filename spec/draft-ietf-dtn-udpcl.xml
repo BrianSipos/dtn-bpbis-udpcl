@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="std" consensus="true" docName="draft-ietf-dtn-udpcl-04" ipr="trust200902" submissionType="IETF" tocInclude="true" version="3" xml:lang="en">
+<rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="std" consensus="true" docName="draft-ietf-dtn-udpcl-05" ipr="trust200902" submissionType="IETF" tocInclude="true" version="3" xml:lang="en">
   <front>
     <title abbrev="DTN UDPCLv2">Delay-Tolerant Networking UDP Convergence Layer Protocol Version 2</title>
-    <seriesInfo name="Internet-Draft" value="draft-ietf-dtn-udpcl-04"/>
+    <seriesInfo name="Internet-Draft" value="draft-ietf-dtn-udpcl-05"/>
     <author fullname="Brian Sipos" initials="B." surname="Sipos">
       <organization abbrev="JHU/APL">The Johns Hopkins University Applied Physics Laboratory</organization>
       <address>
@@ -1376,6 +1376,12 @@ By convention, this protocol uses the entity which sent the DTLS Initiation (the
 Upon receiving an unexpected <tt>ClientHello</tt> record outside of a DTLS session, an entity <bcp14>SHALL</bcp14> begin the DTLS handshake procedure as if a DTLS Initiation had been received.
 This allows recovering from a dropped packet containing DTLS Initiation.
         </t>
+        <t>
+In order to positively identify the use of UDPCL after the DTLS handshake, the DTLS Application-Layer Protocol Negotiation (ALPN) extension <xref target="RFC7301"/> can be used.
+If the DTLS client supports ALPN, during the handshake the client <bcp14>SHOULD</bcp14> include an ALPN extension containing the "dtn-udpcl" protocol ID.
+If the DTLS server supports ALPN, during the handshake the server <bcp14>SHOULD</bcp14> respond to a client ALPN extension containing the "dtn-udpcl" protocol ID by including an ALPN extension containing only that protocol ID.
+The use of ALPN by either side is optional and discussed in <xref target="sec-ops-security-dtls"/>; a DTLS handshake can succeed in the absence of ALPN.
+        </t>
         </section>
         <section anchor="sec-dtls-authentication">
           <name>DTLS Authentication</name>
@@ -1516,7 +1522,7 @@ Keepalive is also usable over unidirectional links or by sending entities which 
 It is an implementation matter to determine if and how often to send keepalive packets, possibly depending on the associated network interface or peer IP address.
         </t>
       </section>
-      <section>
+      <section anchor="sec-ops-security">
         <name>Use of Transport Security</name>
         <t>
 The security mechanisms defined in <xref target="sec-udpcl-security"/> enable UDPCL entities to mutually authenticate each other before any other UDPCL messaging is performed.
@@ -1531,15 +1537,18 @@ On the other side, it is an implementation matter for how to handle a DTLS hands
 Depending on the specific DTLS options used by the client, the server can choose to not use certain ciphersuite or algorithm families or choose to not expose specific data if the <tt>ClientHello</tt> is sent in plaintext.
 The same opportunistic security logic applies to the server role just as well as the client side.
         </t>
-        <section>
+        <section anchor="sec-ops-security-dtls">
           <name>DTLS Options</name>
           <t>
 There are many options available within a DTLS handshake and following session, and the mechanism is extensible to enable supporting future security needs and best practices.
 This document only defines the interoperability minimum of DTLS options.
 Details about best current practices for using DTLS are defined in BCP 195 <xref target="RFC9325"/>.
           </t>
+          <t>
+The use of ALPN by either entity within a DTLS handshake is optional but can be helpful in a few aspects: PKIX certificate selection on the DTLS server, improving diagnostics and tool compatibility in cases where the <xref target="sec-udp-header">default UDP port number</xref> is not used, and avoiding misconfiguration by positively identifying the purpose of a DTLS handshake.
+          </t>
         </section>
-        <section>
+        <section anchor="sec-ops-security-pkix">
           <name>PKIX Options</name>
           <t>
 The use of DTLS as specified in this document also requires the use of PKIX for mutual authentication.
@@ -1798,53 +1807,25 @@ This document allocates new routable multicast addresses for use with the UDPCL.
         <t>
 Within the IPv4 Multicast Address Space registry group <xref target="IANA-IPv4-MCAST"/>, the registry titled "Internetwork Control Block" has been updated to include the following address.
         </t>
-        <table align="center">
-          <thead>
-            <tr>
-              <th>Parameter</th>
-              <th>Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Address(es):</td>
-              <td>TBA-IP4</td>
-            </tr>
-            <tr>
-              <td>Description:</td>
-              <td>All BP Nodes</td>
-            </tr>
-            <tr>
-              <td>References:</td>
-              <td>[This specification]</td>
-            </tr>
-          </tbody>
-        </table>
+        <dl newline="false">
+          <dt>Address(es):</dt>
+          <dd>TBA-IP4</dd>
+          <dt>Description:</dt>
+          <dd>All BP Nodes</dd>
+          <dt>References:</dt>
+          <dd>[This specification]</dd>
+        </dl>
         <t>
 Within the IPv6 Multicast Address Space registry group <xref target="IANA-IPv6-MCAST"/>, the registry titled "Variable Scope Multicast Addresses" has been updated to include the following address.
         </t>
-        <table align="center">
-          <thead>
-            <tr>
-              <th>Parameter</th>
-              <th>Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Address(es):</td>
-              <td>TBA-IP6</td>
-            </tr>
-            <tr>
-              <td>Description:</td>
-              <td>All BP Nodes</td>
-            </tr>
-            <tr>
-              <td>References:</td>
-              <td>[This specification]</td>
-            </tr>
-          </tbody>
-        </table>
+        <dl newline="false">
+          <dt>Address(es):</dt>
+          <dd>TBA-IP6</dd>
+          <dt>Description:</dt>
+          <dd>All BP Nodes</dd>
+          <dt>References:</dt>
+          <dd>[This specification]</dd>
+        </dl>
       </section>
       <section anchor="sec-iana-udp-port">
         <name>UDP Port Number</name>
@@ -1853,7 +1834,7 @@ Within the "Service Name and Transport Protocol Port Number Registry" <xref targ
 This assignment to UDPCL is unchanged, but the assignment reference is updated to this specification.
 There is no UDPCL version indication on-the-wire but this specification is a superset of the experimental UDPCL <xref target="RFC7122"/> and is fully backward compatible.
         </t>
-        <dl newline="true">
+        <dl newline="false">
           <dt>Service Name:</dt>
           <dd>dtn-bundle</dd>
           <dt>Transport Protocol(s):</dt>
@@ -1872,6 +1853,20 @@ There is no UDPCL version indication on-the-wire but this specification is a sup
         <t>
 The related assignment for DCCP port 4556, registered by <xref target="RFC7122"/>, is unchanged.
         </t>
+      </section>
+      <section anchor="sec-iana-dtls-alpn">
+        <name>TLS Extensions</name>
+        <t>
+Within the Transport Layer Security (TLS) Extensions registry group <xref target="IANA-TLS"/>, the registry titled "TLS Application-Layer Protocol Negotiation (ALPN) Protocol IDs" has been updated to include the following entry.
+        </t>
+        <dl newline="false">
+          <dt>Protocol:</dt>
+          <dd>DTN Bundle UDP CL Protocol</dd>
+          <dt>Identification Sequence:</dt>
+          <dd>0x64 0x74 0x6E 0x2D 0x75 0x64 0x70 0x63 0x6C ("dtn-udpcl") </dd>
+          <dt>Reference:</dt>
+          <dd>[This specification]</dd>
+        </dl>
       </section>
       <section anchor="sec-iana-extension-types">
         <name>UDPCL Extension Types</name>
@@ -2014,6 +2009,15 @@ Experts are encouraged to be biased towards approving registrations unless they 
             <date/>
           </front>
         </reference>
+        <reference anchor="IANA-TLS" target="https://www.iana.org/assignments/tls-extensiontype-values/">
+          <front>
+            <title>Transport Layer Security (TLS) Extensions</title>
+            <author>
+              <organization>IANA</organization>
+            </author>
+            <date/>
+          </front>
+        </reference>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.0768.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.3168.xml"/>
@@ -2022,6 +2026,7 @@ Experts are encouraged to be biased towards approving registrations unless they 
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5280.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.6125.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.6960.xml"/>
+        <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7301.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8085.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8126.xml"/>
         <xi:include href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8174.xml"/>
