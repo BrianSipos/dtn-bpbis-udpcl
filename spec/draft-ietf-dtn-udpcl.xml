@@ -1545,7 +1545,7 @@ This document only defines the interoperability minimum of DTLS options.
 Details about best current practices for using DTLS are defined in BCP 195 <xref target="RFC9325"/>.
           </t>
           <t>
-The use of ALPN by either entity within a DTLS handshake is optional but can be helpful for a few aspects, inclding: PKIX certificate selection on the DTLS server, improving diagnostics and tool compatibility in cases where the <xref target="sec-udp-header">default UDP port number</xref> is not used, and avoiding misconfiguration by positively identifying the purpose of a DTLS handshake.
+The use of ALPN by either entity within a DTLS handshake is optional but can be helpful in a few aspects: PKIX certificate selection on the DTLS server, improving diagnostics and tool compatibility in cases where the <xref target="sec-udp-header">default UDP port number</xref> is not used, and avoiding misconfiguration by positively identifying the purpose of a DTLS handshake.
           </t>
         </section>
         <section anchor="sec-ops-security-pkix">
