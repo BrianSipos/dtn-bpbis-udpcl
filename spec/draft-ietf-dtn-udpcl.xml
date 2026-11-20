@@ -1378,9 +1378,9 @@ This allows recovering from a dropped packet containing DTLS Initiation.
         </t>
         <t>
 In order to positively identify the use of UDPCL after the DTLS handshake, the DTLS Application-Layer Protocol Negotiation (ALPN) extension <xref target="RFC7301"/> can be used.
-If the DTLS client supports ALPN, during the handshake the client <bcp14>MAY</bcp14> include an ALPN extension containing the "dtn-udpcl" protocol ID.
-If the DTLS server supports ALPN and the client includes an ALPN extension containing the "dtn-udpcl" protocol ID, during the handshake the server <bcp14>SHOULD</bcp14> include an ALPN extension containing only that protocol ID.
-The use of ALPN by either side is optional and discussed in <xref target="sec-ops-security-dtls"/>.
+If the DTLS client supports ALPN, during the handshake the client <bcp14>SHOULD</bcp14> include an ALPN extension containing the "dtn-udpcl" protocol ID.
+If the DTLS server supports ALPN, during the handshake the server <bcp14>SHOULD</bcp14> respond to a client ALPN extension containing the "dtn-udpcl" protocol ID by including an ALPN extension containing only that protocol ID.
+The use of ALPN by either side is optional and discussed in <xref target="sec-ops-security-dtls"/>; a DTLS handshake can succeed in the absence of ALPN.
         </t>
         </section>
         <section anchor="sec-dtls-authentication">
